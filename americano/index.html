@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="sv"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Americano</title>
+<meta name="description" content="Håll ordning på padel-americano: matchschema, resultat, tabell och slutspel för 5–12 spelare.">
+<meta name="theme-color" content="#1f5fa8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Americano">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}</style>
+
+
+</head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+/* Layout: one column, sticky tab bar, round cards with court rows; table view for standings */
+:root{
+  --bg:#eef3f7; --surface:#ffffff; --fg:#14263a; --muted:#5d6f82; --line:#d5dfe8;
+  --court:#1f5fa8; --ball:#c9e021; --ok:#2f8a4a; --warn:#b26a00;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Source Sans 3",system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d1722; --surface:#15222f; --fg:#e4ecf3; --muted:#93a5b7; --line:#273848;
+  --court:#5b9be0; --ball:#d4ea3a; --ok:#5cc07a; --warn:#e6a23c; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1722; --surface:#15222f; --fg:#e4ecf3; --muted:#93a5b7; --line:#273848;
+  --court:#5b9be0; --ball:#d4ea3a; --ok:#5cc07a; --warn:#e6a23c; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.4}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px 48px}
+header{padding-block:20px 8px}
+h1{font-family:var(--display);font-size:2rem;margin:0;letter-spacing:.01em;text-wrap:balance}
+.sub{color:var(--muted);margin:2px 0 0;font-size:.95rem}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:6px;padding-block:10px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.tabs button{flex:1;font:600 1rem var(--body);padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--court);border-color:var(--court);color:#fff}
+.round{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.round h2{font-family:var(--display);font-size:1.25rem;margin:0;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
+.round h2 .st{font-family:var(--body);font-size:.8rem;font-weight:600;color:var(--muted)}
+.round h2 .st.done{color:var(--ok)}
+.match{display:grid;grid-template-columns:auto 1fr auto auto auto 1fr;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid var(--line)}
+.match:first-of-type{border-top:0}
+.bana{font-family:var(--display);font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;writing-mode:vertical-rl;transform:rotate(180deg)}
+.team{min-width:0;font-size:.95rem;line-height:1.25}
+.team.r{text-align:right}
+.team.win{font-weight:600}
+input.s{width:48px;height:44px;text-align:center;font:700 1.3rem var(--display);border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);font-variant-numeric:tabular-nums}
+input.s:focus{outline:2px solid var(--court);outline-offset:1px}
+.dash{color:var(--muted)}
+.hint{grid-column:1/-1;font-size:.8rem;color:var(--warn);margin:-4px 0 0}
+table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-variant-numeric:tabular-nums}
+th,td{padding:10px 8px;text-align:right;border-bottom:1px solid var(--line)}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+th:nth-child(2),td:nth-child(2){text-align:left}
+td:first-child,th:first-child{width:2.2em;text-align:center;color:var(--muted)}
+td.pts{font:700 1.2rem var(--display)}
+tr.top td:first-child{color:var(--fg);font-weight:700}
+tr.top td:first-child span{display:inline-block;width:1.7em;height:1.7em;line-height:1.7em;border-radius:50%;background:var(--ball);color:#14263a}
+.note{color:var(--muted);font-size:.85rem;margin:10px 2px}
+.names{display:grid;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.names label{display:grid;grid-template-columns:5.5em 1fr;align-items:center;gap:8px;font-size:.9rem;color:var(--muted)}
+.names input{font:1rem var(--body);padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);min-width:0}
+.fmt{display:inline-flex;margin:10px 6px 0 0;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+.fmt button{font:600 .9rem var(--body);padding:7px 14px;border:0;background:transparent;color:var(--muted);cursor:pointer}
+.fmt button[aria-pressed="true"]{background:var(--ball);color:#14263a}
+.reset{margin-top:18px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.reset button{font:600 .9rem var(--body);padding:9px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.reset button.danger{border-color:var(--warn);color:var(--warn)}
+.fmt .lbl{font:600 .8rem var(--body);color:var(--muted);padding:7px 4px 7px 12px;text-transform:uppercase;letter-spacing:.05em}
+.fmt button[data-p]{padding:7px 9px}
+.fmt{flex-wrap:wrap}
+.paste{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;display:grid;gap:10px}
+.paste h3{font:700 1.15rem var(--display);margin:0}
+.paste p{margin:0;color:var(--muted);font-size:.85rem}
+.paste textarea{font:1rem var(--body);padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);min-height:9em;resize:vertical;width:100%}
+.paste .msg{color:var(--fg);font-size:.9rem}
+.paste .msg.warn{color:var(--warn)}
+.rest{padding:8px 14px;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted);background:var(--bg)}
+.rest b{color:var(--fg);font-weight:600}
+.status{font-size:.8rem;color:var(--muted);margin:8px 0 0;display:flex;align-items:center;gap:6px}
+.status::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.status.ok::before{background:var(--ok)}
+.status.busy::before{background:var(--ball)}
+.status.warn{color:var(--warn)}.status.warn::before{background:var(--warn)}
+.tabs button{padding:10px 4px}
+.act{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.btn{font:600 .95rem var(--body);padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn.primary{background:var(--court);border-color:var(--court);color:#fff}
+.btn.danger{border-color:var(--warn);color:var(--warn)}
+.btn:disabled{opacity:.5;cursor:default}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:12px;display:grid;gap:10px}
+.panel p{margin:0}
+.panel input[type=date]{font:1rem var(--body);padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+.hist{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.hist summary{list-style:none;cursor:pointer;padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:baseline}
+.hist summary::-webkit-details-marker{display:none}
+.hist .d{font-family:var(--display);font-size:1.2rem;font-weight:700}
+.hist .meta{color:var(--muted);font-size:.85rem;text-align:right}
+.hist .podium{grid-column:1/-1;font-size:.9rem;color:var(--muted)}
+.hist .podium b{color:var(--fg);font-weight:600}
+.hist[open] summary{border-bottom:1px solid var(--line)}
+.hist table{border:0;border-radius:0}
+.hist .foot{padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.empty{color:var(--muted);text-align:center;padding:28px 12px;background:var(--surface);border:1px dashed var(--line);border-radius:12px}
+input.s:disabled{opacity:.7}
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 12px 10px;margin-bottom:12px}
+.chart h3{font:700 1.1rem var(--display);margin:0 0 2px;letter-spacing:.01em}
+.chart .cap{color:var(--muted);font-size:.8rem;margin:0 0 6px}
+.chart svg{display:block;width:100%;height:auto;touch-action:pan-y}
+.chart .ax{fill:var(--muted);font:10px var(--body);font-variant-numeric:tabular-nums}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .bg{stroke:var(--muted);stroke-opacity:.35;stroke-width:1.5;fill:none}
+.chart .hl{stroke-width:2.5;fill:none;stroke-linejoin:round;stroke-linecap:round}
+.chart .lab{fill:var(--fg);font:600 11px var(--body)}
+.chart .labv{fill:var(--muted);font:11px var(--body);font-variant-numeric:tabular-nums}
+.chart .xh{stroke:var(--fg);stroke-opacity:.35;stroke-width:1;stroke-dasharray:3 3}
+.chart .hit{fill:transparent;cursor:pointer}
+.readout{font-size:.85rem;color:var(--muted);margin:6px 2px 0;line-height:1.5}
+.readout b{color:var(--fg);font-weight:600}
+.readout .sw{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font:600 .85rem var(--body);padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.chip .sw{width:10px;height:10px;border-radius:50%;background:var(--muted);opacity:.35}
+.chip[aria-pressed="true"]{border-color:var(--fg)}
+.chip[aria-pressed="true"] .sw{opacity:1}
+.chartbtn{margin-bottom:12px}
+.hist .chartbtn{margin:0;padding:10px 14px;border-bottom:1px solid var(--line)}
+.chead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.btn.sm{padding:6px 12px;font-size:.85rem}
+.seed{display:inline-block;min-width:1.5em;height:1.5em;line-height:1.5em;text-align:center;border-radius:50%;background:var(--bg);border:1px solid var(--line);font:700 .75rem var(--body);color:var(--muted);margin-right:5px;vertical-align:1px}
+.round.final{border-color:var(--court);border-width:2px}
+.round.final h2{background:var(--court);color:#fff}
+.round.final h2 .st,.round.final h2 .st.done{color:#fff}
+.fin-body{padding:12px 14px;display:grid;gap:10px}
+.fin-body p{margin:0;font-size:.9rem;color:var(--muted)}
+.fin-body .act{margin-top:0}
+.fin-res{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.round .fin-res{border:0;border-top:1px solid var(--line);border-radius:0;margin:0}
+.fin-res h3{font:700 1.15rem var(--display);margin:0 0 6px}
+.fin-res .champ{font-size:1rem;margin:0 0 8px}
+.fin-res .champ b{background:var(--ball);color:#14263a;padding:1px 6px;border-radius:6px}
+.fin-res ol{list-style:none;margin:0;padding:0;display:grid;gap:2px;font-variant-numeric:tabular-nums}
+.fin-res li{display:flex;gap:8px;align-items:center;font-size:.95rem}
+.fin-res li .pl{width:1.8em;text-align:center;color:var(--muted);font-weight:600}
+.fin-res li.top .pl{display:inline-block;height:1.8em;line-height:1.8em;border-radius:50%;background:var(--ball);color:#14263a}
+.fin-res li.sep{border-top:1px dashed var(--line);margin-top:4px;padding-top:4px}
+.hist .fin-res{border:0;border-radius:0;margin:0;border-bottom:1px solid var(--line)}
+.hist .chart{border:0;border-radius:0;margin:0;border-bottom:1px solid var(--line)}
+</style>
+
+<div class="wrap">
+<header>
+  <h1 id="h1">Americano · 12 spelare</h1>
+  <p class="sub" id="sub">3 banor · 11 rundor</p>
+  <div class="fmt" role="group" aria-label="Antal spelare">
+    <span class="lbl">Spelare</span>
+    <button id="p5" data-p="5">5</button>
+    <button id="p6" data-p="6">6</button>
+    <button id="p7" data-p="7">7</button>
+    <button id="p8" data-p="8">8</button>
+    <button id="p9" data-p="9">9</button>
+    <button id="p10" data-p="10">10</button>
+    <button id="p11" data-p="11">11</button>
+    <button id="p12" data-p="12">12</button>
+  </div>
+  <div class="fmt" role="group" aria-label="Spelform">
+    <button id="f16" data-f="16">16 p</button>
+    <button id="f24" data-f="24">24 p</button>
+    <button id="f4" data-f="4">4 game</button>
+  </div>
+  <p class="status" id="status">Ansluter…</p>
+</header>
+<nav class="tabs" role="tablist">
+  <button id="t-r" role="tab" aria-selected="true" data-v="rounds">Matcher</button>
+  <button id="t-t" role="tab" aria-selected="false" data-v="table">Tabell</button>
+  <button id="t-h" role="tab" aria-selected="false" data-v="hist">Tidigare</button>
+  <button id="t-n" role="tab" aria-selected="false" data-v="names">Namn</button>
+</nav>
+<section id="rounds"></section>
+<section id="table" hidden></section>
+<section id="names" hidden></section>
+<section id="hist" hidden></section>
+</div>
+
+<script>
+const DEFAULT_NAMES=Array.from({length:12},(_,i)=>"Spelare "+(i+1));
+// per player count: rounds of {m: [[teamA, teamB] per court], r: resting players}
+const SCHED={"5":[{"m":[[[0,1],[2,3]]],"r":[4]},{"m":[[[2,1],[4,0]]],"r":[3]},{"m":[[[2,0],[3,4]]],"r":[1]},{"m":[[[4,1],[3,0]]],"r":[2]},{"m":[[[1,3],[2,4]]],"r":[0]}],"6":[{"m":[[[0,1],[3,4]]],"r":[2,5]},{"m":[[[1,2],[5,0]]],"r":[3,4]},{"m":[[[2,3],[4,5]]],"r":[0,1]},{"m":[[[4,1],[3,0]]],"r":[2,5]},{"m":[[[0,2],[1,5]]],"r":[3,4]},{"m":[[[5,3],[4,2]]],"r":[0,1]}],"7":[{"m":[[[5,3],[2,4]]],"r":[0,1,6]},{"m":[[[1,6],[0,2]]],"r":[3,4,5]},{"m":[[[4,5],[3,0]]],"r":[1,2,6]},{"m":[[[1,2],[3,6]]],"r":[0,4,5]},{"m":[[[6,5],[4,0]]],"r":[1,2,3]},{"m":[[[5,1],[3,2]]],"r":[0,4,6]},{"m":[[[1,4],[0,6]]],"r":[2,3,5]}],"8":[{"m":[[[0,1],[2,3]],[[4,5],[6,7]]],"r":[]},{"m":[[[0,2],[4,6]],[[1,3],[5,7]]],"r":[]},{"m":[[[0,3],[4,7]],[[1,2],[5,6]]],"r":[]},{"m":[[[0,4],[1,5]],[[2,6],[3,7]]],"r":[]},{"m":[[[0,5],[2,7]],[[1,4],[3,6]]],"r":[]},{"m":[[[0,6],[3,5]],[[1,7],[2,4]]],"r":[]},{"m":[[[0,7],[1,6]],[[2,5],[3,4]]],"r":[]}],"12":[{"m":[[[5,6],[11,0]],[[3,8],[2,9]],[[4,7],[1,10]]],"r":[]},{"m":[[[5,8],[11,1]],[[3,10],[4,9]],[[2,0],[6,7]]],"r":[]},{"m":[[[7,8],[4,0]],[[3,1],[11,2]],[[6,9],[5,10]]],"r":[]},{"m":[[[11,3],[5,1]],[[7,10],[6,0]],[[4,2],[8,9]]],"r":[]},{"m":[[[5,3],[8,0]],[[7,1],[9,10]],[[6,2],[11,4]]],"r":[]},{"m":[[[6,4],[9,1]],[[8,2],[10,0]],[[11,5],[7,3]]],"r":[]},{"m":[[[9,3],[0,1]],[[10,2],[7,5]],[[11,6],[8,4]]],"r":[]},{"m":[[[10,4],[11,7]],[[0,3],[1,2]],[[8,6],[9,5]]],"r":[]},{"m":[[[2,3],[10,6]],[[0,5],[1,4]],[[9,7],[11,8]]],"r":[]},{"m":[[[3,4],[0,7]],[[11,9],[1,6]],[[2,5],[10,8]]],"r":[]},{"m":[[[11,10],[0,9]],[[2,7],[4,5]],[[3,6],[1,8]]],"r":[]}],"9":[{"m":[[[1,7],[6,3]],[[0,2],[8,5]]],"r":[4]},{"m":[[[6,7],[0,5]],[[2,8],[4,1]]],"r":[3]},{"m":[[[4,7],[1,0]],[[3,8],[5,6]]],"r":[2]},{"m":[[[2,1],[0,6]],[[7,3],[4,8]]],"r":[5]},{"m":[[[4,5],[6,1]],[[7,0],[2,3]]],"r":[8]},{"m":[[[3,4],[2,6]],[[1,5],[0,8]]],"r":[7]},{"m":[[[2,5],[3,1]],[[6,4],[8,7]]],"r":[0]},{"m":[[[4,2],[7,5]],[[6,8],[3,0]]],"r":[1]},{"m":[[[8,1],[2,7]],[[4,0],[5,3]]],"r":[6]}],"10":[{"m":[[[4,0],[9,7]],[[3,6],[2,1]]],"r":[5,8]},{"m":[[[5,2],[8,4]],[[6,9],[7,3]]],"r":[0,1]},{"m":[[[3,1],[7,8]],[[9,0],[6,5]]],"r":[2,4]},{"m":[[[5,0],[7,2]],[[8,1],[9,4]]],"r":[3,6]},{"m":[[[5,8],[6,1]],[[3,4],[0,2]]],"r":[7,9]},{"m":[[[6,8],[7,4]],[[2,3],[5,9]]],"r":[0,1]},{"m":[[[0,6],[8,9]],[[5,3],[1,4]]],"r":[2,7]},{"m":[[[5,1],[6,2]],[[3,8],[0,7]]],"r":[4,9]},{"m":[[[4,2],[7,6]],[[1,9],[0,8]]],"r":[3,5]},{"m":[[[0,3],[5,4]],[[9,2],[1,7]]],"r":[6,8]}],"11":[{"m":[[[5,6],[8,2]],[[1,3],[9,4]]],"r":[0,7,10]},{"m":[[[7,5],[6,4]],[[1,10],[0,8]]],"r":[2,3,9]},{"m":[[[5,9],[7,0]],[[10,2],[3,4]]],"r":[1,6,8]},{"m":[[[6,8],[3,9]],[[10,7],[2,1]]],"r":[0,4,5]},{"m":[[[10,0],[7,2]],[[1,9],[4,5]]],"r":[3,6,8]},{"m":[[[0,1],[3,6]],[[2,4],[8,9]]],"r":[5,7,10]},{"m":[[[3,7],[8,5]],[[10,4],[6,0]]],"r":[1,2,9]},{"m":[[[6,1],[5,2]],[[9,7],[10,8]]],"r":[0,3,4]},{"m":[[[4,0],[2,3]],[[9,6],[7,1]]],"r":[5,8,10]},{"m":[[[2,0],[1,8]],[[5,3],[10,9]]],"r":[4,6,7]},{"m":[[[7,6],[3,0]],[[4,8],[5,10]]],"r":[1,2,9]}]};
+const KEY="americano-v1";
+const clone=o=>JSON.parse(JSON.stringify(o));
+const isObj=o=>o&&typeof o==="object"&&!Array.isArray(o);
+function merge(a,b){for(const k in b){if(isObj(b[k])&&isObj(a[k]))merge(a[k],b[k]);else a[k]=clone(b[k])}return a}
+
+let st={v:2,size:12,total:16,names:{},scores:{}};
+try{
+  const s=JSON.parse(localStorage.getItem(KEY));
+  if(s&&s.v===2)st=Object.assign(st,s);
+  else if(s&&s.names){st.size=s.size||12;st.total=s.total||16;st.names={12:s.names,8:s.names8||DEFAULT_NAMES.slice(0,8)};st.scores={12:s.scores||{},8:s.scores8||{}}}
+}catch(e){}
+
+/* ---------- shared storage ---------- */
+let db=null, cur=null, docExists=false, readOnly=false;
+let patch=null, inflight=null, full=false, writing=false, timer=null, pendingRemote=null;
+let history=[], histState="loading";
+const HKEY="americano-history-v1";
+function loadHist(){try{const h=JSON.parse(localStorage.getItem(HKEY));return Array.isArray(h)?h.sort((a,b)=>b.savedAt-a.savedAt):[]}catch(e){return[]}}
+function saveHist(){try{localStorage.setItem(HKEY,JSON.stringify(history));return true}catch(e){return false}}
+function status(text,cls){const el=document.getElementById("status");el.textContent=text;el.className="status "+(cls||"")}
+function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+// queue a change: p is a partial state object that is merged into the shared document
+function queue(p,whole){
+  saveLocal();
+  if(!db||readOnly)return;
+  if(whole)full=true; else patch=merge(patch||{},p);
+  status("Sparar…","busy");
+  clearTimeout(timer); timer=setTimeout(flush,400);
+}
+async function flush(){
+  if(!db||writing||(!patch&&!full))return;
+  writing=true;
+  const doFull=full||!docExists; inflight=patch; patch=null; full=false;
+  try{
+    if(doFull){await cur.set(clone(st));docExists=true}
+    else await cur.update(clone(inflight));
+    inflight=null; status("Sparat – syns på alla enheter","ok");
+  }catch(e){
+    if(e&&(e.code==="invalid_argument")){readOnly=true;inflight=null;status("Du kan se resultaten men inte ändra dem","warn");renderRounds();renderNames()}
+    else{ // transient: put the change back and try again
+      if(doFull)full=true; else patch=merge(inflight||{},patch||{});
+      inflight=null; status("Kunde inte spara just nu – försöker igen","warn"); setTimeout(flush,2500);
+    }
+  }
+  writing=false;
+  if(patch||full)flush();
+}
+function editing(){const a=document.activeElement;return a&&(a.tagName==="INPUT"||a.tagName==="TEXTAREA")}
+function applyRemote(d){
+  const next=Object.assign({v:2,size:12,total:16,names:{},scores:{}},clone(d));
+  if(inflight)merge(next,inflight);
+  if(patch)merge(next,patch);
+  st=next; saveLocal(); all();
+}
+(async()=>{
+  await Promise.resolve(); // let the rest of the script load first
+  try{db=window.claude&&window.claude.use?await window.claude.use("db"):null}catch(e){db=null}
+  if(!db){status("Sparas i den här webbläsaren","ok");history=loadHist();histState="ready";renderHist();return}
+  cur=db.doc("game/current");
+  cur.onSnapshot(s=>{
+    if(s.metadata.hasPendingWrites)return;
+    if(!s.exists){ // first visit: put what this device has into the shared store
+      if(!docExists&&!readOnly){full=true;flush()}
+      return;
+    }
+    docExists=true;
+    if(!writing&&!patch)status("Sparat – syns på alla enheter","ok");
+    if(editing()){pendingRemote=s.data();return}
+    applyRemote(s.data());
+  },e=>status("Tappade kontakten med lagringen – ladda om sidan","warn"));
+  db.collection("history").orderBy("savedAt","desc").limit(100).onSnapshot(q=>{
+    history=q.docs.map(d=>Object.assign({id:d.id},d.data()));histState="ready";renderHist();
+  },e=>{histState="error";renderHist()});
+})();
+
+/* ---------- state helpers ---------- */
+const P=()=>st.size;
+const SX=(p=P())=>SCHED[p];
+const courts=()=>SX()[0].m.length;
+function NM(){if(!st.names[P()])st.names[P()]=DEFAULT_NAMES.slice(0,P());return st.names[P()]}
+function SC(){if(!st.scores[P()])st.scores[P()]={};return st.scores[P()]}
+const T=()=>st.total||16;
+const unit=t=>(t||T())===4?"game":"poäng";
+const fmtName=t=>t===4?"4 game":(t||16)+" poäng";
+const N=i=>NM()[i]||("Spelare "+(i+1));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt1=x=>x.toFixed(1).replace(".",",");
+const played=()=>Object.values(SC()).some(s=>s&&s[0]!==""&&s[1]!=="");
+
+function renderFmt(){
+  document.querySelectorAll("[data-f]").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.f===T()));
+  document.querySelectorAll("[data-p]").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.p===P()));
+  document.getElementById("h1").textContent=`Americano · ${P()} spelare`;
+  const rv=P()-4*courts();
+  document.getElementById("sub").textContent=`${courts()} ${courts()===1?"bana":"banor"} · ${SX().length} rundor${rv?` · ${rv} vilar per runda`:""} · ${fmtName(T())} per match`;
+}
+function renderRounds(){
+  const sc=SC(), dis=readOnly?" disabled":"";
+  document.getElementById("rounds").innerHTML=SX().map((rd,ri)=>{
+    const done=rd.m.every((_,ci)=>{const s=sc[ri+"-"+ci];return s&&s[0]!==""&&s[1]!==""});
+    return `<div class="round"><h2>Runda ${ri+1}<span class="st${done?" done":""}">${done?"Klar":""}</span></h2>`+
+    rd.m.map((m,ci)=>{
+      const k=ri+"-"+ci, s=sc[k]||["",""];
+      const a=s[0]===""?null:+s[0], b=s[1]===""?null:+s[1];
+      const bad=a!==null&&b!==null&&a+b!==T();
+      return `<div class="match"><span class="bana">Bana ${ci+1}</span>
+        <div class="team${a!==null&&b!==null&&a>b?" win":""}">${esc(N(m[0][0]))}<br>${esc(N(m[0][1]))}</div>
+        <input class="s" id="s${k}a" inputmode="numeric" maxlength="2" aria-label="Runda ${ri+1} bana ${ci+1} lag 1" value="${s[0]}" data-k="${k}" data-i="0"${dis}>
+        <span class="dash">–</span>
+        <input class="s" id="s${k}b" inputmode="numeric" maxlength="2" aria-label="Runda ${ri+1} bana ${ci+1} lag 2" value="${s[1]}" data-k="${k}" data-i="1"${dis}>
+        <div class="team r${a!==null&&b!==null&&b>a?" win":""}">${esc(N(m[1][0]))}<br>${esc(N(m[1][1]))}</div>
+        ${bad?`<p class="hint">Summan blir ${a+b} ${unit()}, inte ${T()}.</p>`:""}</div>`;
+    }).join("")+(rd.r.length?`<div class="rest">Vilar: <b>${rd.r.map(i=>esc(N(i))).join(", ")}</b></div>`:"")+`</div>`;
+  }).join("")+finalCard();
+}
+/* ---------- slutspel ---------- */
+const FC=p=>SX(p)[0].m.length;
+const fdone=s=>s&&s[0]!==""&&s[1]!=="";
+const SEED=()=>(st.seed||{})[P()]||null;
+// court ci: seeds 1+3 vs 2+4 (within the group of four)
+const finalTeams=(seed,ci)=>[[seed[4*ci],seed[4*ci+2]],[seed[4*ci+1],seed[4*ci+3]]];
+function finalPlaces(p,scores,seed){
+  if(!seed)return null; const order=[]; let complete=true;
+  for(let ci=0;ci<FC(p);ci++){
+    const [A,B]=finalTeams(seed,ci), s=scores["F-"+ci];
+    if(!fdone(s)){complete=false;order.push(...seed.slice(4*ci,4*ci+4));continue}
+    const aw=+s[0]>=+s[1]; order.push(...(aw?A:B),...(aw?B:A)); // lika: högst seedade laget före
+  }
+  order.push(...seed.slice(4*FC(p)));
+  return {order,complete};
+}
+function finalResHTML(p,names,scores,seed){
+  const fp=finalPlaces(p,scores,seed); if(!fp||!fp.complete)return "";
+  const nm=i=>esc(names[i]||("Spelare "+(i+1))), o=fp.order;
+  return `<div class="fin-res"><h3>Slutplacering</h3><p class="champ">Vinnare: <b>${nm(o[0])} & ${nm(o[1])}</b></p><ol>`+
+    o.map((i,k)=>`<li class="${k<3?"top":""}${k>0&&k%4===0?" sep":""}"><span class="pl">${k+1}</span>${nm(i)}</li>`).join("")+`</ol></div>`;
+}
+let fredoAsk=false;
+function finalCard(){
+  const p=P(), sc=SC(), seed=SEED(), dis=readOnly?" disabled":"", fc=FC(p), rv=p-4*fc;
+  const roundsDone=SX().every((rd,ri)=>rd.m.every((_,ci)=>fdone(sc[ri+"-"+ci])));
+  if(!seed){
+    const restTxt=rv?(rv===1?" Den som hamnar sist i tabellen vilar.":` De ${rv} sista i tabellen vilar.`):"";
+    const ex=fc===1?"1:an och 3:an möter 2:an och 4:an.":`Bana 1: 1:an och 3:an mot 2:an och 4:an. Bana 2: 5:an och 7:an mot 6:an och 8:an${fc>2?". Bana 3: 9:an och 11:an mot 10:an och 12:an":""}.`;
+    return `<div class="round final"><h2>Slutspel</h2><div class="fin-body"><p>När alla rundor är spelade lottas slutspelet efter tabellen. ${ex}${restTxt} Vinnarlaget på varje bana tar de två bästa platserna i sin grupp.</p>${readOnly?"":`<div class="act"><button class="btn primary" id="fstart"${roundsDone?"":" disabled"}>Starta slutspel</button>${roundsDone?"":`<span class="note" style="margin:0">Fyll i alla rundor först</span>`}</div>`}</div></div>`;
+  }
+  const NN=i=>`<span class="seed">${seed.indexOf(i)+1}</span>${esc(N(i))}`;
+  const allDone=Array.from({length:fc},(_,ci)=>fdone(sc["F-"+ci])).every(Boolean);
+  let html=`<div class="round final"><h2>Slutspel<span class="st${allDone?" done":""}">${allDone?"Klart":"Lottat efter tabellen"}</span></h2>`;
+  for(let ci=0;ci<fc;ci++){
+    const [A,B]=finalTeams(seed,ci), k="F-"+ci, s=sc[k]||["",""];
+    const a=s[0]===""?null:+s[0], b=s[1]===""?null:+s[1], bad=a!==null&&b!==null&&a+b!==T();
+    html+=`<div class="match"><span class="bana">Bana ${ci+1}</span>
+      <div class="team${a!==null&&b!==null&&a>b?" win":""}">${NN(A[0])}<br>${NN(A[1])}</div>
+      <input class="s" id="s${k}a" inputmode="numeric" maxlength="2" aria-label="Slutspel bana ${ci+1} lag 1" value="${s[0]}" data-k="${k}" data-i="0"${dis}>
+      <span class="dash">–</span>
+      <input class="s" id="s${k}b" inputmode="numeric" maxlength="2" aria-label="Slutspel bana ${ci+1} lag 2" value="${s[1]}" data-k="${k}" data-i="1"${dis}>
+      <div class="team r${a!==null&&b!==null&&b>a?" win":""}">${NN(B[0])}<br>${NN(B[1])}</div>
+      ${bad?`<p class="hint">Summan blir ${a+b} ${unit()}, inte ${T()}.</p>`:a!==null&&a===b?`<p class="hint">Oavgjort – det högst seedade laget räknas som vinnare.</p>`:""}</div>`;
+  }
+  if(rv)html+=`<div class="rest">Vilar: <b>${seed.slice(4*fc).map(i=>esc(N(i))).join(", ")}</b></div>`;
+  html+=finalResHTML(p,NM(),sc,seed);
+  if(!readOnly)html+=`<div class="fin-body">${fredoAsk?`<p>Lotta om efter nuvarande tabell? Slutspelets resultat töms.</p><div class="act"><button class="btn danger" id="fredo2">Ja, lotta om</button><button class="btn" id="fredono">Avbryt</button></div>`:`<div class="act"><button class="btn sm" id="fredo">Lotta om</button></div>`}</div>`;
+  return html+`</div>`;
+}
+// standings for any player count, names and scores (used live and for saved evenings)
+function standingsFor(p,names,scores){
+  const sched=SX(p), rest=sched[0].r.length>0;
+  const rows=Array.from({length:p},(_,i)=>({i,name:names[i]||("Spelare "+(i+1)),pts:0,ag:0,w:0,m:0}));
+  sched.forEach((rd,ri)=>rd.m.forEach((m,ci)=>{
+    const s=scores[ri+"-"+ci]; if(!s||s[0]===""||s[1]==="")return;
+    const a=+s[0],b=+s[1];
+    m[0].forEach(x=>{rows[x].pts+=a;rows[x].ag+=b;rows[x].m++;if(a>b)rows[x].w++});
+    m[1].forEach(x=>{rows[x].pts+=b;rows[x].ag+=a;rows[x].m++;if(b>a)rows[x].w++});
+  }));
+  rows.forEach(r=>{r.avg=r.m?r.pts/r.m:0;r.diff=r.pts-r.ag;r.davg=r.m?r.diff/r.m:0});
+  const byName=(x,y)=>x.name.localeCompare(y.name,"sv");
+  rows.sort(rest?(x,y)=>y.avg-x.avg||y.davg-x.davg||y.w-x.w||byName(x,y):(x,y)=>y.pts-x.pts||y.diff-x.diff||y.w-x.w||byName(x,y));
+  return {rows,rest};
+}
+function tableHTML(t){
+  const {rows,rest}=t;
+  return `<div style="overflow-x:auto"><table>
+  <thead><tr><th>#</th><th>Spelare</th><th>M</th><th>V</th><th>+/−</th><th>Poäng</th>${rest?"<th>Snitt</th>":""}</tr></thead><tbody>`+
+  rows.map((r,k)=>`<tr class="${k<3&&r.pts>0?"top":""}"><td><span>${k+1}</span></td><td>${esc(r.name)}</td><td>${r.m}</td><td>${r.w}</td><td>${r.diff>0?"+":""}${r.diff}</td>${rest?`<td>${r.pts}</td><td class="pts">${r.m?fmt1(r.avg):"–"}</td>`:`<td class="pts">${r.pts}</td>`}</tr>`).join("")+
+  `</tbody></table></div>`;
+}
+let saveOpen=false, justSaved=false;
+function todayISO(){const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
+function renderTable(){
+  const t=standingsFor(P(),NM(),SC());
+  let act="";
+  if(!readOnly){
+    if(justSaved) act=`<div class="panel"><p><b>Kvällen är sparad</b> och finns under Tidigare.</p><p>Vill du tömma resultaten inför nästa gång? Namnen ligger kvar.</p><div class="act"><button class="btn danger" id="clr2">Töm resultaten</button><button class="btn" id="keep">Behåll</button></div></div>`;
+    else if(saveOpen) act=`<div class="panel"><label for="sdate">Datum för kvällen</label><input type="date" id="sdate" value="${todayISO()}"><div class="act"><button class="btn primary" id="sdo">Spara</button><button class="btn" id="sno">Avbryt</button></div></div>`;
+    else act=`<div class="act"><button class="btn primary" id="sopen"${played()?"":" disabled"}>Spara kvällens resultat</button></div>`;
+  }
+  chartSrc.live={p:P(),names:NM(),scores:SC()}; if(chartRound.live!=null&&chartRound.live>SX().length)delete chartRound.live;
+  document.getElementById("table").innerHTML=finalResHTML(P(),NM(),SC(),SEED())+chartHTML("live",P(),NM(),SC())+tableHTML(t)+`<p class="note">${t.rest
+    ?`Alla spelar inte lika många matcher, så tabellen sorteras på snittpoäng per match. Lika snitt avgörs av +/− per match, sedan antal vunna matcher.`
+    :`Poäng = summan av lagets ${unit()} i varje match. Lika poäng avgörs av skillnad (+/−), sedan antal vunna matcher.`}</p>`+act;
+}
+const MONTHS=["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"];
+const DAYS=["söndag","måndag","tisdag","onsdag","torsdag","fredag","lördag"];
+function prettyDate(iso){const [y,m,d]=iso.split("-").map(Number);const dt=new Date(y,m-1,d);return `${DAYS[dt.getDay()][0].toUpperCase()+DAYS[dt.getDay()].slice(1)} ${d} ${MONTHS[m-1]} ${y}`}
+let delId=null;
+function renderHist(){
+  const el=document.getElementById("hist");
+  if(histState==="off"){el.innerHTML=`<p class="empty">Tidigare kvällar kan bara sparas när sidan öppnas i Claude.</p>`;return}
+  if(histState==="loading"){el.innerHTML=`<p class="empty">Hämtar sparade kvällar…</p>`;return}
+  if(histState==="error"){el.innerHTML=`<p class="empty">Kunde inte hämta sparade kvällar. Ladda om sidan.</p>`;return}
+  if(!history.length){el.innerHTML=`<p class="empty">Inga sparade kvällar ännu.<br>Spara kvällen från fliken Tabell när ni spelat klart.</p>`;return}
+  el.innerHTML=history.map(h=>{
+    const t=standingsFor(h.size,h.names||[],h.scores||{});
+    const n=Object.entries(h.scores||{}).filter(([k])=>!k.startsWith("F-")).map(([,s])=>s).filter(s=>s&&s[0]!==""&&s[1]!=="").length;
+    const hf=finalPlaces(h.size,h.scores||{},h.seed);
+    const pod=(hf&&hf.complete?"Slutspel: "+hf.order.slice(0,4).map((i,k)=>`${k+1}. <b>${esc((h.names||[])[i]||("Spelare "+(i+1)))}</b>`).join(" · "):t.rows.slice(0,3).map((r,i)=>`${i+1}. <b>${esc(r.name)}</b>`).join(" · "));
+    const del=readOnly?"":(delId===h.id
+      ?`<span>Ta bort den här kvällen?</span><button class="btn danger" data-hdel="${esc(h.id)}">Ja, ta bort</button><button class="btn" data-hno="1">Avbryt</button>`
+      :`<button class="btn" data-hask="${esc(h.id)}">Ta bort</button>`);
+    return `<details class="hist"${delId===h.id?" open":""}><summary><span class="d">${esc(prettyDate(h.date))}</span><span class="meta">${h.size} spelare · ${fmtName(h.total)} · ${n} matcher</span><span class="podium">${pod}</span></summary>${(chartSrc["h-"+h.id]={p:h.size,names:h.names||[],scores:h.scores||{}},chartHTML("h-"+h.id,h.size,h.names||[],h.scores||{}))}${h.seed?finalResHTML(h.size,h.names||[],h.scores||{},h.seed):""}${tableHTML(t)}<div class="foot">${del}</div></details>`;
+  }).join("");
+}
+function renderNames(){
+  const dis=readOnly?" disabled":"";
+  const pasteBox=readOnly?"":`<div class="paste"><h3>Klistra in deltagare</h3><p>Kopiera namnlistan (t.ex. från MATCHi eller ett meddelande) och klistra in här – ett namn per rad, eller åtskilda med komma. Numrering och punkter tas bort automatiskt. Antalet spelare ställs in efter listan.</p><textarea id="pastebox" placeholder="Anna\nBertil\nCecilia\n…">${esc(pasteText)}</textarea><div class="act" style="margin-top:0"><button class="btn primary" id="pasteuse">Använd namnen</button><button class="btn" id="pasteclip">Klistra in från urklipp</button></div>${pasteMsg?`<p class="msg${pasteMsg.warn?" warn":""}">${esc(pasteMsg.t)}</p>`:""}</div>`;
+  document.getElementById("names").innerHTML=pasteBox+`<div class="names">`+
+  NM().map((n,i)=>`<label for="n${i}">Spelare ${i+1}<input id="n${i}" value="${esc(n)}" data-n="${i}" placeholder="Spelare ${i+1}" autocomplete="off"${dis}></label>`).join("")+
+  `</div><p class="note">Varje antal spelare har egna namn och resultat. Namnen sparas och ligger kvar till nästa gång.</p>`+
+  (readOnly?"":`<div class="reset"><button id="nclr">Töm alla namn</button><button id="clr" class="danger">Töm resultaten för ${P()} spelare</button><span id="cf" hidden><button id="yes" class="danger">Ja, töm</button> <button id="no">Avbryt</button></span></div>`);
+}
+let pasteText="", pasteMsg=null;
+function parseNames(txt){
+  return txt.split(/[\n\r;,\t]+/).map(s=>s.replace(/^\s*(?:\d+\s*[.):-]?|[-•*·–]+)\s*/,"").replace(/\s+/g," ").trim()).filter(s=>s&&!/^\d+$/.test(s));
+}
+function useNames(txt){
+  const list=parseNames(txt);
+  if(!list.length){pasteMsg={t:"Hittade inga namn i texten.",warn:true};renderNames();return}
+  let n=list.length, note="";
+  if(n<5){note=` Bara ${n} namn – resten fylls som Spelare ${n+1}… med 5 spelare.`;n=5}
+  else if(n>12){note=` ${n} namn – bara de 12 första används.`;n=12}
+  const names=Array.from({length:n},(_,i)=>list[i]||("Spelare "+(i+1)));
+  const changed=n!==P();
+  st.size=n; st.names[n]=names; delete chartSel.live; delete chartRound.live;
+  queue({size:n,names:{[n]:names.slice()}});
+  justSaved=false; saveOpen=false; pasteText="";
+  pasteMsg={t:`${Math.min(list.length,12)} namn inlagda${changed?` – nu ${n} spelare, ${courts()} ${courts()===1?"bana":"banor"}`:""}.${note}`,warn:!!note};
+  all();
+}
+function all(){
+  const a=document.activeElement, id=a&&a.id, y=window.scrollY;
+  renderFmt();renderRounds();renderTable();renderNames();renderHist();
+  if(id&&document.getElementById(id)&&id.startsWith("s")===false)document.getElementById(id).focus({preventScroll:true});
+  window.scrollTo(0,y);
+}
+function clearScores(){st.scores[P()]={};if(st.seed)delete st.seed[P()];fredoAsk=false;queue(null,true);justSaved=false;saveOpen=false;all()}
+
+
+/* ---------- progress chart ---------- */
+const chartSel={}, chartRound={};
+let chartOpen={};
+try{chartOpen={live:localStorage.getItem("americano-chart")==="1"}}catch(e){}
+// cumulative points (or running average per match when someone rests) after each round
+function progress(p,names,scores){
+  const sched=SX(p), rest=sched[0].r.length>0;
+  const pts=Array(p).fill(0), m=Array(p).fill(0);
+  const rounds=[]; let last=0;
+  sched.forEach((rd,ri)=>{if(rd.m.some((_,ci)=>{const s=scores[ri+"-"+ci];return s&&s[0]!==""&&s[1]!==""}))last=ri+1});
+  const series=Array.from({length:p},(_,i)=>({i,name:names[i]||("Spelare "+(i+1)),v:[rest?null:0]}));
+  for(let ri=0;ri<last;ri++){
+    sched[ri].m.forEach((mm,ci)=>{
+      const s=scores[ri+"-"+ci]; if(!s||s[0]===""||s[1]==="")return;
+      mm[0].forEach(x=>{pts[x]+=+s[0];m[x]++}); mm[1].forEach(x=>{pts[x]+=+s[1];m[x]++});
+    });
+    series.forEach(se=>se.v.push(rest?(m[se.i]?pts[se.i]/m[se.i]:null):pts[se.i]));
+  }
+  return {series,last,rest};
+}
+function niceMax(v){if(v<=0)return 10;const e=Math.pow(10,Math.floor(Math.log10(v)));for(const f of[1,2,2.5,5,10])if(f*e>=v)return f*e}
+function chartHTML(key,p,names,scores){
+  if(!chartOpen[key])return `<div class="chartbtn" data-chart="${esc(key)}"><button class="btn" data-copen="${esc(key)}">Visa poängutveckling</button></div>`;
+  const pr=progress(p,names,scores);
+  if(pr.last<1)return `<div class="chart" data-chart="${esc(key)}"><div class="chead"><h3>Poängutveckling</h3><button class="btn sm" data-cclose="${esc(key)}">Dölj</button></div><p class="cap">Grafen visar hur poängen växer runda för runda när de första resultaten är inmatade.</p></div>`;
+  // default highlight: current top three
+  const final=pr.series.map(s=>({i:s.i,v:s.v[pr.last]??-1})).sort((a,b)=>b.v-a.v);
+  if(!chartSel[key])chartSel[key]=final.slice(0,3).map((x,k)=>({i:x.i,c:k+1}));
+  const sel=chartSel[key].filter(x=>x.i<p);
+  const R=SX(p).length, xr=chartRound[key]??pr.last;
+  const W=380,H=230,L=28,Rt=86,Tp=8,B=22, pw=W-L-Rt, ph=H-Tp-B;
+  let vmax=0; pr.series.forEach(s=>s.v.forEach(v=>{if(v!=null&&v>vmax)vmax=v}));
+  const ymax=niceMax(vmax*1.05);
+  const X=r=>L+pw*r/R, Y=v=>Tp+ph*(1-v/ymax);
+  const path=v=>{let d="",pen=false;v.forEach((y,r)=>{if(y==null){pen=false;return}d+=(pen?"L":"M")+X(r).toFixed(1)+" "+Y(y).toFixed(1);pen=true});return d};
+  let g="";
+  for(let k=0;k<=4;k++){const v=ymax*k/4,y=Y(v);g+=`<line class="grid" x1="${L}" x2="${L+pw}" y1="${y}" y2="${y}"/><text class="ax" x="${L-6}" y="${y+4}" text-anchor="end">${pr.rest?fmt1(v):Math.round(v)}</text>`}
+  const step=R>9?2:1;
+  for(let r=0;r<=R;r+=step)g+=`<text class="ax" x="${X(r)}" y="${H-6}" text-anchor="middle">${r===0?"Start":r}</text>`;
+  const selIdx=new Set(sel.map(x=>x.i));
+  pr.series.forEach(s=>{if(!selIdx.has(s.i))g+=`<path class="bg" d="${path(s.v)}"/>`});
+  // highlighted lines, end markers and direct labels (spread so they don't collide)
+  const labs=sel.map(x=>{const s=pr.series[x.i];const v=s.v[pr.last];return{...x,s,v,y:v==null?null:Y(v)}}).filter(l=>l.y!=null).sort((a,b)=>a.y-b.y);
+  for(let k=1;k<labs.length;k++)if(labs[k].y-labs[k-1].y<15)labs[k].y=labs[k-1].y+15;
+  sel.forEach(x=>{const s=pr.series[x.i];g+=`<path class="hl" stroke="var(--s${x.c})" d="${path(s.v)}"/>`});
+  sel.forEach(x=>{const v=pr.series[x.i].v[pr.last];if(v!=null)g+=`<circle cx="${X(pr.last)}" cy="${Y(v)}" r="4.5" fill="var(--s${x.c})" stroke="var(--surface)" stroke-width="2"/>`});
+  labs.forEach(l=>{const nm=l.s.name.length>8?l.s.name.slice(0,7)+"…":l.s.name;g+=`<circle cx="${X(pr.last)+11}" cy="${l.y}" r="3.5" fill="var(--s${l.c})"/><text class="lab" x="${X(pr.last)+18}" y="${l.y+4}">${esc(nm)} <tspan class="labv">${pr.rest?fmt1(l.v):l.v}</tspan></text>`});
+  // crosshair at the inspected round
+  g+=`<line class="xh" x1="${X(xr)}" x2="${X(xr)}" y1="${Tp}" y2="${Tp+ph}"/>`;
+  for(let r=0;r<=pr.last;r++){const x0=r===0?L:(X(r-1)+X(r))/2,x1=r===pr.last?X(r)+pw/R/2:(X(r)+X(r+1))/2;g+=`<rect class="hit" data-ck="${esc(key)}" data-cr="${r}" x="${x0}" y="${Tp}" width="${x1-x0}" height="${ph}"/>`}
+  // readout: standings after the inspected round
+  const col={};sel.forEach(x=>col[x.i]=x.c);
+  const at=pr.series.map(s=>({i:s.i,name:s.name,v:s.v[xr]})).filter(x=>x.v!=null).sort((a,b)=>b.v-a.v);
+  const ro=xr===0?"Start: alla på 0.":`<b>Efter runda ${xr}:</b> `+at.map((x,k)=>`${col[x.i]?`<span class="sw" style="background:var(--s${col[x.i]})"></span>`:""}${k+1}. ${col[x.i]?`<b>${esc(x.name)}</b>`:esc(x.name)} ${pr.rest?fmt1(x.v):x.v}`).join(" · ");
+  const chips=pr.series.map(s=>{const c=col[s.i];return `<button class="chip" data-ck="${esc(key)}" data-ci="${s.i}" aria-pressed="${!!c}"><span class="sw"${c?` style="background:var(--s${c})"`:""}></span>${esc(s.name)}</button>`}).join("");
+  return `<div class="chart" data-chart="${esc(key)}"><div class="chead"><h3>Poängutveckling</h3><button class="btn sm" data-cclose="${esc(key)}">Dölj</button></div><p class="cap">${pr.rest?"Snittpoäng per match":"Totalpoäng"} efter varje runda. Tryck i grafen för att se ställningen, och på namnen för att jämföra upp till fyra spelare.</p>
+  <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Linjediagram över poäng per runda">${g}</svg>
+  <p class="readout">${ro}</p><div class="chips">${chips}</div></div>`;
+}
+const chartSrc={};
+function rerenderChart(key){
+  const box=document.querySelector(`[data-chart="${CSS.escape(key)}"]`), src=chartSrc[key];
+  if(box&&src)box.outerHTML=chartHTML(key,src.p,src.names,src.scores);
+}
+function toggleSel(key,i){
+  let sel=chartSel[key]||[];
+  if(sel.some(x=>x.i===i))sel=sel.filter(x=>x.i!==i);
+  else{if(sel.length>=4)sel=sel.slice(1);const used=new Set(sel.map(x=>x.c));let c=1;while(used.has(c))c++;sel=sel.concat({i,c})}
+  chartSel[key]=sel; rerenderChart(key);
+}
+document.addEventListener("pointerover",e=>{const t=e.target;if(t.dataset&&t.dataset.cr!==undefined&&e.pointerType==="mouse"){const k=t.dataset.ck,r=+t.dataset.cr;if(chartRound[k]!==r){chartRound[k]=r;rerenderChart(k)}}});
+document.addEventListener("click",e=>{
+  const t=e.target;
+  const ob=t.closest&&t.closest("[data-copen],[data-cclose]");
+  if(ob){const k=ob.dataset.copen||ob.dataset.cclose;chartOpen[k]=!!ob.dataset.copen;
+    if(k==="live")try{localStorage.setItem("americano-chart",chartOpen[k]?"1":"0")}catch(err){}
+    rerenderChart(k);return}
+  if(t.dataset&&t.dataset.cr!==undefined){chartRound[t.dataset.ck]=+t.dataset.cr;rerenderChart(t.dataset.ck);return}
+  const c=t.closest&&t.closest(".chip");if(c){toggleSel(c.dataset.ck,+c.dataset.ci)}
+});
+
+/* ---------- events ---------- */
+let nameTimer=null;
+document.addEventListener("input",e=>{
+  const t=e.target;
+  if(t.dataset.k){
+    const v=t.value.replace(/\D/g,"").slice(0,2); t.value=v;
+    const sc=SC(), s=sc[t.dataset.k]||["",""]; s[+t.dataset.i]=v; sc[t.dataset.k]=s;
+    saveLocal(); delete chartRound.live; renderTable();
+  }
+  if(t.id==="pastebox")pasteText=t.value;
+  if(t.dataset.n!==undefined){
+    NM()[+t.dataset.n]=t.value;
+    clearTimeout(nameTimer); nameTimer=setTimeout(()=>queue({names:{[P()]:NM().slice()}}),700);
+  }
+});
+// fill the other side when the entry is finished, so "1" isn't taken as final before "12" is typed
+document.addEventListener("focusin",e=>{const t=e.target;if(t.dataset&&t.dataset.n!==undefined&&t.select)setTimeout(()=>t.select(),0)});
+document.addEventListener("focusout",e=>{
+  const t=e.target;
+  if(t.dataset.k){
+    const sc=SC(), s=sc[t.dataset.k]||["",""], v=t.value, o=1-+t.dataset.i;
+    if(v!==""&&+v<=T()&&s[o]===""){s[o]=String(T()-+v);document.getElementById("s"+t.dataset.k+(o?"b":"a")).value=s[o]}
+    sc[t.dataset.k]=s;
+    queue({scores:{[P()]:{[t.dataset.k]:s.slice()}}});
+    renderTable();
+  }
+  if(t.dataset.n!==undefined){clearTimeout(nameTimer);queue({names:{[P()]:NM().slice()}})}
+  setTimeout(()=>{
+    if(editing())return;
+    if(pendingRemote){const d=pendingRemote;pendingRemote=null;applyRemote(d)}
+    else if(t.dataset.k){const y=window.scrollY;renderRounds();window.scrollTo(0,y)}
+  },0);
+});
+document.addEventListener("click",async e=>{
+  const tg=e.target.closest("button"); if(!tg||tg.classList.contains("chip"))return;
+  const d=tg.dataset, v=d.v;
+  if(v){document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===v));
+    ["rounds","table","names","hist"].forEach(id=>document.getElementById(id).hidden=id!==v);
+    if(v==="rounds")renderRounds(); if(v==="table")renderTable(); if(v==="names")renderNames(); if(v==="hist")renderHist();
+    window.scrollTo(0,0);return}
+  if(d.p){if(readOnly)return;st.size=+d.p;delete chartSel.live;delete chartRound.live;queue({size:st.size,names:{[P()]:NM().slice()}});justSaved=false;saveOpen=false;all();return}
+  if(d.f){if(readOnly)return;st.total=+d.f;queue({total:st.total});renderFmt();renderRounds();renderTable();return}
+  if(tg.id==="pasteuse"){useNames(document.getElementById("pastebox").value);return}
+  if(tg.id==="pasteclip"){
+    try{const t=await navigator.clipboard.readText();pasteText=t;useNames(t)}
+    catch(err){pasteMsg={t:"Telefonen tillät inte att läsa urklipp. Tryck i rutan och välj Klistra in i stället.",warn:true};renderNames()}
+    return}
+  if(tg.id==="nclr"){if(readOnly)return;st.names[P()]=Array(P()).fill("");queue({names:{[P()]:NM().slice()}});pasteMsg=null;all();const f=document.getElementById("n0");if(f)f.focus();return}
+  if(tg.id==="fstart"&&!readOnly){
+    const order=standingsFor(P(),NM(),SC()).rows.map(r=>r.i);
+    st.seed=st.seed||{}; st.seed[P()]=order; queue({seed:{[P()]:order.slice()}});
+    const y=window.scrollY; renderRounds(); renderTable(); window.scrollTo(0,y); return}
+  if(tg.id==="fredo"||tg.id==="fredono"){fredoAsk=tg.id==="fredo";const y=window.scrollY;renderRounds();window.scrollTo(0,y);return}
+  if(tg.id==="fredo2"&&!readOnly){
+    const sc=SC(); Object.keys(sc).forEach(k=>{if(k.startsWith("F-"))delete sc[k]});
+    st.seed=st.seed||{}; st.seed[P()]=standingsFor(P(),NM(),sc).rows.map(r=>r.i);
+    fredoAsk=false; queue(null,true); const y=window.scrollY; renderRounds(); renderTable(); window.scrollTo(0,y); return}
+  if(tg.id==="clr")document.getElementById("cf").hidden=false;
+  if(tg.id==="no")document.getElementById("cf").hidden=true;
+  if(tg.id==="yes"||tg.id==="clr2")clearScores();
+  if(tg.id==="keep"){justSaved=false;renderTable()}
+  if(tg.id==="sopen"){saveOpen=true;renderTable()}
+  if(tg.id==="sno"){saveOpen=false;renderTable()}
+  if(tg.id==="sdo"){
+    const date=document.getElementById("sdate").value||todayISO();
+    tg.disabled=true;
+    try{
+      const rec={date,savedAt:Date.now(),size:P(),total:T(),names:NM().slice(),scores:clone(SC()),seed:SEED()?SEED().slice():null};
+      if(db)await db.collection("history").add(rec);
+      else{history.unshift(Object.assign({id:"h"+rec.savedAt},rec));if(!saveHist()){history.shift();throw{code:"quota_exceeded"}}renderHist()}
+      saveOpen=false;justSaved=true;renderTable();
+    }catch(err){tg.disabled=false;status(err&&err.code==="quota_exceeded"?"Lagringen är full – ta bort gamla kvällar under Tidigare":"Kunde inte spara kvällen – försök igen","warn")}
+  }
+  if(d.hask){delId=d.hask;renderHist()}
+  if(d.hno){delId=null;renderHist()}
+  if(d.hdel){try{if(db)await db.doc("history/"+d.hdel).delete();else{history=history.filter(h=>h.id!==d.hdel);saveHist()}}catch(err){status("Kunde inte ta bort – försök igen","warn")}delId=null;renderHist()}
+});
+all();
+</script>
+
+
+<script>if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{})</script>
+</body></html>
