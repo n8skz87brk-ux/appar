@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Americano</title>
-<meta name="description" content="Håll ordning på padel-americano: matchschema, resultat, tabell och slutspel för 5–12 spelare.">
+<meta name="description" content="Håll ordning på padel-americano: matchschema, resultat, tabell och slutspel för 4–12 spelare.">
 <meta name="theme-color" content="#1f5fa8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -66,7 +66,10 @@ tr.top td:first-child{color:var(--fg);font-weight:700}
 tr.top td:first-child span{display:inline-block;width:1.7em;height:1.7em;line-height:1.7em;border-radius:50%;background:var(--ball);color:#14263a}
 .note{color:var(--muted);font-size:.85rem;margin:10px 2px}
 .names{display:grid;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
-.names label{display:grid;grid-template-columns:5.5em 1fr;align-items:center;gap:8px;font-size:.9rem;color:var(--muted)}
+.ncount{margin:0 2px 8px;font-weight:600}
+.ncount.warn{color:var(--warn)}
+.empty .btn{margin:0 auto}
+.names label{display:grid;grid-template-columns:2em 1fr;align-items:center;gap:8px;font-size:.9rem;color:var(--muted)}
 .names input{font:1rem var(--body);padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);min-width:0}
 .fmt{display:inline-flex;margin:10px 6px 0 0;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
 .fmt button{font:600 .9rem var(--body);padding:7px 14px;border:0;background:transparent;color:var(--muted);cursor:pointer}
@@ -111,30 +114,7 @@ tr.top td:first-child span{display:inline-block;width:1.7em;height:1.7em;line-he
 .hist .foot{padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .empty{color:var(--muted);text-align:center;padding:28px 12px;background:var(--surface);border:1px dashed var(--line);border-radius:12px}
 input.s:disabled{opacity:.7}
-.chart{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 12px 10px;margin-bottom:12px}
-.chart h3{font:700 1.1rem var(--display);margin:0 0 2px;letter-spacing:.01em}
-.chart .cap{color:var(--muted);font-size:.8rem;margin:0 0 6px}
-.chart svg{display:block;width:100%;height:auto;touch-action:pan-y}
-.chart .ax{fill:var(--muted);font:10px var(--body);font-variant-numeric:tabular-nums}
-.chart .grid{stroke:var(--line);stroke-width:1}
-.chart .bg{stroke:var(--muted);stroke-opacity:.35;stroke-width:1.5;fill:none}
-.chart .hl{stroke-width:2.5;fill:none;stroke-linejoin:round;stroke-linecap:round}
-.chart .lab{fill:var(--fg);font:600 11px var(--body)}
-.chart .labv{fill:var(--muted);font:11px var(--body);font-variant-numeric:tabular-nums}
-.chart .xh{stroke:var(--fg);stroke-opacity:.35;stroke-width:1;stroke-dasharray:3 3}
-.chart .hit{fill:transparent;cursor:pointer}
-.readout{font-size:.85rem;color:var(--muted);margin:6px 2px 0;line-height:1.5}
-.readout b{color:var(--fg);font-weight:600}
-.readout .sw{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:0}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.chip{font:600 .85rem var(--body);padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-.chip .sw{width:10px;height:10px;border-radius:50%;background:var(--muted);opacity:.35}
-.chip[aria-pressed="true"]{border-color:var(--fg)}
-.chip[aria-pressed="true"] .sw{opacity:1}
-.chartbtn{margin-bottom:12px}
-.hist .chartbtn{margin:0;padding:10px 14px;border-bottom:1px solid var(--line)}
-.chead{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.btn.sm{padding:6px 12px;font-size:.85rem}
+.hist .btn.sm{padding:6px 12px;font-size:.85rem}
 .seed{display:inline-block;min-width:1.5em;height:1.5em;line-height:1.5em;text-align:center;border-radius:50%;background:var(--bg);border:1px solid var(--line);font:700 .75rem var(--body);color:var(--muted);margin-right:5px;vertical-align:1px}
 .round.final{border-color:var(--court);border-width:2px}
 .round.final h2{background:var(--court);color:#fff}
@@ -153,24 +133,12 @@ input.s:disabled{opacity:.7}
 .fin-res li.top .pl{display:inline-block;height:1.8em;line-height:1.8em;border-radius:50%;background:var(--ball);color:#14263a}
 .fin-res li.sep{border-top:1px dashed var(--line);margin-top:4px;padding-top:4px}
 .hist .fin-res{border:0;border-radius:0;margin:0;border-bottom:1px solid var(--line)}
-.hist .chart{border:0;border-radius:0;margin:0;border-bottom:1px solid var(--line)}
-</style>
+.hist </style>
 
 <div class="wrap">
 <header>
-  <h1 id="h1">Americano · 12 spelare</h1>
-  <p class="sub" id="sub">3 banor · 11 rundor</p>
-  <div class="fmt" role="group" aria-label="Antal spelare">
-    <span class="lbl">Spelare</span>
-    <button id="p5" data-p="5">5</button>
-    <button id="p6" data-p="6">6</button>
-    <button id="p7" data-p="7">7</button>
-    <button id="p8" data-p="8">8</button>
-    <button id="p9" data-p="9">9</button>
-    <button id="p10" data-p="10">10</button>
-    <button id="p11" data-p="11">11</button>
-    <button id="p12" data-p="12">12</button>
-  </div>
+  <h1 id="h1">Americano</h1>
+  <p class="sub" id="sub"></p>
   <div class="fmt" role="group" aria-label="Spelform">
     <button id="f16" data-f="16">16 p</button>
     <button id="f24" data-f="24">24 p</button>
@@ -193,7 +161,7 @@ input.s:disabled{opacity:.7}
 <script>
 const DEFAULT_NAMES=Array.from({length:12},(_,i)=>"Spelare "+(i+1));
 // per player count: rounds of {m: [[teamA, teamB] per court], r: resting players}
-const SCHED={"5":[{"m":[[[0,1],[2,3]]],"r":[4]},{"m":[[[2,1],[4,0]]],"r":[3]},{"m":[[[2,0],[3,4]]],"r":[1]},{"m":[[[4,1],[3,0]]],"r":[2]},{"m":[[[1,3],[2,4]]],"r":[0]}],"6":[{"m":[[[0,1],[3,4]]],"r":[2,5]},{"m":[[[1,2],[5,0]]],"r":[3,4]},{"m":[[[2,3],[4,5]]],"r":[0,1]},{"m":[[[4,1],[3,0]]],"r":[2,5]},{"m":[[[0,2],[1,5]]],"r":[3,4]},{"m":[[[5,3],[4,2]]],"r":[0,1]}],"7":[{"m":[[[5,3],[2,4]]],"r":[0,1,6]},{"m":[[[1,6],[0,2]]],"r":[3,4,5]},{"m":[[[4,5],[3,0]]],"r":[1,2,6]},{"m":[[[1,2],[3,6]]],"r":[0,4,5]},{"m":[[[6,5],[4,0]]],"r":[1,2,3]},{"m":[[[5,1],[3,2]]],"r":[0,4,6]},{"m":[[[1,4],[0,6]]],"r":[2,3,5]}],"8":[{"m":[[[0,1],[2,3]],[[4,5],[6,7]]],"r":[]},{"m":[[[0,2],[4,6]],[[1,3],[5,7]]],"r":[]},{"m":[[[0,3],[4,7]],[[1,2],[5,6]]],"r":[]},{"m":[[[0,4],[1,5]],[[2,6],[3,7]]],"r":[]},{"m":[[[0,5],[2,7]],[[1,4],[3,6]]],"r":[]},{"m":[[[0,6],[3,5]],[[1,7],[2,4]]],"r":[]},{"m":[[[0,7],[1,6]],[[2,5],[3,4]]],"r":[]}],"12":[{"m":[[[5,6],[11,0]],[[3,8],[2,9]],[[4,7],[1,10]]],"r":[]},{"m":[[[5,8],[11,1]],[[3,10],[4,9]],[[2,0],[6,7]]],"r":[]},{"m":[[[7,8],[4,0]],[[3,1],[11,2]],[[6,9],[5,10]]],"r":[]},{"m":[[[11,3],[5,1]],[[7,10],[6,0]],[[4,2],[8,9]]],"r":[]},{"m":[[[5,3],[8,0]],[[7,1],[9,10]],[[6,2],[11,4]]],"r":[]},{"m":[[[6,4],[9,1]],[[8,2],[10,0]],[[11,5],[7,3]]],"r":[]},{"m":[[[9,3],[0,1]],[[10,2],[7,5]],[[11,6],[8,4]]],"r":[]},{"m":[[[10,4],[11,7]],[[0,3],[1,2]],[[8,6],[9,5]]],"r":[]},{"m":[[[2,3],[10,6]],[[0,5],[1,4]],[[9,7],[11,8]]],"r":[]},{"m":[[[3,4],[0,7]],[[11,9],[1,6]],[[2,5],[10,8]]],"r":[]},{"m":[[[11,10],[0,9]],[[2,7],[4,5]],[[3,6],[1,8]]],"r":[]}],"9":[{"m":[[[1,7],[6,3]],[[0,2],[8,5]]],"r":[4]},{"m":[[[6,7],[0,5]],[[2,8],[4,1]]],"r":[3]},{"m":[[[4,7],[1,0]],[[3,8],[5,6]]],"r":[2]},{"m":[[[2,1],[0,6]],[[7,3],[4,8]]],"r":[5]},{"m":[[[4,5],[6,1]],[[7,0],[2,3]]],"r":[8]},{"m":[[[3,4],[2,6]],[[1,5],[0,8]]],"r":[7]},{"m":[[[2,5],[3,1]],[[6,4],[8,7]]],"r":[0]},{"m":[[[4,2],[7,5]],[[6,8],[3,0]]],"r":[1]},{"m":[[[8,1],[2,7]],[[4,0],[5,3]]],"r":[6]}],"10":[{"m":[[[4,0],[9,7]],[[3,6],[2,1]]],"r":[5,8]},{"m":[[[5,2],[8,4]],[[6,9],[7,3]]],"r":[0,1]},{"m":[[[3,1],[7,8]],[[9,0],[6,5]]],"r":[2,4]},{"m":[[[5,0],[7,2]],[[8,1],[9,4]]],"r":[3,6]},{"m":[[[5,8],[6,1]],[[3,4],[0,2]]],"r":[7,9]},{"m":[[[6,8],[7,4]],[[2,3],[5,9]]],"r":[0,1]},{"m":[[[0,6],[8,9]],[[5,3],[1,4]]],"r":[2,7]},{"m":[[[5,1],[6,2]],[[3,8],[0,7]]],"r":[4,9]},{"m":[[[4,2],[7,6]],[[1,9],[0,8]]],"r":[3,5]},{"m":[[[0,3],[5,4]],[[9,2],[1,7]]],"r":[6,8]}],"11":[{"m":[[[5,6],[8,2]],[[1,3],[9,4]]],"r":[0,7,10]},{"m":[[[7,5],[6,4]],[[1,10],[0,8]]],"r":[2,3,9]},{"m":[[[5,9],[7,0]],[[10,2],[3,4]]],"r":[1,6,8]},{"m":[[[6,8],[3,9]],[[10,7],[2,1]]],"r":[0,4,5]},{"m":[[[10,0],[7,2]],[[1,9],[4,5]]],"r":[3,6,8]},{"m":[[[0,1],[3,6]],[[2,4],[8,9]]],"r":[5,7,10]},{"m":[[[3,7],[8,5]],[[10,4],[6,0]]],"r":[1,2,9]},{"m":[[[6,1],[5,2]],[[9,7],[10,8]]],"r":[0,3,4]},{"m":[[[4,0],[2,3]],[[9,6],[7,1]]],"r":[5,8,10]},{"m":[[[2,0],[1,8]],[[5,3],[10,9]]],"r":[4,6,7]},{"m":[[[7,6],[3,0]],[[4,8],[5,10]]],"r":[1,2,9]}]};
+const SCHED={"4":[{"m":[[[0,1],[2,3]]],"r":[]},{"m":[[[0,2],[1,3]]],"r":[]},{"m":[[[0,3],[1,2]]],"r":[]}],"5":[{"m":[[[0,1],[2,3]]],"r":[4]},{"m":[[[2,1],[4,0]]],"r":[3]},{"m":[[[2,0],[3,4]]],"r":[1]},{"m":[[[4,1],[3,0]]],"r":[2]},{"m":[[[1,3],[2,4]]],"r":[0]}],"6":[{"m":[[[0,1],[3,4]]],"r":[2,5]},{"m":[[[1,2],[5,0]]],"r":[3,4]},{"m":[[[2,3],[4,5]]],"r":[0,1]},{"m":[[[4,1],[3,0]]],"r":[2,5]},{"m":[[[0,2],[1,5]]],"r":[3,4]},{"m":[[[5,3],[4,2]]],"r":[0,1]}],"7":[{"m":[[[5,3],[2,4]]],"r":[0,1,6]},{"m":[[[1,6],[0,2]]],"r":[3,4,5]},{"m":[[[4,5],[3,0]]],"r":[1,2,6]},{"m":[[[1,2],[3,6]]],"r":[0,4,5]},{"m":[[[6,5],[4,0]]],"r":[1,2,3]},{"m":[[[5,1],[3,2]]],"r":[0,4,6]},{"m":[[[1,4],[0,6]]],"r":[2,3,5]}],"8":[{"m":[[[0,1],[2,3]],[[4,5],[6,7]]],"r":[]},{"m":[[[0,2],[4,6]],[[1,3],[5,7]]],"r":[]},{"m":[[[0,3],[4,7]],[[1,2],[5,6]]],"r":[]},{"m":[[[0,4],[1,5]],[[2,6],[3,7]]],"r":[]},{"m":[[[0,5],[2,7]],[[1,4],[3,6]]],"r":[]},{"m":[[[0,6],[3,5]],[[1,7],[2,4]]],"r":[]},{"m":[[[0,7],[1,6]],[[2,5],[3,4]]],"r":[]}],"12":[{"m":[[[5,6],[11,0]],[[3,8],[2,9]],[[4,7],[1,10]]],"r":[]},{"m":[[[5,8],[11,1]],[[3,10],[4,9]],[[2,0],[6,7]]],"r":[]},{"m":[[[7,8],[4,0]],[[3,1],[11,2]],[[6,9],[5,10]]],"r":[]},{"m":[[[11,3],[5,1]],[[7,10],[6,0]],[[4,2],[8,9]]],"r":[]},{"m":[[[5,3],[8,0]],[[7,1],[9,10]],[[6,2],[11,4]]],"r":[]},{"m":[[[6,4],[9,1]],[[8,2],[10,0]],[[11,5],[7,3]]],"r":[]},{"m":[[[9,3],[0,1]],[[10,2],[7,5]],[[11,6],[8,4]]],"r":[]},{"m":[[[10,4],[11,7]],[[0,3],[1,2]],[[8,6],[9,5]]],"r":[]},{"m":[[[2,3],[10,6]],[[0,5],[1,4]],[[9,7],[11,8]]],"r":[]},{"m":[[[3,4],[0,7]],[[11,9],[1,6]],[[2,5],[10,8]]],"r":[]},{"m":[[[11,10],[0,9]],[[2,7],[4,5]],[[3,6],[1,8]]],"r":[]}],"9":[{"m":[[[1,7],[6,3]],[[0,2],[8,5]]],"r":[4]},{"m":[[[6,7],[0,5]],[[2,8],[4,1]]],"r":[3]},{"m":[[[4,7],[1,0]],[[3,8],[5,6]]],"r":[2]},{"m":[[[2,1],[0,6]],[[7,3],[4,8]]],"r":[5]},{"m":[[[4,5],[6,1]],[[7,0],[2,3]]],"r":[8]},{"m":[[[3,4],[2,6]],[[1,5],[0,8]]],"r":[7]},{"m":[[[2,5],[3,1]],[[6,4],[8,7]]],"r":[0]},{"m":[[[4,2],[7,5]],[[6,8],[3,0]]],"r":[1]},{"m":[[[8,1],[2,7]],[[4,0],[5,3]]],"r":[6]}],"10":[{"m":[[[4,0],[9,7]],[[3,6],[2,1]]],"r":[5,8]},{"m":[[[5,2],[8,4]],[[6,9],[7,3]]],"r":[0,1]},{"m":[[[3,1],[7,8]],[[9,0],[6,5]]],"r":[2,4]},{"m":[[[5,0],[7,2]],[[8,1],[9,4]]],"r":[3,6]},{"m":[[[5,8],[6,1]],[[3,4],[0,2]]],"r":[7,9]},{"m":[[[6,8],[7,4]],[[2,3],[5,9]]],"r":[0,1]},{"m":[[[0,6],[8,9]],[[5,3],[1,4]]],"r":[2,7]},{"m":[[[5,1],[6,2]],[[3,8],[0,7]]],"r":[4,9]},{"m":[[[4,2],[7,6]],[[1,9],[0,8]]],"r":[3,5]},{"m":[[[0,3],[5,4]],[[9,2],[1,7]]],"r":[6,8]}],"11":[{"m":[[[5,6],[8,2]],[[1,3],[9,4]]],"r":[0,7,10]},{"m":[[[7,5],[6,4]],[[1,10],[0,8]]],"r":[2,3,9]},{"m":[[[5,9],[7,0]],[[10,2],[3,4]]],"r":[1,6,8]},{"m":[[[6,8],[3,9]],[[10,7],[2,1]]],"r":[0,4,5]},{"m":[[[10,0],[7,2]],[[1,9],[4,5]]],"r":[3,6,8]},{"m":[[[0,1],[3,6]],[[2,4],[8,9]]],"r":[5,7,10]},{"m":[[[3,7],[8,5]],[[10,4],[6,0]]],"r":[1,2,9]},{"m":[[[6,1],[5,2]],[[9,7],[10,8]]],"r":[0,3,4]},{"m":[[[4,0],[2,3]],[[9,6],[7,1]]],"r":[5,8,10]},{"m":[[[2,0],[1,8]],[[5,3],[10,9]]],"r":[4,6,7]},{"m":[[[7,6],[3,0]],[[4,8],[5,10]]],"r":[1,2,9]}]};
 const KEY="americano-v1";
 const clone=o=>JSON.parse(JSON.stringify(o));
 const isObj=o=>o&&typeof o==="object"&&!Array.isArray(o);
@@ -205,6 +173,14 @@ try{
   if(s&&s.v===2)st=Object.assign(st,s);
   else if(s&&s.names){st.size=s.size||12;st.total=s.total||16;st.names={12:s.names,8:s.names8||DEFAULT_NAMES.slice(0,8)};st.scores={12:s.scores||{},8:s.scores8||{}}}
 }catch(e){}
+// names drive everything: a roster of up to 12 slots, the player count is the number of filled-in names
+const MAXP=12, MINP=4;
+const pad=a=>Array.from({length:MAXP},(_,i)=>(a&&typeof a[i]==="string")?a[i]:"");
+function normalize(o){
+  if(!Array.isArray(o.roster)){const old=(o.names&&o.names[o.size])||[];o.roster=old.filter(n=>n&&!/^Spelare \d+$/.test(String(n).trim()))}
+  o.roster=pad(o.roster); return o;
+}
+normalize(st);
 
 /* ---------- shared storage ---------- */
 let db=null, cur=null, docExists=false, readOnly=false;
@@ -246,7 +222,7 @@ function applyRemote(d){
   const next=Object.assign({v:2,size:12,total:16,names:{},scores:{}},clone(d));
   if(inflight)merge(next,inflight);
   if(patch)merge(next,patch);
-  st=next; saveLocal(); all();
+  st=normalize(next); saveLocal(); all();
 }
 (async()=>{
   await Promise.resolve(); // let the rest of the script load first
@@ -270,10 +246,12 @@ function applyRemote(d){
 })();
 
 /* ---------- state helpers ---------- */
-const P=()=>st.size;
+const players=()=>pad(st.roster).map(s=>s.trim()).filter(Boolean);
+const P=()=>players().length;
+const ready=()=>P()>=MINP;
 const SX=(p=P())=>SCHED[p];
 const courts=()=>SX()[0].m.length;
-function NM(){if(!st.names[P()])st.names[P()]=DEFAULT_NAMES.slice(0,P());return st.names[P()]}
+const NM=()=>players();
 function SC(){if(!st.scores[P()])st.scores[P()]={};return st.scores[P()]}
 const T=()=>st.total||16;
 const unit=t=>(t||T())===4?"game":"poäng";
@@ -283,14 +261,16 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const fmt1=x=>x.toFixed(1).replace(".",",");
 const played=()=>Object.values(SC()).some(s=>s&&s[0]!==""&&s[1]!=="");
 
+function needMore(){const n=P();return `${n?`${n} namn inskrivna. `:""}Det behövs minst ${MINP} spelare – skriv in ${MINP-n} till under Namn.`}
 function renderFmt(){
   document.querySelectorAll("[data-f]").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.f===T()));
-  document.querySelectorAll("[data-p]").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.p===P()));
+  if(!ready()){document.getElementById("h1").textContent="Americano";document.getElementById("sub").textContent=needMore();return}
   document.getElementById("h1").textContent=`Americano · ${P()} spelare`;
   const rv=P()-4*courts();
   document.getElementById("sub").textContent=`${courts()} ${courts()===1?"bana":"banor"} · ${SX().length} rundor${rv?` · ${rv} vilar per runda`:""} · ${fmtName(T())} per match`;
 }
 function renderRounds(){
+  if(!ready()){document.getElementById("rounds").innerHTML=`<div class="empty"><p style="margin:0 0 12px">${needMore()}</p><button class="btn primary" data-v="names">Till Namn</button></div>`;return}
   const sc=SC(), dis=readOnly?" disabled":"";
   document.getElementById("rounds").innerHTML=SX().map((rd,ri)=>{
     const done=rd.m.every((_,ci)=>{const s=sc[ri+"-"+ci];return s&&s[0]!==""&&s[1]!==""});
@@ -338,7 +318,7 @@ function finalCard(){
   if(!seed){
     const restTxt=rv?(rv===1?" Den som hamnar sist i tabellen vilar.":` De ${rv} sista i tabellen vilar.`):"";
     const ex=fc===1?"1:an och 3:an möter 2:an och 4:an.":`Bana 1: 1:an och 3:an mot 2:an och 4:an. Bana 2: 5:an och 7:an mot 6:an och 8:an${fc>2?". Bana 3: 9:an och 11:an mot 10:an och 12:an":""}.`;
-    return `<div class="round final"><h2>Slutspel</h2><div class="fin-body"><p>När alla rundor är spelade lottas slutspelet efter tabellen. ${ex}${restTxt} Vinnarlaget på varje bana tar de två bästa platserna i sin grupp.</p>${readOnly?"":`<div class="act"><button class="btn primary" id="fstart"${roundsDone?"":" disabled"}>Starta slutspel</button>${roundsDone?"":`<span class="note" style="margin:0">Fyll i alla rundor först</span>`}</div>`}</div></div>`;
+    return `<div class="round final"><h2>Slutspel</h2><div class="fin-body"><p>När alla rundor är spelade lottas slutspelet efter tabellen. ${ex}${restTxt} Vinnarlaget på varje bana tar de två bästa platserna i sin grupp. Det är samma parning som i Mexicano: ettan och tvåan hamnar på olika sidor av nätet.</p>${readOnly?"":`<div class="act"><button class="btn primary" id="fstart"${roundsDone?"":" disabled"}>Starta slutspel</button>${roundsDone?"":`<span class="note" style="margin:0">Fyll i alla rundor först</span>`}</div>`}</div></div>`;
   }
   const NN=i=>`<span class="seed">${seed.indexOf(i)+1}</span>${esc(N(i))}`;
   const allDone=Array.from({length:fc},(_,ci)=>fdone(sc["F-"+ci])).every(Boolean);
@@ -384,6 +364,7 @@ function tableHTML(t){
 let saveOpen=false, justSaved=false;
 function todayISO(){const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
 function renderTable(){
+  if(!ready()){document.getElementById("table").innerHTML=`<div class="empty"><p style="margin:0 0 12px">${needMore()}</p><button class="btn primary" data-v="names">Till Namn</button></div>`;return}
   const t=standingsFor(P(),NM(),SC());
   let act="";
   if(!readOnly){
@@ -391,8 +372,7 @@ function renderTable(){
     else if(saveOpen) act=`<div class="panel"><label for="sdate">Datum för kvällen</label><input type="date" id="sdate" value="${todayISO()}"><div class="act"><button class="btn primary" id="sdo">Spara</button><button class="btn" id="sno">Avbryt</button></div></div>`;
     else act=`<div class="act"><button class="btn primary" id="sopen"${played()?"":" disabled"}>Spara kvällens resultat</button></div>`;
   }
-  chartSrc.live={p:P(),names:NM(),scores:SC()}; if(chartRound.live!=null&&chartRound.live>SX().length)delete chartRound.live;
-  document.getElementById("table").innerHTML=finalResHTML(P(),NM(),SC(),SEED())+chartHTML("live",P(),NM(),SC())+tableHTML(t)+`<p class="note">${t.rest
+  document.getElementById("table").innerHTML=finalResHTML(P(),NM(),SC(),SEED())+tableHTML(t)+`<p class="note">${t.rest
     ?`Alla spelar inte lika många matcher, så tabellen sorteras på snittpoäng per match. Lika snitt avgörs av +/− per match, sedan antal vunna matcher.`
     :`Poäng = summan av lagets ${unit()} i varje match. Lika poäng avgörs av skillnad (+/−), sedan antal vunna matcher.`}</p>`+act;
 }
@@ -414,34 +394,44 @@ function renderHist(){
     const del=readOnly?"":(delId===h.id
       ?`<span>Ta bort den här kvällen?</span><button class="btn danger" data-hdel="${esc(h.id)}">Ja, ta bort</button><button class="btn" data-hno="1">Avbryt</button>`
       :`<button class="btn" data-hask="${esc(h.id)}">Ta bort</button>`);
-    return `<details class="hist"${delId===h.id?" open":""}><summary><span class="d">${esc(prettyDate(h.date))}</span><span class="meta">${h.size} spelare · ${fmtName(h.total)} · ${n} matcher</span><span class="podium">${pod}</span></summary>${(chartSrc["h-"+h.id]={p:h.size,names:h.names||[],scores:h.scores||{}},chartHTML("h-"+h.id,h.size,h.names||[],h.scores||{}))}${h.seed?finalResHTML(h.size,h.names||[],h.scores||{},h.seed):""}${tableHTML(t)}<div class="foot">${del}</div></details>`;
+    return `<details class="hist"${delId===h.id?" open":""}><summary><span class="d">${esc(prettyDate(h.date))}</span><span class="meta">${h.size} spelare · ${fmtName(h.total)} · ${n} matcher</span><span class="podium">${pod}</span></summary>${h.seed?finalResHTML(h.size,h.names||[],h.scores||{},h.seed):""}${tableHTML(t)}<div class="foot">${del}</div></details>`;
   }).join("");
 }
-function renderNames(){
-  const dis=readOnly?" disabled":"";
-  const pasteBox=readOnly?"":`<div class="paste"><h3>Klistra in deltagare</h3><p>Kopiera namnlistan (t.ex. från MATCHi eller ett meddelande) och klistra in här – ett namn per rad, eller åtskilda med komma. Numrering och punkter tas bort automatiskt. Antalet spelare ställs in efter listan.</p><textarea id="pastebox" placeholder="Anna\nBertil\nCecilia\n…">${esc(pasteText)}</textarea><div class="act" style="margin-top:0"><button class="btn primary" id="pasteuse">Använd namnen</button><button class="btn" id="pasteclip">Klistra in från urklipp</button></div>${pasteMsg?`<p class="msg${pasteMsg.warn?" warn":""}">${esc(pasteMsg.t)}</p>`:""}</div>`;
-  document.getElementById("names").innerHTML=pasteBox+`<div class="names">`+
-  NM().map((n,i)=>`<label for="n${i}">Spelare ${i+1}<input id="n${i}" value="${esc(n)}" data-n="${i}" placeholder="Spelare ${i+1}" autocomplete="off"${dis}></label>`).join("")+
-  `</div><p class="note">Varje antal spelare har egna namn och resultat. Namnen sparas och ligger kvar till nästa gång.</p>`+
-  (readOnly?"":`<div class="reset"><button id="nclr">Töm alla namn</button><button id="clr" class="danger">Töm resultaten för ${P()} spelare</button><span id="cf" hidden><button id="yes" class="danger">Ja, töm</button> <button id="no">Avbryt</button></span></div>`);
+function countText(){
+  const n=P();
+  if(n<MINP)return needMore();
+  return `${n} spelare · ${courts()} ${courts()===1?"bana":"banor"} · ${SX().length} rundor${n-4*courts()?` · ${n-4*courts()} vilar per runda`:""}`;
 }
-let pasteText="", pasteMsg=null;
+function renderNames(){
+  const dis=readOnly?" disabled":"", R=pad(st.roster);
+  const pasteBox=readOnly?"":`<div class="paste"><h3>Klistra in deltagare</h3><p>Kopiera namnlistan (t.ex. från MATCHi eller ett meddelande) och klistra in här – ett namn per rad, eller åtskilda med komma. Numrering och punkter tas bort automatiskt.</p><textarea id="pastebox" placeholder="Anna\nBertil\nCecilia\n…">${esc(pasteText)}</textarea><div class="act" style="margin-top:0"><button class="btn primary" id="pasteuse">Använd namnen</button><button class="btn" id="pasteclip">Klistra in från urklipp</button></div>${pasteMsg?`<p class="msg${pasteMsg.warn?" warn":""}">${esc(pasteMsg.t)}</p>`:""}</div>`;
+  document.getElementById("names").innerHTML=pasteBox+`<p class="ncount${ready()?"":" warn"}" id="ncount">${esc(countText())}</p><div class="names">`+
+  R.map((n,i)=>`<label for="n${i}">${i+1}.<input id="n${i}" value="${esc(n)}" data-n="${i}" placeholder="Namn" autocomplete="off"${dis}></label>`).join("")+
+  `</div><p class="note">Antalet spelare blir lika många som de namn du skrivit in (4–12). Tomma rader räknas inte. Byter du antal när matcher redan är spelade blir det ett nytt schema – resultaten för det tidigare antalet finns kvar om du går tillbaka till samma antal.</p>`+
+  (readOnly?"":`<div class="reset"><button id="nclr">Töm alla namn</button>${ready()?`<button id="clr" class="danger">Töm resultaten</button><span id="cf" hidden><button id="yes" class="danger">Ja, töm</button> <button id="no">Avbryt</button></span>`:""}</div>`);
+}
+function rosterChanged(now){
+  st.size=P(); renderFmt();
+  const c=document.getElementById("ncount"); if(c){c.textContent=countText();c.className="ncount"+(ready()?"":" warn")}
+  justSaved=false; saveOpen=false;
+  clearTimeout(nameTimer);
+  const go=()=>queue({roster:pad(st.roster),size:st.size});
+  if(now)go(); else nameTimer=setTimeout(go,700);
+}
+let pasteText="", pasteMsg=null, nameTimer=null;
 function parseNames(txt){
   return txt.split(/[\n\r;,\t]+/).map(s=>s.replace(/^\s*(?:\d+\s*[.):-]?|[-•*·–]+)\s*/,"").replace(/\s+/g," ").trim()).filter(s=>s&&!/^\d+$/.test(s));
 }
 function useNames(txt){
   const list=parseNames(txt);
   if(!list.length){pasteMsg={t:"Hittade inga namn i texten.",warn:true};renderNames();return}
-  let n=list.length, note="";
-  if(n<5){note=` Bara ${n} namn – resten fylls som Spelare ${n+1}… med 5 spelare.`;n=5}
-  else if(n>12){note=` ${n} namn – bara de 12 första används.`;n=12}
-  const names=Array.from({length:n},(_,i)=>list[i]||("Spelare "+(i+1)));
-  const changed=n!==P();
-  st.size=n; st.names[n]=names; delete chartSel.live; delete chartRound.live;
-  queue({size:n,names:{[n]:names.slice()}});
-  justSaved=false; saveOpen=false; pasteText="";
-  pasteMsg={t:`${Math.min(list.length,12)} namn inlagda${changed?` – nu ${n} spelare, ${courts()} ${courts()===1?"bana":"banor"}`:""}.${note}`,warn:!!note};
-  all();
+  st.roster=pad(list.slice(0,MAXP)); pasteText="";
+  const n=P(); let t=`${n} namn inlagda.`, warn=false;
+  if(list.length>MAXP){t=`${list.length} namn – bara de ${MAXP} första används.`;warn=true}
+  else if(n<MINP){t+=` Det behövs minst ${MINP} spelare.`;warn=true}
+  else t+=` ${courts()} ${courts()===1?"bana":"banor"}.`;
+  pasteMsg={t,warn};
+  rosterChanged(true); all();
 }
 function all(){
   const a=document.activeElement, id=a&&a.id, y=window.scrollY;
@@ -452,101 +442,16 @@ function all(){
 function clearScores(){st.scores[P()]={};if(st.seed)delete st.seed[P()];fredoAsk=false;queue(null,true);justSaved=false;saveOpen=false;all()}
 
 
-/* ---------- progress chart ---------- */
-const chartSel={}, chartRound={};
-let chartOpen={};
-try{chartOpen={live:localStorage.getItem("americano-chart")==="1"}}catch(e){}
-// cumulative points (or running average per match when someone rests) after each round
-function progress(p,names,scores){
-  const sched=SX(p), rest=sched[0].r.length>0;
-  const pts=Array(p).fill(0), m=Array(p).fill(0);
-  const rounds=[]; let last=0;
-  sched.forEach((rd,ri)=>{if(rd.m.some((_,ci)=>{const s=scores[ri+"-"+ci];return s&&s[0]!==""&&s[1]!==""}))last=ri+1});
-  const series=Array.from({length:p},(_,i)=>({i,name:names[i]||("Spelare "+(i+1)),v:[rest?null:0]}));
-  for(let ri=0;ri<last;ri++){
-    sched[ri].m.forEach((mm,ci)=>{
-      const s=scores[ri+"-"+ci]; if(!s||s[0]===""||s[1]==="")return;
-      mm[0].forEach(x=>{pts[x]+=+s[0];m[x]++}); mm[1].forEach(x=>{pts[x]+=+s[1];m[x]++});
-    });
-    series.forEach(se=>se.v.push(rest?(m[se.i]?pts[se.i]/m[se.i]:null):pts[se.i]));
-  }
-  return {series,last,rest};
-}
-function niceMax(v){if(v<=0)return 10;const e=Math.pow(10,Math.floor(Math.log10(v)));for(const f of[1,2,2.5,5,10])if(f*e>=v)return f*e}
-function chartHTML(key,p,names,scores){
-  if(!chartOpen[key])return `<div class="chartbtn" data-chart="${esc(key)}"><button class="btn" data-copen="${esc(key)}">Visa poängutveckling</button></div>`;
-  const pr=progress(p,names,scores);
-  if(pr.last<1)return `<div class="chart" data-chart="${esc(key)}"><div class="chead"><h3>Poängutveckling</h3><button class="btn sm" data-cclose="${esc(key)}">Dölj</button></div><p class="cap">Grafen visar hur poängen växer runda för runda när de första resultaten är inmatade.</p></div>`;
-  // default highlight: current top three
-  const final=pr.series.map(s=>({i:s.i,v:s.v[pr.last]??-1})).sort((a,b)=>b.v-a.v);
-  if(!chartSel[key])chartSel[key]=final.slice(0,3).map((x,k)=>({i:x.i,c:k+1}));
-  const sel=chartSel[key].filter(x=>x.i<p);
-  const R=SX(p).length, xr=chartRound[key]??pr.last;
-  const W=380,H=230,L=28,Rt=86,Tp=8,B=22, pw=W-L-Rt, ph=H-Tp-B;
-  let vmax=0; pr.series.forEach(s=>s.v.forEach(v=>{if(v!=null&&v>vmax)vmax=v}));
-  const ymax=niceMax(vmax*1.05);
-  const X=r=>L+pw*r/R, Y=v=>Tp+ph*(1-v/ymax);
-  const path=v=>{let d="",pen=false;v.forEach((y,r)=>{if(y==null){pen=false;return}d+=(pen?"L":"M")+X(r).toFixed(1)+" "+Y(y).toFixed(1);pen=true});return d};
-  let g="";
-  for(let k=0;k<=4;k++){const v=ymax*k/4,y=Y(v);g+=`<line class="grid" x1="${L}" x2="${L+pw}" y1="${y}" y2="${y}"/><text class="ax" x="${L-6}" y="${y+4}" text-anchor="end">${pr.rest?fmt1(v):Math.round(v)}</text>`}
-  const step=R>9?2:1;
-  for(let r=0;r<=R;r+=step)g+=`<text class="ax" x="${X(r)}" y="${H-6}" text-anchor="middle">${r===0?"Start":r}</text>`;
-  const selIdx=new Set(sel.map(x=>x.i));
-  pr.series.forEach(s=>{if(!selIdx.has(s.i))g+=`<path class="bg" d="${path(s.v)}"/>`});
-  // highlighted lines, end markers and direct labels (spread so they don't collide)
-  const labs=sel.map(x=>{const s=pr.series[x.i];const v=s.v[pr.last];return{...x,s,v,y:v==null?null:Y(v)}}).filter(l=>l.y!=null).sort((a,b)=>a.y-b.y);
-  for(let k=1;k<labs.length;k++)if(labs[k].y-labs[k-1].y<15)labs[k].y=labs[k-1].y+15;
-  sel.forEach(x=>{const s=pr.series[x.i];g+=`<path class="hl" stroke="var(--s${x.c})" d="${path(s.v)}"/>`});
-  sel.forEach(x=>{const v=pr.series[x.i].v[pr.last];if(v!=null)g+=`<circle cx="${X(pr.last)}" cy="${Y(v)}" r="4.5" fill="var(--s${x.c})" stroke="var(--surface)" stroke-width="2"/>`});
-  labs.forEach(l=>{const nm=l.s.name.length>8?l.s.name.slice(0,7)+"…":l.s.name;g+=`<circle cx="${X(pr.last)+11}" cy="${l.y}" r="3.5" fill="var(--s${l.c})"/><text class="lab" x="${X(pr.last)+18}" y="${l.y+4}">${esc(nm)} <tspan class="labv">${pr.rest?fmt1(l.v):l.v}</tspan></text>`});
-  // crosshair at the inspected round
-  g+=`<line class="xh" x1="${X(xr)}" x2="${X(xr)}" y1="${Tp}" y2="${Tp+ph}"/>`;
-  for(let r=0;r<=pr.last;r++){const x0=r===0?L:(X(r-1)+X(r))/2,x1=r===pr.last?X(r)+pw/R/2:(X(r)+X(r+1))/2;g+=`<rect class="hit" data-ck="${esc(key)}" data-cr="${r}" x="${x0}" y="${Tp}" width="${x1-x0}" height="${ph}"/>`}
-  // readout: standings after the inspected round
-  const col={};sel.forEach(x=>col[x.i]=x.c);
-  const at=pr.series.map(s=>({i:s.i,name:s.name,v:s.v[xr]})).filter(x=>x.v!=null).sort((a,b)=>b.v-a.v);
-  const ro=xr===0?"Start: alla på 0.":`<b>Efter runda ${xr}:</b> `+at.map((x,k)=>`${col[x.i]?`<span class="sw" style="background:var(--s${col[x.i]})"></span>`:""}${k+1}. ${col[x.i]?`<b>${esc(x.name)}</b>`:esc(x.name)} ${pr.rest?fmt1(x.v):x.v}`).join(" · ");
-  const chips=pr.series.map(s=>{const c=col[s.i];return `<button class="chip" data-ck="${esc(key)}" data-ci="${s.i}" aria-pressed="${!!c}"><span class="sw"${c?` style="background:var(--s${c})"`:""}></span>${esc(s.name)}</button>`}).join("");
-  return `<div class="chart" data-chart="${esc(key)}"><div class="chead"><h3>Poängutveckling</h3><button class="btn sm" data-cclose="${esc(key)}">Dölj</button></div><p class="cap">${pr.rest?"Snittpoäng per match":"Totalpoäng"} efter varje runda. Tryck i grafen för att se ställningen, och på namnen för att jämföra upp till fyra spelare.</p>
-  <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Linjediagram över poäng per runda">${g}</svg>
-  <p class="readout">${ro}</p><div class="chips">${chips}</div></div>`;
-}
-const chartSrc={};
-function rerenderChart(key){
-  const box=document.querySelector(`[data-chart="${CSS.escape(key)}"]`), src=chartSrc[key];
-  if(box&&src)box.outerHTML=chartHTML(key,src.p,src.names,src.scores);
-}
-function toggleSel(key,i){
-  let sel=chartSel[key]||[];
-  if(sel.some(x=>x.i===i))sel=sel.filter(x=>x.i!==i);
-  else{if(sel.length>=4)sel=sel.slice(1);const used=new Set(sel.map(x=>x.c));let c=1;while(used.has(c))c++;sel=sel.concat({i,c})}
-  chartSel[key]=sel; rerenderChart(key);
-}
-document.addEventListener("pointerover",e=>{const t=e.target;if(t.dataset&&t.dataset.cr!==undefined&&e.pointerType==="mouse"){const k=t.dataset.ck,r=+t.dataset.cr;if(chartRound[k]!==r){chartRound[k]=r;rerenderChart(k)}}});
-document.addEventListener("click",e=>{
-  const t=e.target;
-  const ob=t.closest&&t.closest("[data-copen],[data-cclose]");
-  if(ob){const k=ob.dataset.copen||ob.dataset.cclose;chartOpen[k]=!!ob.dataset.copen;
-    if(k==="live")try{localStorage.setItem("americano-chart",chartOpen[k]?"1":"0")}catch(err){}
-    rerenderChart(k);return}
-  if(t.dataset&&t.dataset.cr!==undefined){chartRound[t.dataset.ck]=+t.dataset.cr;rerenderChart(t.dataset.ck);return}
-  const c=t.closest&&t.closest(".chip");if(c){toggleSel(c.dataset.ck,+c.dataset.ci)}
-});
-
 /* ---------- events ---------- */
-let nameTimer=null;
 document.addEventListener("input",e=>{
   const t=e.target;
   if(t.dataset.k){
     const v=t.value.replace(/\D/g,"").slice(0,2); t.value=v;
     const sc=SC(), s=sc[t.dataset.k]||["",""]; s[+t.dataset.i]=v; sc[t.dataset.k]=s;
-    saveLocal(); delete chartRound.live; renderTable();
+    saveLocal(); renderTable();
   }
   if(t.id==="pastebox")pasteText=t.value;
-  if(t.dataset.n!==undefined){
-    NM()[+t.dataset.n]=t.value;
-    clearTimeout(nameTimer); nameTimer=setTimeout(()=>queue({names:{[P()]:NM().slice()}}),700);
-  }
+  if(t.dataset.n!==undefined){st.roster=pad(st.roster);st.roster[+t.dataset.n]=t.value;rosterChanged(false)}
 });
 // fill the other side when the entry is finished, so "1" isn't taken as final before "12" is typed
 document.addEventListener("focusin",e=>{const t=e.target;if(t.dataset&&t.dataset.n!==undefined&&t.select)setTimeout(()=>t.select(),0)});
@@ -559,7 +464,7 @@ document.addEventListener("focusout",e=>{
     queue({scores:{[P()]:{[t.dataset.k]:s.slice()}}});
     renderTable();
   }
-  if(t.dataset.n!==undefined){clearTimeout(nameTimer);queue({names:{[P()]:NM().slice()}})}
+  if(t.dataset.n!==undefined)rosterChanged(true);
   setTimeout(()=>{
     if(editing())return;
     if(pendingRemote){const d=pendingRemote;pendingRemote=null;applyRemote(d)}
@@ -567,20 +472,19 @@ document.addEventListener("focusout",e=>{
   },0);
 });
 document.addEventListener("click",async e=>{
-  const tg=e.target.closest("button"); if(!tg||tg.classList.contains("chip"))return;
+  const tg=e.target.closest("button"); if(!tg)return;
   const d=tg.dataset, v=d.v;
   if(v){document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===v));
     ["rounds","table","names","hist"].forEach(id=>document.getElementById(id).hidden=id!==v);
     if(v==="rounds")renderRounds(); if(v==="table")renderTable(); if(v==="names")renderNames(); if(v==="hist")renderHist();
     window.scrollTo(0,0);return}
-  if(d.p){if(readOnly)return;st.size=+d.p;delete chartSel.live;delete chartRound.live;queue({size:st.size,names:{[P()]:NM().slice()}});justSaved=false;saveOpen=false;all();return}
   if(d.f){if(readOnly)return;st.total=+d.f;queue({total:st.total});renderFmt();renderRounds();renderTable();return}
   if(tg.id==="pasteuse"){useNames(document.getElementById("pastebox").value);return}
   if(tg.id==="pasteclip"){
     try{const t=await navigator.clipboard.readText();pasteText=t;useNames(t)}
     catch(err){pasteMsg={t:"Telefonen tillät inte att läsa urklipp. Tryck i rutan och välj Klistra in i stället.",warn:true};renderNames()}
     return}
-  if(tg.id==="nclr"){if(readOnly)return;st.names[P()]=Array(P()).fill("");queue({names:{[P()]:NM().slice()}});pasteMsg=null;all();const f=document.getElementById("n0");if(f)f.focus();return}
+  if(tg.id==="nclr"){if(readOnly)return;st.roster=pad([]);pasteMsg=null;rosterChanged(true);all();const f=document.getElementById("n0");if(f)f.focus();return}
   if(tg.id==="fstart"&&!readOnly){
     const order=standingsFor(P(),NM(),SC()).rows.map(r=>r.i);
     st.seed=st.seed||{}; st.seed[P()]=order; queue({seed:{[P()]:order.slice()}});
