@@ -35,6 +35,30 @@ details li{margin-bottom:4px}
 .more{color:var(--muted);text-align:center;margin:28px 0 0;font-size:.95rem}
 footer{margin-top:40px;color:var(--muted);font-size:.85rem;text-align:center}
 footer a{color:inherit}
+.sheet{border:0;padding:0;margin:auto auto 0;width:100%;max-width:520px;max-height:92dvh;background:var(--surface);color:var(--fg);border-radius:20px 20px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.18)}
+.sheet::backdrop{background:rgba(30,24,20,.45)}
+.sheet[open]{animation:up .28s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+@media (min-width:600px){.sheet{margin:auto;border-radius:20px}}
+.sheet-in{padding:10px 20px 24px}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 14px}
+.sheet-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.sheet-head img{width:48px;height:48px;border-radius:12px}
+.sheet h3{font:600 1.3rem var(--display);margin:0}
+.sheet-head p{margin:0;color:var(--muted);font-size:.9rem}
+.x{margin-left:auto;border:0;background:var(--bg);color:var(--fg);width:34px;height:34px;border-radius:50%;font-size:1.2rem;cursor:pointer}
+.seg{display:flex;background:var(--bg);border-radius:10px;padding:3px;margin-bottom:18px}
+.seg button{flex:1;border:0;background:none;color:var(--muted);font:600 .9rem var(--body);padding:8px;border-radius:8px;cursor:pointer}
+.seg button[aria-selected="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+.steps li{counter-increment:s;display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:start;margin-bottom:14px}
+.steps li::before{content:counter(s);width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;font-weight:600;display:grid;place-items:center}
+.steps b{display:block}
+.steps span{color:var(--muted);font-size:.95rem;line-height:1.35;display:block;margin-top:2px}
+.ico{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;color:var(--accent)}
+.note{background:var(--bg);border-radius:10px;padding:10px 12px;font-size:.92rem;color:var(--muted);margin:4px 0 0}
+.note b{color:var(--fg)}
+.done{text-align:center;margin:6px 0 0;color:var(--muted);font-size:.92rem}
 @media (max-width:480px){.app{grid-template-columns:1fr}.app img{width:60px;height:60px}}
 </style>
 </head>
@@ -50,21 +74,69 @@ footer a{color:inherit}
       <p>För padel-americano med 4–12 spelare. Appen lottar matchschemat, räknar tabellen medan ni spelar och ordnar slutspel. Tidigare kvällar kan sparas.</p>
       <div class="btns">
         <a class="btn primary" href="americano/">Öppna appen</a>
-        <a class="btn" href="americano/index.html" download="Americano.html">Ladda ner</a>
+        <a class="btn" href="#installera" data-install>Lägg på hemskärmen</a>
       </div>
     </div>
-    <details>
-      <summary>Lägg appen på hemskärmen</summary>
-      <ol>
-        <li><b>iPhone/iPad:</b> öppna appen i Safari, tryck på Dela-knappen och välj <i>Lägg till på hemskärmen</i>.</li>
-        <li><b>Android:</b> öppna appen i Chrome, tryck på menyn ⋮ och välj <i>Lägg till på startskärmen</i>.</li>
-        <li>Appen fungerar sedan som en vanlig app, även utan internet på banan.</li>
-      </ol>
-    </details>
   </article>
 
   <p class="more">Fler appar kommer.</p>
   <footer>Ljugarn och Täby · <a href="https://elisabethnorlanderkeramik.se">Elisabeth Norlander Keramik</a></footer>
 </div>
+<dialog class="sheet" id="installera" aria-labelledby="sheet-title">
+  <div class="sheet-in">
+    <div class="grab"></div>
+    <div class="sheet-head">
+      <img src="americano/icon-r-192.png" alt="">
+      <div><h3 id="sheet-title">Lägg Americano på hemskärmen</h3><p>Gratis, ingen App Store behövs</p></div>
+      <button class="x" data-close aria-label="Stäng">×</button>
+    </div>
+    <div class="seg" role="tablist">
+      <button role="tab" data-tab="ios">iPhone</button>
+      <button role="tab" data-tab="android">Android</button>
+      <button role="tab" data-tab="desktop">Dator</button>
+    </div>
+    <div data-pane="ios">
+      <p class="note" data-not-safari hidden><b>Öppna sidan i Safari först.</b> Hemskärmsknappen finns bara där. Kopiera adressen och klistra in den i Safari.</p>
+      <ol class="steps">
+        <li><div><b>Öppna appen i Safari</b><span>Tryck på <i>Öppna appen</i> på den här sidan.</span></div></li>
+        <li><div><b>Tryck på Dela <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg></b><span>Knappen längst ner i Safari (på iPad uppe till höger).</span></div></li>
+        <li><div><b>Välj Lägg till på hemskärmen <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg></b><span>Scrolla ner i listan om du inte ser den direkt.</span></div></li>
+        <li><div><b>Tryck på Lägg till</b><span>Nu ligger Americano bland dina appar.</span></div></li>
+      </ol>
+    </div>
+    <div data-pane="android" hidden>
+      <ol class="steps">
+        <li><div><b>Öppna appen i Chrome</b><span>Tryck på <i>Öppna appen</i> på den här sidan.</span></div></li>
+        <li><div><b>Tryck på menyn ⋮</b><span>Uppe till höger i Chrome.</span></div></li>
+        <li><div><b>Välj Installera app</b><span>Eller <i>Lägg till på startskärmen</i>, beroende på telefon.</span></div></li>
+      </ol>
+    </div>
+    <div data-pane="desktop" hidden>
+      <ol class="steps">
+        <li><div><b>Öppna appen i Chrome eller Edge</b><span>Tryck på <i>Öppna appen</i>.</span></div></li>
+        <li><div><b>Klicka på installera-ikonen</b><span>Längst till höger i adressfältet, eller via menyn → <i>Installera</i>.</span></div></li>
+      </ol>
+      <p class="note">På Mac med Safari: Arkiv → <i>Lägg till i Dock</i>.</p>
+    </div>
+    <p class="done">Appen fungerar sedan även utan internet på banan.</p>
+  </div>
+</dialog>
+<script>
+(function(){
+  var d=document.getElementById('installera'); if(!d||!d.showModal) return;
+  var ua=navigator.userAgent, ios=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  var tab=ios?'ios':/Android/.test(ua)?'android':'desktop';
+  function show(t){
+    d.querySelectorAll('[data-tab]').forEach(function(b){b.setAttribute('aria-selected',b.dataset.tab===t)});
+    d.querySelectorAll('[data-pane]').forEach(function(p){p.hidden=p.dataset.pane!==t});
+  }
+  if(ios&&/CriOS|FxiOS|EdgiOS|GSA|FBAN|Instagram/.test(ua)) d.querySelector('[data-not-safari]').hidden=false;
+  show(tab);
+  d.querySelectorAll('[data-tab]').forEach(function(b){b.onclick=function(){show(b.dataset.tab)}});
+  document.querySelectorAll('[data-install]').forEach(function(a){a.onclick=function(e){e.preventDefault();d.showModal()}});
+  d.querySelector('[data-close]').onclick=function(){d.close()};
+  d.addEventListener('click',function(e){if(e.target===d)d.close()});
+})();
+</script>
 </body>
 </html>
