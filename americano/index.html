@@ -149,7 +149,6 @@ input.s:disabled{opacity:.7}
 <nav class="tabs" role="tablist">
   <button id="t-r" role="tab" aria-selected="true" data-v="rounds">Matcher</button>
   <button id="t-t" role="tab" aria-selected="false" data-v="table">Tabell</button>
-  <button id="t-h" role="tab" aria-selected="false" data-v="hist">Tidigare</button>
   <button id="t-n" role="tab" aria-selected="false" data-v="names">Namn</button>
 </nav>
 <section id="rounds"></section>
@@ -367,7 +366,7 @@ function renderTable(){
   if(!ready()){document.getElementById("table").innerHTML=`<div class="empty"><p style="margin:0 0 12px">${needMore()}</p><button class="btn primary" data-v="names">Till Namn</button></div>`;return}
   const t=standingsFor(P(),NM(),SC());
   let act="";
-  if(!readOnly){
+  if(false){
     if(justSaved) act=`<div class="panel"><p><b>Kvällen är sparad</b> och finns under Tidigare.</p><p>Vill du tömma resultaten inför nästa gång? Namnen ligger kvar.</p><div class="act"><button class="btn danger" id="clr2">Töm resultaten</button><button class="btn" id="keep">Behåll</button></div></div>`;
     else if(saveOpen) act=`<div class="panel"><label for="sdate">Datum för kvällen</label><input type="date" id="sdate" value="${todayISO()}"><div class="act"><button class="btn primary" id="sdo">Spara</button><button class="btn" id="sno">Avbryt</button></div></div>`;
     else act=`<div class="act"><button class="btn primary" id="sopen"${played()?"":" disabled"}>Spara kvällens resultat</button></div>`;
