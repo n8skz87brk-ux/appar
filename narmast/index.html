@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="sv"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Närmast vinner</title>
+<meta name="description" content="Kartspel för två lag: sätt ut pilen där platsen ligger – den som hamnar närmast tar poängen.">
+<meta name="theme-color" content="#0a1220">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Närmast">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}*,*::before,*::after{box-sizing:inherit}body{margin:0;padding:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Overpass:wght@400;600;800&family=Overpass+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one-screen studio game — scoreboard band, station-sign clue, full map, action bar */
+:root{
+  --night:#0f1a2b;      /* studio/sea */
+  --sea:#14243a;
+  --land:#2c4152;
+  --border:#4a6276;
+  --ink:#eef1ea;
+  --muted:#9fb0bd;
+  --sign:#f2c230;       /* station-sign yellow */
+  --p1:#ff6b5a;         /* team red */
+  --p2:#5ec8ff;         /* team blue */
+  --truth:#ffffff;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --body:"Overpass","Helvetica Neue",Arial,sans-serif;
+  --mono:"Overpass Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--night);color:var(--ink);font-family:var(--body);font-size:15px;overflow:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--night);z-index:10}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-offset:2px}
+.app{height:100%;display:flex;flex-direction:column}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Scoreboard */
+.board{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;padding-block:10px;background:#0a1220;border-bottom:1px solid #22344a}
+.team{display:flex;align-items:center;gap:8px;min-width:0}
+.team.r{justify-content:flex-end;text-align:right}
+.team .nm{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.team .pts{font-family:var(--display);font-size:30px;line-height:1;font-weight:900;font-variant-numeric:tabular-nums}
+.team.t1 .pts{color:var(--p1)} .team.t2 .pts{color:var(--p2)}
+.dot{width:12px;height:12px;border-radius:50%;flex:none}
+.t1 .dot{background:var(--p1)} .t2 .dot{background:var(--p2)}
+.round{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:center;white-space:nowrap}
+
+/* Station sign clue */
+.clue{padding-block:10px}
+.sign{background:var(--sign);color:#14171c;border-radius:6px;padding:8px 14px 10px;display:flex;flex-direction:column;gap:2px;box-shadow:0 3px 0 #a7841c}
+.sign .lbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;opacity:.75}
+.sign .place{font-family:var(--display);font-weight:900;font-size:clamp(30px,8vw,46px);line-height:1;letter-spacing:.01em;text-transform:uppercase;text-wrap:balance}
+.sign .sub{font-size:13px;font-weight:600}
+
+/* Map */
+.mapbox{flex:1;position:relative;min-height:0;background:var(--sea);touch-action:none}
+#map{width:100%;height:100%;display:block}
+.land{fill:var(--land);stroke:var(--border);stroke-width:.6px;vector-effect:non-scaling-stroke}
+.grat{fill:none;stroke:#ffffff10;stroke-width:1px;vector-effect:non-scaling-stroke}
+.arc{fill:none;stroke-width:2.5px;stroke-dasharray:6 5;vector-effect:non-scaling-stroke}
+.mapnote{position:absolute;left:12px;right:12px;bottom:12px;background:#0a1220e6;border:1px solid #22344a;border-radius:8px;padding:8px 12px;font-size:13px;color:var(--muted)}
+.zoombtns{position:absolute;right:max(10px,env(safe-area-inset-right,0px));top:10px;display:flex;flex-direction:column;gap:6px}
+.zoombtns button{width:38px;height:38px;border-radius:8px;border:1px solid #2c4258;background:#0a1220d9;color:var(--ink);font-size:20px;font-weight:800;line-height:1}
+.dist-tag{font-family:var(--mono);font-weight:700;font-size:13px;paint-order:stroke;stroke:#0a1220;stroke-width:4px}
+
+/* Action bar */
+.bar{padding-block:12px;background:#0a1220;border-top:1px solid #22344a;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding-bottom:max(12px,env(safe-area-inset-bottom,0px))}
+.msg{flex:1 1 180px;min-width:0;font-size:14px;line-height:1.35}
+.msg b{font-weight:800}
+.btn{border:0;border-radius:8px;padding:12px 18px;font-weight:800;font-size:15px;background:var(--sign);color:#14171c;white-space:nowrap}
+.btn[disabled]{opacity:.35;cursor:default}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid #3a5068}
+.btn.p1{background:var(--p1);color:#1a0d0b}
+.btn.p2{background:var(--p2);color:#071722}
+
+/* Overlay screens */
+.overlay{position:fixed;inset:0;background:#0a1220f2;display:flex;align-items:flex-start;justify-content:center;overflow:auto;z-index:20;padding-top:calc(env(safe-area-inset-top,0px) + 24px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 24px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.card{width:100%;max-width:440px;display:flex;flex-direction:column;gap:18px}
+.logo{font-family:var(--display);font-weight:900;font-size:58px;line-height:.9;text-transform:uppercase;color:var(--sign)}
+.logo small{display:block;font-family:var(--body);font-size:14px;font-weight:600;color:var(--muted);text-transform:none;margin-top:10px;line-height:1.4}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.legend{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--muted)}
+.field input{background:#13202f;border:1px solid #2c4258;border-radius:8px;color:var(--ink);padding:11px 12px;font:inherit;font-size:16px}
+.names{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.names .field:first-child input{border-left:4px solid var(--p1)}
+.names .field:last-child input{border-left:4px solid var(--p2)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{flex:1 1 auto;border:1px solid #2c4258;background:#13202f;color:var(--ink);border-radius:8px;padding:10px 12px;font-weight:700}
+.seg button[aria-pressed="true"]{background:var(--sign);color:#14171c;border-color:var(--sign)}
+.ver{margin:0;text-align:center;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--muted);line-height:1.4}
+.check input{width:20px;height:20px;accent-color:var(--sign);flex:none;margin-top:1px}
+.handoff{text-align:center;align-items:center;margin-top:12vh}
+.handoff .big{font-family:var(--display);font-weight:900;font-size:44px;text-transform:uppercase;line-height:1}
+.handoff p{color:var(--muted);margin:0}
+.result-row{display:flex;justify-content:space-between;align-items:baseline;padding:12px 0;border-bottom:1px solid #22344a;gap:12px}
+.result-row .n{font-weight:800}
+.result-row .v{font-family:var(--display);font-weight:900;font-size:34px;font-variant-numeric:tabular-nums}
+.result-row .k{font-family:var(--mono);font-size:12px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){
+  .pop{animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
+  @keyframes pop{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
+}
+</style>
+</head><body>
+<div class="app" id="app">
+  <header class="board wrap">
+    <div class="team t1"><span class="dot"></span><span class="nm" id="n1">Lag 1</span><span class="pts" id="s1">0</span></div>
+    <div class="round" id="roundLbl">–</div>
+    <div class="team t2 r"><span class="pts" id="s2">0</span><span class="nm" id="n2">Lag 2</span><span class="dot"></span></div>
+  </header>
+  <section class="clue wrap">
+    <div class="sign">
+      <span class="lbl">Var ligger</span>
+      <span class="place" id="place">…</span>
+      <span class="sub" id="sub" hidden></span>
+    </div>
+  </section>
+  <div class="mapbox" id="mapbox">
+    <svg id="map" role="img" aria-label="Karta där spelarna sätter ut sina pilar"></svg>
+    <div class="zoombtns"><button id="zin" aria-label="Zooma in">+</button><button id="zout" aria-label="Zooma ut">−</button></div>
+    <div class="mapnote" id="mapnote" hidden></div>
+  </div>
+  <footer class="bar wrap">
+    <div class="msg" id="msg">Laddar kartan…</div>
+    <button class="btn" id="action" disabled>Lås pilen</button>
+  </footer>
+</div>
+
+<!-- Start screen -->
+<div class="overlay" id="startScr">
+  <div class="card">
+    <div class="logo">Närmast<br>vinner<small>Två lag sätter ut var sin pil på kartan. Den som hamnar närmast rätt plats tar poängen.</small></div>
+    <div class="names">
+      <div class="field"><label for="in1">Lag 1</label><input id="in1" value="Lag 1" maxlength="18" autocomplete="off"></div>
+      <div class="field"><label for="in2">Lag 2</label><input id="in2" value="Lag 2" maxlength="18" autocomplete="off"></div>
+    </div>
+    <div class="field"><span class="legend">Karta</span>
+      <div class="seg" id="segMap">
+        <button data-v="europa" aria-pressed="true">Europa</button>
+        <button data-v="sverige" aria-pressed="false">Sverige</button>
+        <button data-v="varlden" aria-pressed="false">Världen</button>
+      </div>
+    </div>
+    <div class="field"><span class="legend">Antal frågor</span>
+      <div class="seg" id="segN">
+        <button data-v="5" aria-pressed="false">5</button>
+        <button data-v="10" aria-pressed="true">10</button>
+        <button data-v="15" aria-pressed="false">15</button>
+      </div>
+    </div>
+    <label class="check"><input type="checkbox" id="hide" checked>Dölj första lagets pil medan andra laget gissar (när ni delar en telefon)</label>
+    <button class="btn" id="startBtn">Kör!</button>
+    <p class="ver">Version 1.0 · 2 november 2026</p>
+  </div>
+</div>
+
+<!-- Hand-over screen -->
+<div class="overlay" id="handScr" hidden>
+  <div class="card handoff">
+    <p>Pilen är låst. Lämna över till</p>
+    <div class="big" id="handName">Lag 2</div>
+    <p>Inte tjuvkika på kartan!</p>
+    <button class="btn p2" id="handBtn">Jag är redo</button>
+  </div>
+</div>
+
+<!-- End screen -->
+<div class="overlay" id="endScr" hidden>
+  <div class="card">
+    <div class="logo" id="winner">Vinnare</div>
+    <div>
+      <div class="result-row"><div><div class="n" id="e1n"></div><div class="k" id="e1k"></div></div><div class="v" style="color:var(--p1)" id="e1v"></div></div>
+      <div class="result-row"><div><div class="n" id="e2n"></div><div class="k" id="e2k"></div></div><div class="v" style="color:var(--p2)" id="e2v"></div></div>
+    </div>
+    <button class="btn" id="againBtn">Spela igen</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+/* Map data comes from the ECharts world map (Apache-licensed), which registers itself on window.echarts. */
+window.__geo=null;
+window.echarts={registerMap:function(name,geo){ if(name==='world') window.__geo=geo; }};
+</script>
+<script>
+(function(){
+"use strict";
+
+/* ---------- Questions ---------- */
+const Q = {
+  europa:[
+    ["Reykjavík","Island",64.146,-21.942],["Lissabon","Portugal",38.722,-9.139],["Dubrovnik","Kroatien",42.650,18.094],
+    ["Venedig","Italien",45.438,12.335],["Kraków","Polen",50.065,19.945],["Bergen","Norge",60.391,5.322],
+    ["Sevilla","Spanien",37.389,-5.984],["Edinburgh","Skottland",55.953,-3.189],["Istanbul","Turkiet",41.008,28.978],
+    ["Sankt Petersburg","Ryssland",59.934,30.336],["Tallinn","Estland",59.437,24.754],["Neapel","Italien",40.852,14.268],
+    ["Monaco","Monaco",43.738,7.424],["Santorini","Grekland",36.417,25.432],["Brygge","Belgien",51.209,3.225],
+    ["Salzburg","Österrike",47.809,13.055],["Riga","Lettland",56.949,24.105],["Porto","Portugal",41.150,-8.611],
+    ["Marseille","Frankrike",43.296,5.370],["Hamburg","Tyskland",53.551,9.993],["Dublin","Irland",53.350,-6.260],
+    ["Nordkap","Norge",71.169,25.784],["Mont Blanc","Frankrike/Italien",45.833,6.865],["Prag","Tjeckien",50.075,14.438],
+    ["Valletta","Malta",35.899,14.514],["Sarajevo","Bosnien och Hercegovina",43.856,18.413],["Bordeaux","Frankrike",44.838,-0.579],
+    ["Gibraltar","Storbritannien",36.140,-5.354],["Helsingfors","Finland",60.170,24.938],["Budapest","Ungern",47.498,19.040],
+    ["Palma","Mallorca, Spanien",39.570,2.650],["Vilnius","Litauen",54.687,25.280],["Bukarest","Rumänien",44.426,26.102],
+    ["Aten","Grekland",37.984,23.728],["Vaduz","Liechtenstein",47.141,9.521],["Köln","Tyskland",50.938,6.960],
+    ["Zermatt","Schweiz",46.020,7.749],["Ajaccio","Korsika, Frankrike",41.919,8.739],["Tromsø","Norge",69.649,18.956],
+    ["Belfast","Nordirland",54.597,-5.930],["Gdańsk","Polen",54.352,18.646],["Florens","Italien",43.770,11.255]
+  ],
+  sverige:[
+    ["Kiruna","Lappland",67.856,20.225],["Visby","Gotland",57.634,18.294],["Ystad","Skåne",55.429,13.820],
+    ["Strömstad","Bohuslän",58.936,11.172],["Haparanda","Norrbotten",65.836,24.137],["Sundsvall","Medelpad",62.391,17.307],
+    ["Mora","Dalarna",61.005,14.538],["Kalmar","Småland",56.663,16.356],["Karlstad","Värmland",59.379,13.504],
+    ["Östersund","Jämtland",63.176,14.636],["Jokkmokk","Lappland",66.607,19.823],["Åre","Jämtland",63.399,13.081],
+    ["Gränna","Småland",58.025,14.462],["Umeå","Västerbotten",63.826,20.263],["Falun","Dalarna",60.607,15.626],
+    ["Västervik","Småland",57.758,16.637],["Treriksröset","Lappland",69.060,20.548],["Smögen","Bohuslän",58.354,11.218],
+    ["Borgholm","Öland",56.879,16.656],["Sälen","Dalarna",61.159,13.264],["Luleå","Norrbotten",65.584,22.155],
+    ["Halmstad","Halland",56.674,12.857],["Arvika","Värmland",59.655,12.592],["Fårösund","Gotland",57.865,19.054],
+    ["Örnsköldsvik","Ångermanland",63.290,18.716],["Vadstena","Östergötland",58.448,14.890],["Torsby","Värmland",60.135,13.000],
+    ["Sveg","Härjedalen",62.034,14.364],["Söderhamn","Hälsingland",61.304,17.062],["Trelleborg","Skåne",55.375,13.157],
+    ["Norrtälje","Uppland",59.758,18.705],["Lysekil","Bohuslän",58.274,11.436],["Eksjö","Småland",57.667,14.972],
+    ["Hemavan","Lappland",65.816,15.090],["Karlskrona","Blekinge",56.161,15.587]
+  ],
+  varlden:[
+    ["Ushuaia","Argentina",-54.801,-68.303],["Timbuktu","Mali",16.766,-3.003],["Machu Picchu","Peru",-13.163,-72.545],
+    ["Uluru","Australien",-25.345,131.036],["Ulan Bator","Mongoliet",47.886,106.906],["Honolulu","Hawaii, USA",21.307,-157.858],
+    ["Kapstaden","Sydafrika",-33.925,18.424],["Anchorage","Alaska, USA",61.218,-149.900],["Katmandu","Nepal",27.717,85.324],
+    ["Zanzibar","Tanzania",-6.165,39.199],["Havanna","Kuba",23.113,-82.366],["Petra","Jordanien",30.329,35.444],
+    ["Singapore","Singapore",1.352,103.820],["Nuuk","Grönland",64.181,-51.694],["Las Palmas","Gran Canaria, Spanien",28.124,-15.430],
+    ["Rio de Janeiro","Brasilien",-22.907,-43.173],["Wellington","Nya Zeeland",-41.287,174.776],["Samarkand","Uzbekistan",39.654,66.976],
+    ["Angkor Wat","Kambodja",13.412,103.867],["Tokyo","Japan",35.676,139.650],["Chicago","USA",41.878,-87.630],
+    ["Addis Abeba","Etiopien",9.030,38.740],["Påskön","Chile",-27.149,-109.433],["Vancouver","Kanada",49.283,-123.121],
+    ["Mumbai","Indien",19.076,72.878],["Marrakech","Marocko",31.629,-7.981],["Galápagos","Ecuador",-0.743,-90.313],
+    ["Longyearbyen","Svalbard, Norge",78.223,15.627],["Kairo","Egypten",30.044,31.236],["Lima","Peru",-12.046,-77.043],
+    ["Bangkok","Thailand",13.756,100.502],["Mexico City","Mexiko",19.433,-99.133],["Perth","Australien",-31.950,115.860],
+    ["Dubai","Förenade Arabemiraten",25.205,55.271],["Nairobi","Kenya",-1.292,36.822],["Buenos Aires","Argentina",-34.604,-58.382]
+  ]
+};
+/* Map views: [west, south, east, north] */
+const VIEW = {
+  europa:{bbox:[-24,34,42,71.5], proj:()=>d3.geoAzimuthalEqualArea().rotate([-12,-52])},
+  sverige:{bbox:[10.5,55.2,24.4,69.2], proj:()=>d3.geoTransverseMercator().rotate([-16,0])},
+  varlden:{bbox:[-180,-58,180,80], proj:()=>d3.geoNaturalEarth1()}
+};
+
+/* ---------- State ---------- */
+const S = {mode:"europa", n:10, hide:true, names:["Lag 1","Lag 2"], score:[0,0], km:[0,0],
+  qs:[], i:0, turn:0, starter:0, pins:[null,null], locked:[false,false], phase:"guess"};
+const $ = id=>document.getElementById(id);
+
+/* ---------- Geo decode (ECharts compressed GeoJSON) ---------- */
+function decodeRing(str, off, scale){
+  const out=[]; let px=off[0], py=off[1];
+  for(let i=0;i<str.length;i+=2){
+    let x=str.charCodeAt(i)-64, y=str.charCodeAt(i+1)-64;
+    x=(x>>1)^(-(x&1)); y=(y>>1)^(-(y&1));
+    x+=px; y+=py; px=x; py=y;
+    out.push([x/scale, y/scale]);
+  }
+  return out;
+}
+function decodeGeo(geo){
+  if(!geo || !geo.features) return null;
+  if(!geo.UTF8Encoding) return geo;
+  const scale = geo.UTF8Scale || 1024;
+  geo.features.forEach(f=>{
+    const g=f.geometry; if(!g) return;
+    if(g.type==="Polygon"){
+      g.coordinates = g.coordinates.map((r,k)=> typeof r==="string" ? decodeRing(r,g.encodeOffsets[k],scale) : r);
+    } else if(g.type==="MultiPolygon"){
+      g.coordinates = g.coordinates.map((poly,c)=> poly.map((r,k)=> typeof r==="string" ? decodeRing(r,g.encodeOffsets[c][k],scale) : r));
+    }
+  });
+  geo.UTF8Encoding=false;
+  return geo;
+}
+/* Flatten to a list of rings with a lon/lat bounding box each.
+   Land is drawn as plain projected polygons (even-odd fill), which avoids the
+   spherical winding problems that made the land fill the whole globe. */
+function toRings(geo){
+  const rings=[];
+  geo.features.forEach(f=>{
+    const g=f.geometry; if(!g) return;
+    const name=(f.properties&&f.properties.name)||"";
+    if(name==="Antarctica") return;
+    const polys = g.type==="Polygon"?[g.coordinates]:g.type==="MultiPolygon"?g.coordinates:[];
+    polys.forEach(poly=>poly.forEach(r=>{
+      if(!r || r.length<3) return;
+      let w=180,e=-180,s=90,n=-90;
+      r.forEach(p=>{ if(p[0]<w)w=p[0]; if(p[0]>e)e=p[0]; if(p[1]<s)s=p[1]; if(p[1]>n)n=p[1]; });
+      rings.push({r,b:[w,s,e,n]});
+    }));
+  });
+  return rings.length?rings:null;
+}
+function landPath(){
+  const v=VIEW[S.mode], m=S.mode==="varlden"?999:25;
+  const [W0,S0,E0,N0]=v.bbox;
+  let d="";
+  world.forEach(({r,b})=>{
+    if(b[2]<W0-m||b[0]>E0+m||b[3]<S0-m||b[1]>N0+m) return;
+    let seg="";
+    for(let i=0;i<r.length;i++){
+      const p=projection(r[i]); if(!p||!isFinite(p[0])||!isFinite(p[1])) { seg=""; break; }
+      seg += (i?"L":"M")+p[0].toFixed(1)+","+p[1].toFixed(1);
+    }
+    if(seg) d+=seg+"Z";
+  });
+  return d;
+}
+
+/* ---------- Map ---------- */
+const svg = d3.select("#map");
+const gMap = svg.append("g");
+const gGrat = gMap.append("path").attr("class","grat");
+const gLand = gMap.append("g");
+const gArcs = gMap.append("g");
+const gPins = svg.append("g");
+let projection, path, zoom, T=d3.zoomIdentity, W=0, H=0, world=null;
+
+function size(){
+  const r=$("mapbox").getBoundingClientRect(); W=Math.max(1,r.width); H=Math.max(1,r.height);
+  svg.attr("viewBox",`0 0 ${W} ${H}`);
+}
+function bboxFeature(b){
+  const pts=[]; const [w,s,e,n]=b;
+  for(let i=0;i<=20;i++){const x=w+(e-w)*i/20; pts.push([x,s],[x,n]);}
+  for(let i=0;i<=20;i++){const y=s+(n-s)*i/20; pts.push([w,y],[e,y]);}
+  return {type:"MultiPoint",coordinates:pts};
+}
+function buildMap(){
+  size();
+  const v=VIEW[S.mode];
+  projection=v.proj().fitExtent([[12,12],[W-12,H-12]], bboxFeature(v.bbox));
+  path=d3.geoPath(projection);
+  gGrat.attr("d", path(d3.geoGraticule10()));
+  gLand.selectAll("path").remove();
+  if(world){
+    gLand.append("path").attr("class","land").attr("fill-rule","evenodd").attr("d",landPath());
+  }
+  zoom=d3.zoom().scaleExtent([1,S.mode==="varlden"?14:9]).translateExtent([[-W*.25,-H*.25],[W*1.25,H*1.25]])
+    .on("zoom",e=>{T=e.transform; gMap.attr("transform",T); drawPins();});
+  svg.call(zoom).on("dblclick.zoom",null);
+  svg.call(zoom.transform,d3.zoomIdentity);
+  drawArcs(); drawPins();
+}
+$("zin").onclick=()=>svg.transition().duration(250).call(zoom.scaleBy,1.6);
+$("zout").onclick=()=>svg.transition().duration(250).call(zoom.scaleBy,1/1.6);
+
+svg.on("click",function(ev){
+  if(S.phase!=="guess") return;
+  const [x,y]=d3.pointer(ev,this);
+  const ll=projection.invert(T.invert([x,y]));
+  if(!ll || !isFinite(ll[0])) return;
+  S.pins[S.turn]=ll; drawPins(true); updateUI();
+});
+
+const COLORS=["var(--p1)","var(--p2)"];
+function pinShape(sel,color,label){
+  sel.append("path").attr("d","M0,0 C-3,-8 -13,-14 -13,-25 A13,13 0 1 1 13,-25 C13,-14 3,-8 0,0Z")
+    .attr("fill",color).attr("stroke","#0a1220").attr("stroke-width",2);
+  sel.append("text").text(label).attr("y",-20.5).attr("text-anchor","middle")
+    .attr("font-family","var(--display)").attr("font-weight",900).attr("font-size",15).attr("fill","#0a1220");
+}
+function scr(ll){ const p=projection(ll); return p?T.apply(p):null; }
+function drawPins(popLast){
+  gPins.selectAll("*").remove();
+  if(!projection) return;
+  const q=S.qs[S.i];
+  const visible=[0,1].filter(k=>{
+    if(!S.pins[k]) return false;
+    if(S.phase==="reveal") return true;
+    if(k===S.turn) return true;
+    return !S.hide; // other team's locked pin
+  });
+  if(S.phase==="reveal" && q){
+    const p=scr([q[3],q[2]]);
+    if(p){
+      const g=gPins.append("g").attr("transform",`translate(${p[0]},${p[1]})`);
+      g.append("circle").attr("r",16).attr("fill","none").attr("stroke","var(--sign)").attr("stroke-width",2).attr("opacity",.6);
+      g.append("circle").attr("r",8).attr("fill","var(--sign)").attr("stroke","#0a1220").attr("stroke-width",2).attr("class","pop");
+      g.append("text").text(q[0]).attr("x",14).attr("y",-12).attr("class","dist-tag").attr("fill","var(--sign)");
+    }
+    [0,1].forEach(k=>{
+      if(!S.pins[k]) return;
+      const a=scr(S.pins[k]); if(!a) return;
+      const d=dist(S.pins[k],[q[3],q[2]]);
+      gPins.append("text").attr("x",a[0]+16).attr("y",a[1]-8).attr("class","dist-tag").attr("fill",COLORS[k]).text(fmtKm(d));
+    });
+  }
+  visible.forEach(k=>{
+    const p=scr(S.pins[k]); if(!p) return;
+    const g=gPins.append("g").attr("transform",`translate(${p[0]},${p[1]})`);
+    const inner=g.append("g"); pinShape(inner,COLORS[k],initial(S.names[k]));
+    if(popLast && k===S.turn) inner.attr("class","pop").style("transform-origin","0 0");
+  });
+}
+function drawArcs(){
+  gArcs.selectAll("*").remove();
+  const q=S.qs[S.i];
+  if(S.phase!=="reveal"||!q||!path) return;
+  [0,1].forEach(k=>{
+    if(!S.pins[k]) return;
+    gArcs.append("path").attr("class","arc").attr("stroke",COLORS[k])
+      .attr("d",path({type:"LineString",coordinates:[S.pins[k],[q[3],q[2]]]}));
+  });
+}
+
+/* ---------- Helpers ---------- */
+function dist(a,b){ return d3.geoDistance(a,b)*6371; }
+function fmtKm(d){ return d<10 ? d.toFixed(1).replace(".",",")+" km" : Math.round(d).toLocaleString("sv-SE")+" km"; }
+function initial(n){ return (n.trim()[0]||"?").toUpperCase(); }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+/* ---------- Game flow ---------- */
+function updateUI(){
+  $("n1").textContent=S.names[0]; $("n2").textContent=S.names[1];
+  $("s1").textContent=S.score[0]; $("s2").textContent=S.score[1];
+  $("roundLbl").textContent = S.qs.length ? `FRÅGA ${S.i+1}/${S.qs.length}` : "–";
+  const q=S.qs[S.i]; const btn=$("action");
+  $("place").textContent = q ? q[0] : "…";
+  btn.className="btn";
+  if(!q){ btn.disabled=true; return; }
+  if(S.phase==="guess"){
+    $("sub").hidden=true;
+    const nm=esc(S.names[S.turn]);
+    $("msg").innerHTML = S.pins[S.turn]
+      ? `<b>${nm}</b>: tryck igen för att flytta pilen, eller lås den.`
+      : `<b>${nm}</b>: tryck på kartan där du tror att det ligger. Nyp för att zooma.`;
+    btn.textContent="Lås pilen"; btn.classList.add(S.turn?"p2":"p1");
+    btn.disabled=!S.pins[S.turn];
+  } else {
+    $("sub").hidden=false; $("sub").textContent=q[1];
+    const d=[0,1].map(k=>dist(S.pins[k],[q[3],q[2]]));
+    const w = Math.abs(d[0]-d[1])<0.05 ? -1 : (d[0]<d[1]?0:1);
+    $("msg").innerHTML = w<0
+      ? `Lika nära! Båda får en poäng.`
+      : `<b>${esc(S.names[w])}</b> var närmast – ${fmtKm(d[w])} bort. ${esc(S.names[1-w])}: ${fmtKm(d[1-w])}.`;
+    btn.textContent = S.i+1<S.qs.length ? "Nästa fråga" : "Se resultat";
+    btn.disabled=false;
+  }
+}
+function lockPin(){
+  S.locked[S.turn]=true;
+  const other=1-S.turn;
+  if(!S.locked[other]){
+    S.turn=other;
+    if(S.hide){
+      $("handName").textContent=S.names[other];
+      $("handBtn").className="btn "+(other?"p2":"p1");
+      $("handScr").hidden=false;
+    }
+    drawPins(); updateUI();
+  } else reveal();
+}
+function reveal(){
+  const q=S.qs[S.i]; S.phase="reveal";
+  const d=[0,1].map(k=>dist(S.pins[k],[q[3],q[2]]));
+  S.km[0]+=d[0]; S.km[1]+=d[1];
+  if(Math.abs(d[0]-d[1])<0.05){S.score[0]++;S.score[1]++;}
+  else S.score[d[0]<d[1]?0:1]++;
+  // Frame all three points
+  const pts=[S.pins[0],S.pins[1],[q[3],q[2]]].map(p=>projection(p)).filter(Boolean);
+  const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
+  const bw=Math.max(...xs)-Math.min(...xs), bh=Math.max(...ys)-Math.min(...ys);
+  const k=Math.max(1,Math.min(zoom.scaleExtent()[1], 0.7/Math.max(bw/W,bh/H,1e-6)));
+  const cx=(Math.max(...xs)+Math.min(...xs))/2, cy=(Math.max(...ys)+Math.min(...ys))/2;
+  const t=d3.zoomIdentity.translate(W/2,H/2).scale(k).translate(-cx,-cy);
+  drawArcs(); drawPins(); updateUI();
+  svg.transition().duration(900).call(zoom.transform,t);
+}
+function nextQ(){
+  if(S.i+1>=S.qs.length){ showEnd(); return; }
+  S.i++; S.starter=1-S.starter; S.turn=S.starter;
+  S.pins=[null,null]; S.locked=[false,false]; S.phase="guess";
+  drawArcs(); drawPins(); updateUI();
+  svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity);
+}
+function showEnd(){
+  const [a,b]=S.score;
+  let w = a===b ? (S.km[0]===S.km[1]?-1:(S.km[0]<S.km[1]?0:1)) : (a>b?0:1);
+  $("winner").innerHTML = w<0 ? "Oavgjort!" : `${esc(S.names[w])}<br>vinner!` + (a===b?`<small>Lika poäng – avgjort på minst antal kilometer totalt.</small>`:"");
+  $("winner").style.color = w<0?"var(--sign)":COLORS[w];
+  [0,1].forEach(k=>{
+    $("e"+(k+1)+"n").textContent=S.names[k];
+    $("e"+(k+1)+"v").textContent=S.score[k]+" p";
+    $("e"+(k+1)+"k").textContent="Totalt "+fmtKm(S.km[k])+" fel, snitt "+fmtKm(S.km[k]/S.qs.length);
+  });
+  $("endScr").hidden=false;
+}
+function startGame(){
+  S.names=[$("in1").value.trim()||"Lag 1",$("in2").value.trim()||"Lag 2"];
+  S.hide=$("hide").checked;
+  S.score=[0,0]; S.km=[0,0]; S.i=0; S.starter=0; S.turn=0;
+  S.pins=[null,null]; S.locked=[false,false]; S.phase="guess";
+  S.qs=shuffle(Q[S.mode]).slice(0,S.n);
+  $("startScr").hidden=true; $("endScr").hidden=true;
+  buildMap(); updateUI();
+}
+
+$("action").onclick=()=>{ if(S.phase==="guess") lockPin(); else nextQ(); };
+$("handBtn").onclick=()=>{ $("handScr").hidden=true; };
+$("startBtn").onclick=startGame;
+$("againBtn").onclick=()=>{ $("endScr").hidden=true; $("startScr").hidden=false; };
+function seg(id,key,num){
+  $(id).querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    $(id).querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
+    S[key]=num?+b.dataset.v:b.dataset.v;
+  });
+}
+seg("segMap","mode",false); seg("segN","n",true);
+try{ const saved=JSON.parse(localStorage.getItem("nv-names")||"null"); if(saved){$("in1").value=saved[0];$("in2").value=saved[1];} }catch(e){}
+["in1","in2"].forEach(id=>$(id).addEventListener("input",()=>{try{localStorage.setItem("nv-names",JSON.stringify([$("in1").value,$("in2").value]));}catch(e){}}));
+
+let rt; window.addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>{ if(S.qs.length){buildMap(); if(S.phase==="reveal"){drawArcs();drawPins();}} },150);});
+
+/* ---------- Init ---------- */
+const SOURCES=[
+  "https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/js/world.js",
+  "https://unpkg.com/echarts@4.9.0/map/js/world.js",
+  "https://cdn.jsdelivr.net/npm/echarts@4.8.0/map/js/world.js"
+];
+function loadScript(src){
+  return new Promise((ok,fail)=>{ const s=document.createElement("script"); s.src=src; s.onload=ok; s.onerror=fail; document.head.appendChild(s); });
+}
+async function loadWorld(){
+  for(const src of SOURCES){
+    try{ await loadScript(src); if(window.__geo) return toRings(decodeGeo(window.__geo)); }catch(e){}
+  }
+  return null;
+}
+// Sample state behind the start screen
+S.qs=[Q.europa[0]]; buildMap(); updateUI(); $("msg").textContent="Välj lag och karta för att börja.";
+$("mapnote").hidden=false; $("mapnote").textContent="Laddar kartan…";
+loadWorld().then(r=>{
+  world=r;
+  if(world){ $("mapnote").hidden=true; }
+  else $("mapnote").textContent="Kartbilden kunde inte laddas, så bara gradnätet visas. Spelet fungerar ändå – avstånden räknas som vanligt.";
+  buildMap();
+  if(S.phase==="reveal"){drawArcs();drawPins();}
+});
+})();
+</script>
+<script>if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{})</script>
+</body></html>

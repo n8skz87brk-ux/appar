@@ -37,6 +37,9 @@ details{margin-top:14px;grid-column:1/-1;border-top:1px solid var(--line);paddin
 summary{cursor:pointer;font-weight:600}
 details ol{margin:8px 0 0;padding-left:1.3em;color:var(--muted)}
 details li{margin-bottom:4px}
+.ver{font-size:.82rem;color:var(--muted);margin:-8px 0 14px;font-variant-numeric:tabular-nums}
+.ver b{font-weight:600;color:var(--fg)}
+.list{display:flex;flex-direction:column;gap:16px}
 .more{color:var(--muted);text-align:center;margin:28px 0 0;font-size:.95rem}
 footer{margin-top:40px;color:var(--muted);font-size:.85rem;text-align:center}
 footer a{color:inherit}
@@ -73,6 +76,7 @@ footer a{color:inherit}
   <h1>Peters appar</h1>
   <p class="lead">Små appar jag har byggt för mig själv och mina vänner. De är gratis, kräver inget konto och sparar allt i din egen telefon eller dator.</p>
 
+  <div class="list">
   <article class="app">
     <img src="americano/icon-r-192.png" alt="">
     <div>
@@ -80,20 +84,34 @@ footer a{color:inherit}
       <p>För padel-americano med 4–12 spelare. Appen lottar matchschemat, räknar tabellen medan ni spelar och ordnar slutspel. Kvällens resultat ligger kvar tills du tömmer dem inför nästa gång.</p>
       <div class="btns">
         <a class="btn primary" href="americano/">Öppna appen</a>
-        <a class="btn" href="#installera" data-install>Lägg på hemskärmen</a>
+        <a class="btn" href="#installera" data-install="americano">Lägg på hemskärmen</a>
       </div>
     </div>
   </article>
 
+  <article class="app">
+    <img src="narmast/icon-192.png" alt="">
+    <div>
+      <h2>Närmast vinner</h2>
+      <p>Kartspel för två lag, som tävlingen i På spåret. Båda sätter ut en pil där de tror att platsen ligger, och den som hamnar närmast tar poängen. Europa, Sverige eller hela världen.</p>
+      <p class="ver"><b>Version 1.0</b> · 2 november 2026 · Ny, under provspelning</p>
+      <div class="btns">
+        <a class="btn primary" href="narmast/">Öppna spelet</a>
+        <a class="btn" href="#installera" data-install="narmast">Lägg på hemskärmen</a>
+      </div>
+    </div>
+  </article>
+  </div>
+
   <p class="more">Fler appar kommer.</p>
-  <footer>Ljugarn och Täby · <a href="https://elisabethnorlanderkeramik.se">Elisabeth Norlander Keramik</a><br>Uppdaterad 1 november 2026</footer>
+  <footer>Ljugarn och Täby · <a href="https://elisabethnorlanderkeramik.se">Elisabeth Norlander Keramik</a><br>Uppdaterad 2 november 2026</footer>
 </div>
 <dialog class="sheet" id="installera" aria-labelledby="sheet-title">
   <div class="sheet-in">
     <div class="grab"></div>
     <div class="sheet-head">
-      <img src="americano/icon-r-192.png" alt="">
-      <div><h3 id="sheet-title">Lägg Americano på hemskärmen</h3><p>Gratis, ingen App Store behövs</p></div>
+      <img src="americano/icon-r-192.png" alt="" data-icon>
+      <div><h3 id="sheet-title">Lägg <span data-name>Americano</span> på hemskärmen</h3><p>Gratis, ingen App Store behövs</p></div>
       <button class="x" data-close aria-label="Stäng">×</button>
     </div>
     <div class="seg" role="tablist">
@@ -104,11 +122,11 @@ footer a{color:inherit}
     <div data-pane="ios">
       <p class="note" data-not-safari hidden><b>Öppna sidan i Safari först.</b> Hemskärmsknappen finns bara där. Kopiera adressen och klistra in den i Safari.</p>
       <ol class="steps">
-        <li><div><b>Öppna Americano</b><span>Resten gör du inne i appen, inte på den här sidan.</span><a class="btn primary go" href="americano/">Öppna Americano</a></div></li>
+        <li><div><b>Öppna <span data-name>Americano</span></b><span>Resten gör du inne i appen, inte på den här sidan.</span><a class="btn primary go" href="americano/" data-href>Öppna <span data-name>Americano</span></a></div></li>
         <li><div><b>Tryck på <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg> längst ner till höger</b><span>Ser du i stället <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg> längst ner i mitten trycker du direkt på den och hoppar över nästa steg.</span></div></li>
         <li><div><b>Tryck på Dela <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg></b><span>Överst i menyn som kommer upp.</span></div></li>
         <li><div><b>Välj Lägg till på hemskärmen <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg></b><span>Syns den inte direkt: scrolla ner eller tryck på <i>Visa fler</i>.</span></div></li>
-        <li><div><b>Tryck på Lägg till</b><span>Nu ligger Americano med padel-logotypen bland dina appar.</span></div></li>
+        <li><div><b>Tryck på Lägg till</b><span>Nu ligger <span data-name>Americano</span> bland dina appar.</span></div></li>
       </ol>
     </div>
     <div data-pane="android" hidden>
@@ -125,7 +143,7 @@ footer a{color:inherit}
       </ol>
       <p class="note">På Mac med Safari: Arkiv → <i>Lägg till i Dock</i>.</p>
     </div>
-    <p class="done">Appen fungerar sedan även utan internet på banan.</p>
+    <p class="done" data-done>Appen fungerar sedan även utan internet på banan.</p>
   </div>
 </dialog>
 <script>
@@ -140,7 +158,18 @@ footer a{color:inherit}
   if(ios&&/CriOS|FxiOS|EdgiOS|GSA|FBAN|Instagram/.test(ua)) d.querySelector('[data-not-safari]').hidden=false;
   show(tab);
   d.querySelectorAll('[data-tab]').forEach(function(b){b.onclick=function(){show(b.dataset.tab)}});
-  document.querySelectorAll('[data-install]').forEach(function(a){a.onclick=function(e){e.preventDefault();d.showModal()}});
+  var APPS={
+    americano:{name:'Americano',icon:'americano/icon-r-192.png',href:'americano/',done:'Appen fungerar sedan även utan internet på banan.'},
+    narmast:{name:'Närmast vinner',icon:'narmast/icon-192.png',href:'narmast/',done:'Spelet startar sedan direkt från hemskärmen. Kartan behöver internet första gången.'}
+  };
+  function pick(k){
+    var a=APPS[k]||APPS.americano;
+    d.querySelectorAll('[data-name]').forEach(function(el){el.textContent=a.name});
+    d.querySelector('[data-icon]').src=a.icon;
+    d.querySelector('[data-href]').setAttribute('href',a.href);
+    d.querySelector('[data-done]').textContent=a.done;
+  }
+  document.querySelectorAll('[data-install]').forEach(function(a){a.onclick=function(e){e.preventDefault();pick(a.dataset.install);d.showModal()}});
   d.querySelector('[data-close]').onclick=function(){d.close()};
   d.addEventListener('click',function(e){if(e.target===d)d.close()});
 })();
