@@ -81,6 +81,7 @@ body.lightmap .river{stroke:#3f86c4;stroke-width:1.1px}
 body.lightmap .border{stroke:#5a4e5e;stroke-width:1.2px}
 body.lightmap .grat{stroke:#2a4a6a1c}
 body.lightmap .arc{stroke-width:3px}
+.county{fill:none;stroke:#9a8aa0;stroke-width:.9px;stroke-dasharray:1.5 2.5;stroke-linecap:round;vector-effect:non-scaling-stroke}
 .arc{fill:none;stroke-width:2.5px;stroke-dasharray:6 5;vector-effect:non-scaling-stroke}
 .mapnote{position:absolute;left:12px;right:12px;bottom:12px;background:#0a1220e6;border:1px solid #22344a;border-radius:8px;padding:8px 12px;font-size:13px;color:var(--muted)}
 .zoombtns{position:absolute;right:max(10px,env(safe-area-inset-right,0px));top:10px;display:flex;flex-direction:column;gap:6px}
@@ -166,7 +167,7 @@ body.lightmap .arc{stroke-width:3px}
   </section>
   <div class="mapbox" id="mapbox">
     <svg id="map" role="img" aria-label="Karta där spelarna sätter ut sina pilar"></svg>
-    <div class="zoombtns"><button id="zin" aria-label="Zooma in">+</button><button id="zout" aria-label="Zooma ut">−</button><button id="speak" aria-label="Uppläsning på" aria-pressed="true">🔊</button><button id="themeBtn" aria-label="Byt kartstil">◐</button></div>
+    <div class="zoombtns"><button id="zin" aria-label="Zooma in">+</button><button id="zout" aria-label="Zooma ut">−</button><button id="speak" aria-label="Uppläsning på" aria-pressed="true">🔊</button></div>
     <div class="mapnote" id="mapnote" hidden></div>
     <div class="legend-box" id="legend" hidden></div>
   </div>
@@ -212,12 +213,6 @@ body.lightmap .arc{stroke-width:3px}
       </div>
     </div>
     <label class="check"><input type="checkbox" id="voice" checked>Läs upp vem som var närmast (slå på ljudet på telefonen)</label>
-    <div class="field"><span class="legend">Kartstil</span>
-      <div class="seg" id="segTheme">
-        <button data-v="dark" aria-pressed="true">Mörk karta</button>
-        <button data-v="light" aria-pressed="false">Ljus karta</button>
-      </div>
-    </div>
     <div class="field" id="voiceRow"><label for="voiceSel">Röst</label>
       <div class="vrow"><select id="voiceSel"></select><button class="btn ghost" id="voiceTest" type="button">Testa</button></div>
     </div>
@@ -230,7 +225,7 @@ body.lightmap .arc{stroke-width:3px}
         <div class="vrow"><input id="codeIn" placeholder="KOD" maxlength="4" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="go"><button class="btn ghost" id="joinBtn" type="button">Gå med</button></div>
       </div>
     </div>
-    <p class="ver">Version 2.5 · 2 november 2026</p>
+    <p class="ver">Version 2.6 · 2 november 2026</p>
   </div>
 </div>
 
@@ -607,6 +602,7 @@ function drawLayers(){
   gLand.append("path").attr("class","land").attr("fill-rule","evenodd").attr("d",shapesPath(land,true));
   const lakes = (S.mode!=="varlden" && L.lakesFine) ? L.lakesFine : L.lakes;
   if(lakes) gLand.append("path").attr("class","lake").attr("fill-rule","evenodd").attr("d",shapesPath(lakes,true));
+  if(S.mode==="sverige" && L.counties) gLand.append("path").attr("class","county").attr("d",shapesPath(L.counties,false));
   if(L.rivers) gLand.append("path").attr("class","river").attr("d",shapesPath(L.rivers,false));
   if(L.borders && L.land) gLand.append("path").attr("class","border").attr("d",shapesPath(L.borders,false));
 }
@@ -620,7 +616,7 @@ const gArcs = gMap.append("g");
 const gPins = svg.append("g");
 let projection, path, zoom, T=d3.zoomIdentity, W=0, H=0, world=null;
 /* Detailed layers from Natural Earth (public domain); world = fallback land from ECharts. */
-const L = {land:null, borders:null, lakes:null, lakesFine:null, rivers:null};
+const L = {land:null, borders:null, lakes:null, lakesFine:null, rivers:null, counties:null};
 
 function size(){
   const r=$("mapbox").getBoundingClientRect(); W=Math.max(1,r.width); H=Math.max(1,r.height);
@@ -862,14 +858,7 @@ function setVoice(on, save){
   if(save!==false){ try{ localStorage.setItem("nv-voice",on?"1":"0"); }catch(e){} }
 }
 try{ if(localStorage.getItem("nv-voice")==="0") setVoice(false); }catch(e){}
-function setTheme(t){
-  document.body.classList.toggle("lightmap", t==="light");
-  $("segTheme").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===t?"true":"false"));
-  try{ localStorage.setItem("nv-theme",t); }catch(e){}
-}
-$("segTheme").querySelectorAll("button").forEach(b=>b.onclick=()=>setTheme(b.dataset.v));
-$("themeBtn").onclick=()=>setTheme(document.body.classList.contains("lightmap")?"dark":"light");
-try{ if(localStorage.getItem("nv-theme")==="light") setTheme("light"); }catch(e){}
+document.body.classList.add("lightmap");
 $("speak").onclick=()=>setVoice(!voiceOn);
 if("speechSynthesis" in window){ pickVoice(); try{ speechSynthesis.addEventListener("voiceschanged",pickVoice); }catch(e){} setTimeout(pickVoice,800); }
 $("voiceSel").onchange=()=>{ svVoice=svList.find(v=>v.voiceURI===$("voiceSel").value)||null; try{ localStorage.setItem("nv-voicename",$("voiceSel").value); }catch(e){} };
@@ -1320,6 +1309,40 @@ function loadLayer(key,file,conv){
 let fineAsked=false;
 function ensureDetail(){
   if(S.mode!=="varlden" && !fineAsked){ fineAsked=true; loadLayer("lakesFine","ne_10m_lakes.geojson",toRings); }
+  if(S.mode==="sverige" && !countiesAsked){ countiesAsked=true; loadCounties(); }
+}
+/* Swedish county (län) borders: only the inland borders between counties, not the coast. */
+let countiesAsked=false;
+const COUNTY_SRC=[
+  "https://cdn.jsdelivr.net/gh/okfse/sweden-geojson@master/swedish_regions.geojson",
+  "https://raw.githubusercontent.com/okfse/sweden-geojson/master/swedish_regions.geojson"
+];
+function sharedEdges(geo){
+  // keep the segments that two counties share; those are the inland borders
+  const key=(a,b)=>{ const p=a[0].toFixed(4)+","+a[1].toFixed(4), q=b[0].toFixed(4)+","+b[1].toFixed(4); return p<q?p+"|"+q:q+"|"+p; };
+  const count=new Map(), seg=new Map();
+  (geo.features||[]).forEach(f=>{
+    const g=f.geometry; if(!g) return;
+    const polys=g.type==="Polygon"?[g.coordinates]:g.type==="MultiPolygon"?g.coordinates:[];
+    polys.forEach(poly=>poly.forEach(r=>{ for(let i=1;i<r.length;i++){ const k=key(r[i-1],r[i]); count.set(k,(count.get(k)||0)+1); if(!seg.has(k)) seg.set(k,[r[i-1],r[i]]); } }));
+  });
+  const lines=[];
+  // join consecutive shared segments into polylines
+  let cur=null;
+  seg.forEach((s2,k)=>{
+    if(count.get(k)<2){ cur=null; return; }
+    if(cur && cur[cur.length-1][0]===s2[0][0] && cur[cur.length-1][1]===s2[0][1]) cur.push(s2[1]);
+    else { cur=[s2[0],s2[1]]; lines.push(cur); }
+  });
+  return lines.length>20 ? lines.map(l=>({r:l,b:bboxOf(l)})) : null;
+}
+async function loadCounties(){
+  for(const url of COUNTY_SRC){
+    try{ const r=await fetch(url); if(!r.ok) continue; const g=await r.json(); const lines=sharedEdges(g); if(lines){ L.counties=lines; redrawSoon(); return; } }catch(e){}
+  }
+  // fallback: Natural Earth state/province lines, Swedish part only
+  const g=await fetchNE("ne_10m_admin_1_states_provinces_lines.geojson");
+  if(g){ g.features=(g.features||[]).filter(f=>f.properties && (f.properties.adm0_a3==="SWE"||f.properties.ADM0_A3==="SWE"||f.properties.adm0_name==="Sweden")); L.counties=toLines(g); redrawSoon(); }
 }
 // Opened from an invitation link (…/narmast/#KX4P)
 (function(){
