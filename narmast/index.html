@@ -208,7 +208,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
         <div class="vrow"><input id="codeIn" placeholder="KOD" maxlength="4" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="go"><button class="btn ghost" id="joinBtn" type="button">Gå med</button></div>
       </div>
     </div>
-    <p class="ver">Version 2.1 · 2 november 2026</p>
+    <p class="ver">Version 2.2 · 2 november 2026</p>
   </div>
 </div>
 
@@ -679,6 +679,10 @@ function updateUI(){
   $("n1").textContent=S.names[0]; $("n2").textContent=S.names[1];
   $("s1").textContent=S.score[0]; $("s2").textContent=S.score[1];
   $("roundLbl").textContent = S.qs.length ? `FRÅGA ${S.i+1}/${S.qs.length}` : "–";
+  if(NET && NET.live){
+    const ok=connected();
+    $("roundLbl").innerHTML += `<br><span style="color:${ok?"#5fd38d":"#ff6b5a"}">● ${ok?"Kopplad":"Ingen kontakt"} · ${esc(NET.code)}</span>`;
+  }
   const q=S.qs[S.i]; const btn=$("action");
   $("place").textContent = q ? q[0] : "…";
   btn.className="btn";
@@ -755,8 +759,8 @@ function lockPin(){
     const me=NET.me;
     if(!S.pins[me] || S.locked[me]) return;
     S.locked[me]=true;
-    send({t:"lock", i:S.i, pin:S.pins[me]});
-    if(S.locked[1-me]) reveal(); else { drawPins(); updateUI(); }
+    if(NET.role==="host"){ if(S.locked[1]) reveal(); else { drawPins(); updateUI(); } broadcast(); }
+    else { send({t:"lock", gid:S.gid, i:S.i, pin:S.pins[me]}); drawPins(); updateUI(); }
     return;
   }
   S.locked[S.turn]=true;
@@ -827,13 +831,15 @@ $("voiceTest").onclick=()=>{ const on=voiceOn; voiceOn=true; say(`${$("in1").val
 $("voice").onchange=()=>setVoice($("voice").checked);
 if(!("speechSynthesis" in window)){ $("speak").hidden=true; $("voice").closest("label").hidden=true; $("voiceRow").hidden=true; }
 
-function reveal(){
+function reveal(fromHost){
   if(S.phase!=="guess") return;
   const q=S.qs[S.i]; S.phase="reveal";
   const d=[0,1].map(k=>dist(S.pins[k],[q[3],q[2]]));
-  S.km[0]+=d[0]; S.km[1]+=d[1];
-  if(Math.abs(d[0]-d[1])<0.05){S.score[0]++;S.score[1]++;}
-  else S.score[d[0]<d[1]?0:1]++;
+  if(!fromHost){ // the score is counted on one phone only
+    S.km[0]+=d[0]; S.km[1]+=d[1];
+    if(Math.abs(d[0]-d[1])<0.05){S.score[0]++;S.score[1]++;}
+    else S.score[d[0]<d[1]?0:1]++;
+  }
   // Frame all three points
   const pts=[S.pins[0],S.pins[1],[q[3],q[2]]].map(p=>projection(p)).filter(Boolean);
   const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
@@ -854,6 +860,7 @@ function nextQ(){
   svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity);
 }
 function showEnd(){
+  S.ended=true;
   const [a,b]=S.score;
   let w = a===b ? (S.km[0]===S.km[1]?-1:(S.km[0]<S.km[1]?0:1)) : (a>b?0:1);
   $("winner").innerHTML = w<0 ? "Oavgjort!" : `${esc(S.names[w])}<br>vinner!` + (a===b?`<small>Lika poäng – avgjort på minst antal kilometer totalt.</small>`:"");
@@ -906,8 +913,8 @@ function pickQuestions(){
   rememberPlayed(qs);
   return {qs,kinds};
 }
-function beginGame(names, mode, qs, kinds){
-  S.names=names; S.mode=mode; S.qs=qs; S.kinds=kinds;
+function beginGame(names, mode, qs, kinds, gid){
+  S.names=names; S.mode=mode; S.qs=qs; S.kinds=kinds; S.gid=gid||null; S.ended=false;
   S.score=[0,0]; S.km=[0,0]; S.i=0; S.starter=0;
   S.turn = (NET && NET.live) ? NET.me : 0;
   S.pins=[null,null]; S.locked=[false,false]; S.phase="guess";
@@ -926,7 +933,11 @@ function startGame(){
   beginGame(names, S.mode, qs, kinds);
 }
 
-/* ---------- Two phones (peer-to-peer via PeerJS) ---------- */
+/* ---------- Two phones (peer-to-peer via PeerJS) ----------
+   The phone that starts the game (host) owns the game. It sends its full state to the
+   other phone (guest) after every change and every few seconds. The guest only shows
+   that state; its own taps (lock pin, next question) are requests to the host. */
+const NET_VERSION=22;
 let NET=null; // {role:"host"|"guest", me:0|1, peer, conn, code, live, guestName}
 const PEER_SRC=["https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js","https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"];
 async function loadPeer(){
@@ -938,7 +949,8 @@ const CODE_CHARS="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 function newCode(){ let c=""; for(let i=0;i<4;i++) c+=CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)]; return c; }
 function peerId(code){ return "narmast-vinner-"+code.toLowerCase(); }
 function myName(){ return $("in1").value.trim() || $("in1").dataset.prev || "Jag"; }
-function send(m){ try{ if(NET && NET.conn && NET.conn.open) NET.conn.send(m); }catch(e){} }
+function connected(){ return !!(NET && NET.conn && NET.conn.open); }
+function send(m){ try{ if(connected()) NET.conn.send(m); }catch(e){} }
 function lobby(lead,code,msg){
   $("shareBtn").hidden=true; $("shareMsg").hidden=true;
   $("lobbyLead").textContent=lead; $("lobbyCode").textContent=code; $("lobbyMsg").textContent=msg;
@@ -946,130 +958,186 @@ function lobby(lead,code,msg){
 }
 function netNote(html){
   const n=$("mapnote");
-  if(!html){ n.hidden=true; n.classList.remove("netnote"); return; }
+  if(!html){ if(n.classList.contains("netnote")){ n.hidden=true; n.classList.remove("netnote"); } return; }
   n.innerHTML=html; n.classList.add("netnote"); n.hidden=false;
 }
+let beat=null;
 function closeNet(){
+  clearInterval(beat); beat=null;
   if(!NET) return;
-  try{ NET.conn && NET.conn.close(); }catch(e){}
-  try{ NET.peer && NET.peer.destroy(); }catch(e){}
-  NET=null; netNote(null);
+  const old=NET; NET=null;
+  try{ old.conn && old.conn.close(); }catch(e){}
+  try{ old.peer && old.peer.destroy(); }catch(e){}
+  netNote(null); updateUI();
 }
 function netError(text){
   closeNet();
-  lobby("Det gick inte", "", text);
-  $("lobbyCode").textContent="";
+  lobby("Det gick inte","",text);
   $("lobbyCancel").textContent="Tillbaka";
 }
+
+/* --- host side --- */
+function hostState(){
+  const reveal=S.phase==="reveal";
+  return {t:"state", v:NET_VERSION, gid:S.gid, names:S.names, mode:S.mode, qs:S.qs, kinds:S.kinds,
+          i:S.i, phase:S.phase, locked:S.locked, score:S.score, km:S.km, ended:!!S.ended,
+          pins: reveal ? S.pins : [null,null]};
+}
+function broadcast(){ if(NET && NET.role==="host" && NET.live) send(hostState()); }
 async function hostGame(){
+  closeNet();
   S.hide=false; setVoice($("voice").checked);
   lobby("Er kod","····","Gör i ordning spelet…"); $("lobbyCancel").textContent="Avbryt";
   if(!await loadPeer()){ netError("Kunde inte ladda kopplingen. Kontrollera att telefonen har internet."); return; }
   const tryCode=(attempt)=>{
     const code=newCode();
     const peer=new Peer(peerId(code));
-    NET={role:"host", me:0, peer, conn:null, code, live:false};
+    const me={role:"host", me:0, peer, conn:null, code, live:false};
+    NET=me;
     peer.on("open",()=>{
-      lobby("Er kod",code,"Skicka en inbjudan med sms eller WhatsApp. Den andra trycker på länken och sedan på Gå med. Eller läs upp koden.");
-      $("shareBtn").hidden=false; $("shareMsg").hidden=true;
+      if(NET!==me) return;
+      lobby("Er kod",code,"Tryck på Skicka inbjudan och välj sms eller WhatsApp. Sitter ni tillsammans räcker det att läsa upp koden.");
+      $("shareBtn").hidden=false;
     });
     peer.on("connection",c=>{
-      if(NET.conn && NET.conn.open && NET.conn!==c){ try{ NET.conn.close(); }catch(e){} }
+      if(NET!==me) { try{ c.close(); }catch(e){} return; }
+      if(me.conn && me.conn!==c){ try{ me.conn.close(); }catch(e){} }
       attach(c);
     });
-    peer.on("disconnected",()=>{ try{ if(NET && !peer.destroyed) peer.reconnect(); }catch(e){} });
+    peer.on("disconnected",()=>{ try{ if(NET===me && !peer.destroyed) peer.reconnect(); }catch(e){} });
     peer.on("error",e=>{
+      if(NET!==me) return;
       if(e.type==="unavailable-id" && attempt<4){ try{ peer.destroy(); }catch(_){} tryCode(attempt+1); return; }
-      if(e.type==="network"||e.type==="server-error"||e.type==="socket-error"){ if(!NET||!NET.live) netError("Ingen kontakt med kopplingstjänsten. Försök igen om en stund."); return; }
-      if(!NET||!NET.live) netError("Något gick fel med kopplingen ("+e.type+"). Försök igen.");
+      if(!me.live) netError("Ingen kontakt med kopplingstjänsten ("+e.type+"). Kontrollera internet och försök igen.");
     });
   };
   tryCode(0);
 }
+function hostStartRound(){
+  const {qs,kinds}=pickQuestions();
+  const names=[myName(), NET.guestName||"Gäst"];
+  say(`Välkomna till Närmast vinner! ${names[0]} mot ${names[1]}.`);
+  beginGame(names, S.mode, qs, kinds, Date.now().toString(36));
+  broadcast();
+}
+function hostOnMsg(m){
+  if(m.t==="hello"){
+    NET.guestName=(m.name||"Gäst").slice(0,18);
+    if(m.v!==NET_VERSION){
+      send({t:"version", v:NET_VERSION});
+      netNote(`${esc(NET.guestName)} har en annan version av spelet. Båda behöver ladda om sidan.`);
+      return;
+    }
+    const resume = NET.live && S.gid;
+    NET.live=true; netNote(null);
+    if(resume){ S.names[1]=NET.guestName; updateUI(); broadcast(); }
+    else hostStartRound();
+    clearInterval(beat); beat=setInterval(broadcast,4000);
+    return;
+  }
+  if(m.t==="lock"){
+    if(m.gid===S.gid && m.i===S.i && S.phase==="guess" && m.pin){
+      S.pins[1]=m.pin; S.locked[1]=true;
+      if(S.locked[0]) reveal(); else updateUI();
+    }
+    broadcast(); return;
+  }
+  if(m.t==="next"){
+    if(m.gid===S.gid && m.i===S.i && S.phase==="reveal") nextQ();
+    broadcast(); return;
+  }
+  if(m.t==="need"){ broadcast(); return; }
+}
+
+/* --- guest side --- */
 async function joinGame(){
   const code=$("codeIn").value.trim().toUpperCase().replace(/[^A-Z0-9]/g,"");
   if(code.length!==4){ $("codeIn").focus(); return; }
+  closeNet();
   try{ localStorage.setItem("nv-names",JSON.stringify([$("in1").value,$("in2").value])); }catch(e){}
   lobby("Ansluter till",code,"Letar efter spelet…"); $("lobbyCancel").textContent="Avbryt";
   if(!await loadPeer()){ netError("Kunde inte ladda kopplingen. Kontrollera att telefonen har internet."); return; }
   const peer=new Peer();
-  NET={role:"guest", me:1, peer, conn:null, code, live:false};
-  peer.on("open",()=>connectGuest());
-  peer.on("disconnected",()=>{ try{ if(NET && !peer.destroyed) peer.reconnect(); }catch(e){} });
+  const me={role:"guest", me:1, peer, conn:null, code, live:false};
+  NET=me; S.gid=null;
+  peer.on("open",()=>{ if(NET===me) connectGuest(); });
+  peer.on("disconnected",()=>{ try{ if(NET===me && !peer.destroyed) peer.reconnect(); }catch(e){} });
   peer.on("error",e=>{
+    if(NET!==me) return;
     if(e.type==="peer-unavailable"){
-      if(NET && NET.live) netNote(`Hittar inte ${esc(S.names[0])}s spel just nu. <button id="rejoin">Försök igen</button>`), bindRejoin();
-      else netError(`Hittade inget spel med koden ${code}. Kontrollera koden och att den andra telefonen visar den.`);
+      if(me.live){ netNote(`Hittar inte ${esc(S.names[0])}s spel just nu. <button id="rejoin">Försök igen</button>`); bindRejoin(); }
+      else netError(`Hittade inget spel med koden ${code}. Kontrollera koden och att den andra telefonen fortfarande visar den.`);
       return;
     }
-    if(!NET||!NET.live) netError("Något gick fel med kopplingen ("+e.type+"). Försök igen.");
+    if(!me.live) netError("Något gick fel med kopplingen ("+e.type+"). Försök igen.");
   });
 }
 function connectGuest(){
-  if(!NET) return;
-  const c=NET.peer.connect(peerId(NET.code),{reliable:true, serialization:"json"});
-  attach(c);
+  if(!NET || NET.role!=="guest") return;
+  attach(NET.peer.connect(peerId(NET.code),{reliable:true, serialization:"json"}));
 }
 function bindRejoin(){ const b=document.getElementById("rejoin"); if(b) b.onclick=()=>{ netNote("Ansluter igen…"); connectGuest(); }; }
+function sameQs(a,b){ return a && b && a.length===b.length && a.every((q,i)=>q[0]===b[i][0]); }
+function guestApply(m){
+  const firstTime=!NET.live;
+  NET.live=true; netNote(null);
+  if(firstTime) setVoice(false,false); // the starting phone reads the results aloud
+  const newGame = m.gid!==S.gid || !sameQs(m.qs,S.qs);
+  if(newGame){
+    beginGame(m.names, m.mode, m.qs, m.kinds, m.gid);
+    S.score=m.score; S.km=m.km;
+  }
+  S.names=m.names;
+  if(m.i!==S.i){
+    // host moved to another question
+    S.i=m.i; S.phase="guess"; S.pins=[null,null]; S.locked=[false,false];
+    $("endScr").hidden=true;
+    loadPicFor(S.i); drawArcs(); drawPins();
+    svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity);
+  }
+  if(m.phase==="guess"){
+    S.score=m.score; S.km=m.km;
+    S.locked[0]=m.locked[0];
+    if(S.locked[1] && !m.locked[1] && S.pins[1]) send({t:"lock", gid:S.gid, i:S.i, pin:S.pins[1]});
+    S.locked[1]=m.locked[1] || S.locked[1];
+    if(S.phase!=="guess"){ S.phase="guess"; drawArcs(); }
+    drawPins();
+  } else if(m.phase==="reveal" && S.phase!=="reveal"){
+    S.pins=m.pins; S.locked=[true,true]; S.score=m.score; S.km=m.km;
+    reveal(true);
+  } else { S.score=m.score; S.km=m.km; }
+  updateUI();
+  if(m.ended && $("endScr").hidden) showEnd();
+  if(!m.ended && !$("endScr").hidden && !newGame) $("endScr").hidden=true;
+}
+function guestOnMsg(m){
+  if(m.t==="state"){ guestApply(m); return; }
+  if(m.t==="version"){
+    netError("Telefonerna har olika versioner av spelet. Stäng spelet helt på båda telefonerna, öppna igen och kontrollera att samma version står längst ner på startskärmen.");
+    return;
+  }
+}
+
+/* --- shared --- */
 function attach(c){
   NET.conn=c;
+  const mine=NET;
   c.on("open",()=>{
-    if(NET.role==="guest"){ send({t:"hello", name:myName()}); if(NET.live) netNote(null); }
+    if(NET!==mine || mine.conn!==c) return;
+    if(mine.role==="guest"){ send({t:"hello", name:myName(), v:NET_VERSION}); if(mine.live) netNote(null); }
+    updateUI();
   });
-  c.on("data",onMsg);
+  c.on("data",m=>{
+    if(NET!==mine || mine.conn!==c || !m) return;
+    if(mine.role==="host") hostOnMsg(m); else guestOnMsg(m);
+  });
   c.on("close",()=>{
-    if(!NET || NET.conn!==c) return;
-    const other=esc(S.names[1-NET.me]||"den andra");
-    if(NET.role==="host") netNote(`Tappade kontakten med ${other}. Be hen gå med igen med koden <b>${NET.code}</b>.`);
+    if(NET!==mine || mine.conn!==c) return;
+    updateUI();
+    const other=esc(S.names[1-mine.me]||"den andra");
+    if(mine.role==="host") netNote(`Tappade kontakten med ${other}. Be hen trycka på Anslut igen, eller gå med på nytt med koden <b>${mine.code}</b>.`);
     else { netNote(`Tappade kontakten med ${other}. <button id="rejoin">Anslut igen</button>`); bindRejoin(); }
   });
-}
-function gameState(){
-  return {t:"sync", names:S.names, mode:S.mode, qs:S.qs, kinds:S.kinds, i:S.i, score:S.score, km:S.km,
-          phase:S.phase, pins:S.pins, locked:S.locked, ended:!$("endScr").hidden};
-}
-function hostStartRound(){
-  const {qs,kinds}=pickQuestions();
-  const names=[myName(), NET.guestName||"Gäst"];
-  send({t:"start", names, mode:S.mode, qs, kinds});
-  say(`Välkomna till Närmast vinner! ${names[0]} mot ${names[1]}.`);
-  beginGame(names, S.mode, qs, kinds);
-}
-function onMsg(m){
-  if(!m || !NET) return;
-  if(m.t==="hello" && NET.role==="host"){
-    NET.guestName=(m.name||"Gäst").slice(0,18);
-    const wasLive=NET.live; NET.live=true; netNote(null);
-    if(wasLive && S.qs.length){ S.names[1]=NET.guestName; updateUI(); send(gameState()); }
-    else hostStartRound();
-    return;
-  }
-  if(m.t==="start" && NET.role==="guest"){
-    NET.live=true; netNote(null);
-    setVoice(false,false); // the starting phone reads the results aloud
-    beginGame(m.names, m.mode, m.qs, m.kinds);
-    return;
-  }
-  if(m.t==="sync" && NET.role==="guest"){
-    NET.live=true; netNote(null);
-    S.names=m.names; S.mode=m.mode; S.qs=m.qs; S.kinds=m.kinds; S.i=m.i; S.score=m.score; S.km=m.km;
-    S.pins=m.pins; S.locked=m.locked; S.turn=NET.me; S.phase=m.phase;
-    $("startScr").hidden=true; $("lobbyScr").hidden=true; $("handScr").hidden=true;
-    loadPicFor(S.i); ensureDetail(); buildMap(); drawArcs(); drawPins(); updateUI();
-    if(m.ended) showEnd(); else $("endScr").hidden=true;
-    return;
-  }
-  if(m.t==="lock"){
-    if(m.i!==S.i || S.phase!=="guess") return;
-    const other=1-NET.me;
-    S.pins[other]=m.pin; S.locked[other]=true;
-    if(S.locked[NET.me]) reveal(); else updateUI();
-    return;
-  }
-  if(m.t==="next"){
-    if(m.i===S.i && S.phase==="reveal") nextQ();
-    return;
-  }
 }
 $("hostBtn").onclick=hostGame;
 $("joinBtn").onclick=joinGame;
@@ -1098,7 +1166,11 @@ function setPlay(v){
 
 $("action").onclick=()=>{
   if(S.phase==="guess") lockPin();
-  else { if(NET && NET.live) send({t:"next", i:S.i}); nextQ(); }
+  else if(NET && NET.live){
+    if(NET.role==="host"){ nextQ(); broadcast(); }
+    else { send({t:"next", gid:S.gid, i:S.i}); $("action").disabled=true; $("action").textContent="Väntar…"; }
+  }
+  else nextQ();
 };
 $("handBtn").onclick=()=>{ $("handScr").hidden=true; };
 $("startBtn").onclick=startGame;
