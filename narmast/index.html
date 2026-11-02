@@ -73,6 +73,14 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
 .river{fill:none;stroke:#6aaedc;stroke-width:1px;stroke-linejoin:round;vector-effect:non-scaling-stroke}
 .border{fill:none;stroke:#0f1a2b;stroke-width:1.1px;stroke-dasharray:3 2;vector-effect:non-scaling-stroke}
 .grat{fill:none;stroke:#ffffff10;stroke-width:1px;vector-effect:non-scaling-stroke}
+/* Light atlas style (map area only) */
+body.lightmap .mapbox{--sea:#a8d2ea;--land:#f3eddc}
+body.lightmap .land{stroke:#6f8796;stroke-width:.8px}
+body.lightmap .lake{stroke:#6f8796}
+body.lightmap .river{stroke:#3f86c4;stroke-width:1.1px}
+body.lightmap .border{stroke:#5a4e5e;stroke-width:1.2px}
+body.lightmap .grat{stroke:#2a4a6a1c}
+body.lightmap .arc{stroke-width:3px}
 .arc{fill:none;stroke-width:2.5px;stroke-dasharray:6 5;vector-effect:non-scaling-stroke}
 .mapnote{position:absolute;left:12px;right:12px;bottom:12px;background:#0a1220e6;border:1px solid #22344a;border-radius:8px;padding:8px 12px;font-size:13px;color:var(--muted)}
 .zoombtns{position:absolute;right:max(10px,env(safe-area-inset-right,0px));top:10px;display:flex;flex-direction:column;gap:6px}
@@ -158,7 +166,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
   </section>
   <div class="mapbox" id="mapbox">
     <svg id="map" role="img" aria-label="Karta där spelarna sätter ut sina pilar"></svg>
-    <div class="zoombtns"><button id="zin" aria-label="Zooma in">+</button><button id="zout" aria-label="Zooma ut">−</button><button id="speak" aria-label="Uppläsning på" aria-pressed="true">🔊</button></div>
+    <div class="zoombtns"><button id="zin" aria-label="Zooma in">+</button><button id="zout" aria-label="Zooma ut">−</button><button id="speak" aria-label="Uppläsning på" aria-pressed="true">🔊</button><button id="themeBtn" aria-label="Byt kartstil">◐</button></div>
     <div class="mapnote" id="mapnote" hidden></div>
     <div class="legend-box" id="legend" hidden></div>
   </div>
@@ -204,6 +212,12 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
       </div>
     </div>
     <label class="check"><input type="checkbox" id="voice" checked>Läs upp vem som var närmast (slå på ljudet på telefonen)</label>
+    <div class="field"><span class="legend">Kartstil</span>
+      <div class="seg" id="segTheme">
+        <button data-v="dark" aria-pressed="true">Mörk karta</button>
+        <button data-v="light" aria-pressed="false">Ljus karta</button>
+      </div>
+    </div>
     <div class="field" id="voiceRow"><label for="voiceSel">Röst</label>
       <div class="vrow"><select id="voiceSel"></select><button class="btn ghost" id="voiceTest" type="button">Testa</button></div>
     </div>
@@ -216,7 +230,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
         <div class="vrow"><input id="codeIn" placeholder="KOD" maxlength="4" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="go"><button class="btn ghost" id="joinBtn" type="button">Gå med</button></div>
       </div>
     </div>
-    <p class="ver">Version 2.4 · 2 november 2026</p>
+    <p class="ver">Version 2.5 · 2 november 2026</p>
   </div>
 </div>
 
@@ -673,6 +687,7 @@ function drawPins(popLast){
     const p=scr([q[3],q[2]]);
     if(p){
       const g=gPins.append("g").attr("transform",`translate(${p[0]},${p[1]})`);
+      g.append("circle").attr("r",13).attr("fill","none").attr("stroke","#0a1220").attr("stroke-width",5);
       g.append("circle").attr("r",13).attr("fill","none").attr("stroke","var(--sign)").attr("stroke-width",2.5);
       g.append("circle").attr("r",5).attr("fill","var(--sign)").attr("stroke","#0a1220").attr("stroke-width",1.5).attr("class","pop");
     }
@@ -847,6 +862,14 @@ function setVoice(on, save){
   if(save!==false){ try{ localStorage.setItem("nv-voice",on?"1":"0"); }catch(e){} }
 }
 try{ if(localStorage.getItem("nv-voice")==="0") setVoice(false); }catch(e){}
+function setTheme(t){
+  document.body.classList.toggle("lightmap", t==="light");
+  $("segTheme").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===t?"true":"false"));
+  try{ localStorage.setItem("nv-theme",t); }catch(e){}
+}
+$("segTheme").querySelectorAll("button").forEach(b=>b.onclick=()=>setTheme(b.dataset.v));
+$("themeBtn").onclick=()=>setTheme(document.body.classList.contains("lightmap")?"dark":"light");
+try{ if(localStorage.getItem("nv-theme")==="light") setTheme("light"); }catch(e){}
 $("speak").onclick=()=>setVoice(!voiceOn);
 if("speechSynthesis" in window){ pickVoice(); try{ speechSynthesis.addEventListener("voiceschanged",pickVoice); }catch(e){} setTimeout(pickVoice,800); }
 $("voiceSel").onchange=()=>{ svVoice=svList.find(v=>v.voiceURI===$("voiceSel").value)||null; try{ localStorage.setItem("nv-voicename",$("voiceSel").value); }catch(e){} };

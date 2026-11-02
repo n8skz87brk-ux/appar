@@ -5,6 +5,7 @@ Peters appar – https://appar.elisabethnorlanderkeramik.se
 ## Versioner
 
 ### Närmast vinner (`narmast/`)
+- **2.5** – 2 november 2026. Nytt val Kartstil: Mörk karta eller Ljus karta (atlasstil med beige land, ljusblått vatten och tydliga gränser). Väljs på startskärmen eller med ◐-knappen på kartan; sparas per telefon. Den gula ringen för rätt svar har fått mörk kant så att den syns på båda.
 - **2.4** – 2 november 2026. Ljusare land och mörka, lite tjockare streckade landsgränser för bättre kontrast. Älvarna en aning ljusare så att de syns lika bra på det ljusare landet.
 - **2.3** – 2 november 2026. Gemensamt väntrum: bara en telefon skapar spelet och styr. Karta, ledtråd och antal frågor väljs i väntrummet och syns live på den andra telefonen, som inte kan ändra något. Spelet startar när den som styr trycker Starta spelet. Efter en match går båda tillbaka till väntrummet.
 - **2.2** – 2 november 2026. Tvåtelefonsläget omgjort: telefonen som startar bestämmer över spelet och skickar hela läget till den andra efter varje händelse och var fjärde sekund, så telefonerna kan inte glida isär. Kontrollampa "Kopplad/Ingen kontakt" och koden visas i resultattavlan. Versionskontroll mellan telefonerna. Gamla kopplingar stängs när man startar eller går med på nytt.
