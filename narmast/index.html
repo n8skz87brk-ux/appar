@@ -141,7 +141,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
   </section>
   <div class="mapbox" id="mapbox">
     <svg id="map" role="img" aria-label="Karta där spelarna sätter ut sina pilar"></svg>
-    <div class="zoombtns"><button id="zin" aria-label="Zooma in">+</button><button id="zout" aria-label="Zooma ut">−</button></div>
+    <div class="zoombtns"><button id="zin" aria-label="Zooma in">+</button><button id="zout" aria-label="Zooma ut">−</button><button id="speak" aria-label="Uppläsning på" aria-pressed="true">🔊</button></div>
     <div class="mapnote" id="mapnote" hidden></div>
     <div class="legend-box" id="legend" hidden></div>
   </div>
@@ -180,9 +180,10 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
         <button data-v="15" aria-pressed="false">15</button>
       </div>
     </div>
+    <label class="check"><input type="checkbox" id="voice" checked>Läs upp vem som var närmast (slå på ljudet på telefonen)</label>
     <label class="check"><input type="checkbox" id="hide" checked>Dölj första lagets pil medan andra laget gissar (när ni delar en telefon)</label>
     <button class="btn" id="startBtn">Kör!</button>
-    <p class="ver">Version 1.4 · 2 november 2026</p>
+    <p class="ver">Version 1.5 · 2 november 2026</p>
   </div>
 </div>
 
@@ -708,6 +709,50 @@ function lockPin(){
     drawPins(); updateUI();
   } else reveal();
 }
+/* ---------- Speaker voice ---------- */
+let voiceOn=true, svVoice=null;
+function pickVoice(){
+  try{ const vs=speechSynthesis.getVoices(); svVoice = vs.find(v=>/^sv/i.test(v.lang)&&/alva|klara|oskar/i.test(v.name)) || vs.find(v=>/^sv/i.test(v.lang)) || null; }catch(e){}
+}
+if("speechSynthesis" in window){ pickVoice(); try{ speechSynthesis.onvoiceschanged=pickVoice; }catch(e){} }
+function say(text){
+  if(!voiceOn || !("speechSynthesis" in window)) return;
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang="sv-SE"; if(svVoice) u.voice=svVoice; u.rate=1.0;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function spokenKm(d){
+  if(d<1){ const m=Math.max(10,Math.round(d*100)*10); return m+" meter"; }
+  if(d<10) return d.toFixed(1).replace(".",",")+" kilometer";
+  return Math.round(d)+" kilometer";
+}
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+function announce(q,d){
+  const [n1,n2]=S.names;
+  if(Math.abs(d[0]-d[1])<0.05){ say(`Det var ${q[0]}. Exakt lika nära, ${spokenKm(d[0])}! Båda får en poäng.`); return; }
+  const w=d[0]<d[1]?0:1, l=1-w, W=S.names[w], Lz=S.names[l];
+  const lines=[
+    `Det var ${q[0]}. ${W} var närmast, ${spokenKm(d[w])} ifrån. ${Lz} hamnade ${spokenKm(d[l])} bort.`,
+    `${q[0]}! Poängen går till ${W}, bara ${spokenKm(d[w])} fel. ${Lz} var ${spokenKm(d[l])} ifrån.`,
+    `Rätt svar: ${q[0]}. ${W} vinner frågan med ${spokenKm(d[w])}. ${Lz} missade med ${spokenKm(d[l])}.`
+  ];
+  say(d[w]<1 ? `${q[0]}! Nästan pricken mitt i, ${W} var bara ${spokenKm(d[w])} ifrån!` : pick(lines));
+}
+function setVoice(on){
+  voiceOn=on; $("voice").checked=on;
+  const b=$("speak"); b.textContent=on?"🔊":"🔇"; b.setAttribute("aria-pressed",on?"true":"false");
+  b.setAttribute("aria-label",on?"Uppläsning på":"Uppläsning av");
+  if(!on){ try{ speechSynthesis.cancel(); }catch(e){} }
+  try{ localStorage.setItem("nv-voice",on?"1":"0"); }catch(e){}
+}
+try{ if(localStorage.getItem("nv-voice")==="0") setVoice(false); }catch(e){}
+$("speak").onclick=()=>setVoice(!voiceOn);
+$("voice").onchange=()=>setVoice($("voice").checked);
+if(!("speechSynthesis" in window)){ $("speak").hidden=true; $("voice").closest("label").hidden=true; }
+
 function reveal(){
   const q=S.qs[S.i]; S.phase="reveal";
   const d=[0,1].map(k=>dist(S.pins[k],[q[3],q[2]]));
@@ -722,6 +767,7 @@ function reveal(){
   const cx=(Math.max(...xs)+Math.min(...xs))/2, cy=(Math.max(...ys)+Math.min(...ys))/2;
   const t=d3.zoomIdentity.translate(W/2,H/2).scale(k).translate(-cx,-cy);
   drawArcs(); drawPins(); updateUI();
+  announce(q,d);
   svg.transition().duration(900).call(zoom.transform,t);
 }
 function nextQ(){
@@ -743,10 +789,14 @@ function showEnd(){
     $("e"+(k+1)+"k").textContent="Totalt "+fmtKm(S.km[k])+" fel, snitt "+fmtKm(S.km[k]/S.qs.length);
   });
   $("endScr").hidden=false;
+  if(w<0) say(`Oavgjort! ${a} poäng var.`);
+  else say(`Och vinnaren är ${S.names[w]}, med ${S.score[w]} poäng mot ${S.score[1-w]}!` + (a===b?" Avgjort på minst antal kilometer totalt.":""));
 }
 function startGame(){
   S.names=[$("in1").value.trim()||"Lag 1",$("in2").value.trim()||"Lag 2"];
   S.hide=$("hide").checked;
+  setVoice($("voice").checked);
+  say(`Välkomna till Närmast vinner! ${S.names[0]} mot ${S.names[1]}.`);
   S.score=[0,0]; S.km=[0,0]; S.i=0; S.starter=0; S.turn=0;
   S.pins=[null,null]; S.locked=[false,false]; S.phase="guess";
   if(S.clue==="bild"){

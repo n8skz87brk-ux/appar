@@ -5,6 +5,7 @@ Peters appar – https://appar.elisabethnorlanderkeramik.se
 ## Versioner
 
 ### Närmast vinner (`narmast/`)
+- **1.5** – 2 november 2026. Speakerröst (telefonens svenska talsyntes) som läser upp vem som var närmast och hur många kilometer det skilde, med lagens namn. Kan stängas av på startskärmen eller med högtalarknappen på kartan.
 - **1.4** – 2 november 2026. Symbolerna ersatta med symboliska bilder (en byggnad, staty eller sak per ort, inga översiktsbilder) från Wikipedia, svenska Wikipedia för svenska orter. Nya platser: Stockholm, Göteborg, Malmö, Uppsala, Lund, Helsingborg, Gävle, Örebro, Läckö slott, Trollhättan, Varberg, Ölands södra udde, Bergs slussar, Drottningholm, Mariefred, Kebnekaise, Paris, London, Rom, Pisa, Barcelona, Berlin, Köpenhamn, Oslo, Bryssel, Moskva, Wien, New York, Sydney, Agra, Peking, San Francisco.
 - **1.3** – 2 november 2026. Bildledtrådarna ersatta med symboler (emojis) som är typiska för orten, med förklaring när svaret visas. Kartan har nu sjöar, älvar, landgränser och mer detaljerade kuster (Natural Earth). I Europa och Sverige laddas även mindre sjöar.
 - **1.2** – 2 november 2026. Nytt val "Ledtråd": Namn, Bild eller Blandat. I bildläget visas en bild från Wikipedia på något typiskt för platsen i stället för namnet. Hittas ingen bild visas namnet.
