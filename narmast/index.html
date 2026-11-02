@@ -68,6 +68,12 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
 .mapnote{position:absolute;left:12px;right:12px;bottom:12px;background:#0a1220e6;border:1px solid #22344a;border-radius:8px;padding:8px 12px;font-size:13px;color:var(--muted)}
 .zoombtns{position:absolute;right:max(10px,env(safe-area-inset-right,0px));top:10px;display:flex;flex-direction:column;gap:6px}
 .zoombtns button{width:38px;height:38px;border-radius:8px;border:1px solid #2c4258;background:#0a1220d9;color:var(--ink);font-size:20px;font-weight:800;line-height:1}
+.legend-box{position:absolute;left:max(10px,env(safe-area-inset-left,0px));top:10px;background:#0a1220e6;border:1px solid #2c4258;border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:4px;font-size:13px;max-width:calc(100% - 80px)}
+.legend-box .row{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.legend-box .km{font-family:var(--mono);font-weight:700;margin-left:auto;padding-left:10px;font-variant-numeric:tabular-nums}
+.legend-box .row.win .nm2{font-weight:800}
+.legend-box .sw{width:12px;height:12px;border-radius:50%;flex:none}
+.legend-box .tgt{width:12px;height:12px;border-radius:50%;border:2.5px solid var(--sign);flex:none}
 .dist-tag{font-family:var(--mono);font-weight:700;font-size:13px;paint-order:stroke;stroke:#0a1220;stroke-width:4px}
 
 /* Action bar */
@@ -127,6 +133,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
     <svg id="map" role="img" aria-label="Karta där spelarna sätter ut sina pilar"></svg>
     <div class="zoombtns"><button id="zin" aria-label="Zooma in">+</button><button id="zout" aria-label="Zooma ut">−</button></div>
     <div class="mapnote" id="mapnote" hidden></div>
+    <div class="legend-box" id="legend" hidden></div>
   </div>
   <footer class="bar wrap">
     <div class="msg" id="msg">Laddar kartan…</div>
@@ -158,7 +165,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
     </div>
     <label class="check"><input type="checkbox" id="hide" checked>Dölj första lagets pil medan andra laget gissar (när ni delar en telefon)</label>
     <button class="btn" id="startBtn">Kör!</button>
-    <p class="ver">Version 1.0 · 2 november 2026</p>
+    <p class="ver">Version 1.1 · 2 november 2026</p>
   </div>
 </div>
 
@@ -343,7 +350,7 @@ function buildMap(){
   if(world){
     gLand.append("path").attr("class","land").attr("fill-rule","evenodd").attr("d",landPath());
   }
-  zoom=d3.zoom().scaleExtent([1,S.mode==="varlden"?14:9]).translateExtent([[-W*.25,-H*.25],[W*1.25,H*1.25]])
+  zoom=d3.zoom().scaleExtent([1,S.mode==="varlden"?400:80]).translateExtent([[-W*.25,-H*.25],[W*1.25,H*1.25]])
     .on("zoom",e=>{T=e.transform; gMap.attr("transform",T); drawPins();});
   svg.call(zoom).on("dblclick.zoom",null);
   svg.call(zoom.transform,d3.zoomIdentity);
@@ -364,6 +371,7 @@ const COLORS=["var(--p1)","var(--p2)"];
 function pinShape(sel,color,label){
   sel.append("path").attr("d","M0,0 C-3,-8 -13,-14 -13,-25 A13,13 0 1 1 13,-25 C13,-14 3,-8 0,0Z")
     .attr("fill",color).attr("stroke","#0a1220").attr("stroke-width",2);
+  sel.append("circle").attr("r",3).attr("fill",color).attr("stroke","#0a1220").attr("stroke-width",1.5);
   sel.append("text").text(label).attr("y",-20.5).attr("text-anchor","middle")
     .attr("font-family","var(--display)").attr("font-weight",900).attr("font-size",15).attr("fill","#0a1220");
 }
@@ -378,27 +386,20 @@ function drawPins(popLast){
     if(k===S.turn) return true;
     return !S.hide; // other team's locked pin
   });
+  visible.forEach(k=>{
+    const p=scr(S.pins[k]); if(!p) return;
+    const g=gPins.append("g").attr("transform",`translate(${p[0]},${p[1]})`);
+    const inner=g.append("g"); pinShape(inner,COLORS[k],tag(k));
+    if(popLast && k===S.turn) inner.attr("class","pop").style("transform-origin","0 0");
+  });
   if(S.phase==="reveal" && q){
     const p=scr([q[3],q[2]]);
     if(p){
       const g=gPins.append("g").attr("transform",`translate(${p[0]},${p[1]})`);
-      g.append("circle").attr("r",16).attr("fill","none").attr("stroke","var(--sign)").attr("stroke-width",2).attr("opacity",.6);
-      g.append("circle").attr("r",8).attr("fill","var(--sign)").attr("stroke","#0a1220").attr("stroke-width",2).attr("class","pop");
-      g.append("text").text(q[0]).attr("x",14).attr("y",-12).attr("class","dist-tag").attr("fill","var(--sign)");
+      g.append("circle").attr("r",13).attr("fill","none").attr("stroke","var(--sign)").attr("stroke-width",2.5);
+      g.append("circle").attr("r",5).attr("fill","var(--sign)").attr("stroke","#0a1220").attr("stroke-width",1.5).attr("class","pop");
     }
-    [0,1].forEach(k=>{
-      if(!S.pins[k]) return;
-      const a=scr(S.pins[k]); if(!a) return;
-      const d=dist(S.pins[k],[q[3],q[2]]);
-      gPins.append("text").attr("x",a[0]+16).attr("y",a[1]-8).attr("class","dist-tag").attr("fill",COLORS[k]).text(fmtKm(d));
-    });
   }
-  visible.forEach(k=>{
-    const p=scr(S.pins[k]); if(!p) return;
-    const g=gPins.append("g").attr("transform",`translate(${p[0]},${p[1]})`);
-    const inner=g.append("g"); pinShape(inner,COLORS[k],initial(S.names[k]));
-    if(popLast && k===S.turn) inner.attr("class","pop").style("transform-origin","0 0");
-  });
 }
 function drawArcs(){
   gArcs.selectAll("*").remove();
@@ -415,6 +416,7 @@ function drawArcs(){
 function dist(a,b){ return d3.geoDistance(a,b)*6371; }
 function fmtKm(d){ return d<10 ? d.toFixed(1).replace(".",",")+" km" : Math.round(d).toLocaleString("sv-SE")+" km"; }
 function initial(n){ return (n.trim()[0]||"?").toUpperCase(); }
+function tag(k){ const a=initial(S.names[0]), b=initial(S.names[1]); return a===b ? String(k+1) : initial(S.names[k]); }
 function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
@@ -428,7 +430,7 @@ function updateUI(){
   btn.className="btn";
   if(!q){ btn.disabled=true; return; }
   if(S.phase==="guess"){
-    $("sub").hidden=true;
+    $("sub").hidden=true; $("legend").hidden=true;
     const nm=esc(S.names[S.turn]);
     $("msg").innerHTML = S.pins[S.turn]
       ? `<b>${nm}</b>: tryck igen för att flytta pilen, eller lås den.`
@@ -442,6 +444,9 @@ function updateUI(){
     $("msg").innerHTML = w<0
       ? `Lika nära! Båda får en poäng.`
       : `<b>${esc(S.names[w])}</b> var närmast – ${fmtKm(d[w])} bort. ${esc(S.names[1-w])}: ${fmtKm(d[1-w])}.`;
+    const lg=$("legend"); lg.hidden=false;
+    lg.innerHTML=[0,1].map(k=>`<div class="row${w===k||w<0?" win":""}"><span class="sw" style="background:${COLORS[k]}"></span><span class="nm2">${esc(S.names[k])}${w===k?" ✓":""}</span><span class="km">${fmtKm(d[k])}</span></div>`).join("")
+      + `<div class="row"><span class="tgt"></span><span>${esc(q[0])}</span></div>`;
     btn.textContent = S.i+1<S.qs.length ? "Nästa fråga" : "Se resultat";
     btn.disabled=false;
   }
@@ -469,7 +474,7 @@ function reveal(){
   const pts=[S.pins[0],S.pins[1],[q[3],q[2]]].map(p=>projection(p)).filter(Boolean);
   const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
   const bw=Math.max(...xs)-Math.min(...xs), bh=Math.max(...ys)-Math.min(...ys);
-  const k=Math.max(1,Math.min(zoom.scaleExtent()[1], 0.7/Math.max(bw/W,bh/H,1e-6)));
+  const k=Math.max(1,Math.min(zoom.scaleExtent()[1], 0.55/Math.max(bw/W,bh/H,1e-6)));
   const cx=(Math.max(...xs)+Math.min(...xs))/2, cy=(Math.max(...ys)+Math.min(...ys))/2;
   const t=d3.zoomIdentity.translate(W/2,H/2).scale(k).translate(-cx,-cy);
   drawArcs(); drawPins(); updateUI();
