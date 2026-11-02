@@ -117,6 +117,14 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
 .handoff{text-align:center;align-items:center;margin-top:12vh}
 .handoff .big{font-family:var(--display);font-weight:900;font-size:44px;text-transform:uppercase;line-height:1}
 .handoff p{color:var(--muted);margin:0}
+.lobbytop{margin-top:0;display:flex;flex-direction:column;gap:6px}
+.players{display:flex;flex-direction:column;gap:6px;border-top:1px solid #22344a;border-bottom:1px solid #22344a;padding-block:10px}
+.players .pl{display:flex;align-items:center;gap:10px;font-weight:700}
+.players .pl .dot{width:12px;height:12px;border-radius:50%;flex:none}
+.players .pl small{font-weight:600;color:var(--muted)}
+.lobbyset{display:flex;flex-direction:column;gap:14px}
+.lobbyset .seg button[disabled]{cursor:default;opacity:.55}
+.lobbyset .seg button[disabled][aria-pressed="true"]{opacity:1}
 .handoff .code{font-size:72px;letter-spacing:.14em;color:var(--sign);font-variant-numeric:tabular-nums}
 .vrow input{flex:1;min-width:0;background:#13202f;border:1px solid #2c4258;border-radius:8px;color:var(--ink);padding:11px 12px;font:inherit;font-size:16px}
 #codeIn{text-transform:uppercase;letter-spacing:.2em;font-family:var(--mono);font-weight:700}
@@ -174,21 +182,21 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
       <div class="field"><label for="in1" id="l1">Lag 1</label><input id="in1" value="" placeholder="Lag 1" maxlength="18" autocomplete="off" autocapitalize="words" enterkeyhint="next"></div>
       <div class="field" id="f2"><label for="in2">Lag 2</label><input id="in2" value="" placeholder="Lag 2" maxlength="18" autocomplete="off" autocapitalize="words" enterkeyhint="done"></div>
     </div>
-    <div class="field"><span class="legend">Karta</span>
+    <div class="field" id="fMap"><span class="legend">Karta</span>
       <div class="seg" id="segMap">
         <button data-v="europa" aria-pressed="true">Europa</button>
         <button data-v="sverige" aria-pressed="false">Sverige</button>
         <button data-v="varlden" aria-pressed="false">Världen</button>
       </div>
     </div>
-    <div class="field"><span class="legend">Ledtråd</span>
+    <div class="field" id="fClue"><span class="legend">Ledtråd</span>
       <div class="seg" id="segClue">
         <button data-v="namn" aria-pressed="true">Namn</button>
         <button data-v="bild" aria-pressed="false">Bild</button>
         <button data-v="blandat" aria-pressed="false">Blandat</button>
       </div>
     </div>
-    <div class="field"><span class="legend">Antal frågor</span>
+    <div class="field" id="fN"><span class="legend">Antal frågor</span>
       <div class="seg" id="segN">
         <button data-v="5" aria-pressed="false">5</button>
         <button data-v="10" aria-pressed="true">10</button>
@@ -202,13 +210,13 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
     <label class="check" id="hideRow"><input type="checkbox" id="hide" checked>Dölj första lagets pil medan andra laget gissar (när ni delar en telefon)</label>
     <button class="btn" id="startBtn">Kör!</button>
     <div class="twobox" id="twoBox" hidden>
-      <p class="note2">Den som startar väljer karta, ledtråd och antal frågor. Båda telefonerna behöver internet.</p>
-      <button class="btn" id="hostBtn">Starta nytt spel</button>
+      <p class="note2"><b>Bara en av er</b> trycker på Skapa spel. Den telefonen styr spelet och väljer karta och frågor. Den andra skriver in koden och går med. Båda behöver internet.</p>
+      <button class="btn" id="hostBtn">Skapa spel – jag styr</button>
       <div class="field"><label for="codeIn">Eller gå med i ett spel</label>
         <div class="vrow"><input id="codeIn" placeholder="KOD" maxlength="4" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="go"><button class="btn ghost" id="joinBtn" type="button">Gå med</button></div>
       </div>
     </div>
-    <p class="ver">Version 2.2 · 2 november 2026</p>
+    <p class="ver">Version 2.3 · 2 november 2026</p>
   </div>
 </div>
 
@@ -216,12 +224,27 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
 
 <!-- Two-phone lobby -->
 <div class="overlay" id="lobbyScr" hidden>
-  <div class="card handoff">
-    <p id="lobbyLead">Er kod</p>
-    <div class="big code" id="lobbyCode">····</div>
-    <p id="lobbyMsg">Ansluter…</p>
+  <div class="card">
+    <div class="handoff lobbytop">
+      <p id="lobbyLead">Er kod</p>
+      <div class="big code" id="lobbyCode">····</div>
+      <p id="lobbyMsg">Ansluter…</p>
+    </div>
     <button class="btn" id="shareBtn" type="button" hidden>Skicka inbjudan</button>
     <p class="note2" id="shareMsg" hidden></p>
+    <div class="players" id="players" hidden></div>
+    <div class="lobbyset" id="lobbySet" hidden>
+      <div class="field"><span class="legend">Karta</span>
+        <div class="seg" id="lMap"><button data-v="europa">Europa</button><button data-v="sverige">Sverige</button><button data-v="varlden">Världen</button></div>
+      </div>
+      <div class="field"><span class="legend">Ledtråd</span>
+        <div class="seg" id="lClue"><button data-v="namn">Namn</button><button data-v="bild">Bild</button><button data-v="blandat">Blandat</button></div>
+      </div>
+      <div class="field"><span class="legend">Antal frågor</span>
+        <div class="seg" id="lN"><button data-v="5">5</button><button data-v="10">10</button><button data-v="15">15</button></div>
+      </div>
+    </div>
+    <button class="btn" id="lobbyStart" type="button" hidden>Starta spelet</button>
     <button class="btn ghost" id="lobbyCancel" type="button">Avbryt</button>
   </div>
 </div>
@@ -874,7 +897,7 @@ function showEnd(){
   const online = NET && NET.live;
   $("exitBtn").hidden=!online;
   if(online && NET.role==="guest"){ $("againBtn").disabled=true; $("againBtn").textContent=`Väntar på att ${S.names[0]} startar en ny omgång`; }
-  else { $("againBtn").disabled=false; $("againBtn").textContent = online ? "Ny omgång" : "Spela igen"; }
+  else { $("againBtn").disabled=false; $("againBtn").textContent = online ? "Ny omgång – välj inställningar" : "Spela igen"; }
   if(w<0) say(`Oavgjort! ${a} poäng var.`);
   else say(`Och vinnaren är ${S.names[w]}, med ${S.score[w]} poäng mot ${S.score[1-w]}!` + (a===b?" Avgjort på minst antal kilometer totalt.":""));
 }
@@ -937,7 +960,7 @@ function startGame(){
    The phone that starts the game (host) owns the game. It sends its full state to the
    other phone (guest) after every change and every few seconds. The guest only shows
    that state; its own taps (lock pin, next question) are requests to the host. */
-const NET_VERSION=22;
+const NET_VERSION=23;
 let NET=null; // {role:"host"|"guest", me:0|1, peer, conn, code, live, guestName}
 const PEER_SRC=["https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js","https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"];
 async function loadPeer(){
@@ -963,7 +986,8 @@ function netNote(html){
 }
 let beat=null;
 function closeNet(){
-  clearInterval(beat); beat=null;
+  clearInterval(beat); beat=null; S.inLobby=false;
+  ["players","lobbySet","lobbyStart"].forEach(id=>$(id).hidden=true);
   if(!NET) return;
   const old=NET; NET=null;
   try{ old.conn && old.conn.close(); }catch(e){}
@@ -977,9 +1001,42 @@ function netError(text){
 }
 
 /* --- host side --- */
+function lobbyView(){
+  if(!NET) return;
+  const host=NET.role==="host", live=NET.live && connected();
+  const hostName = host ? myName() : (S.names[0]||"Värden");
+  const guestName = host ? (live ? NET.guestName : null) : myName();
+  $("players").hidden=false;
+  $("players").innerHTML =
+    `<div class="pl"><span class="dot" style="background:var(--p1)"></span>${esc(hostName)} <small>styr spelet</small></div>`+
+    (guestName ? `<div class="pl"><span class="dot" style="background:var(--p2)"></span>${esc(guestName)} <small>${live?"är med":"ansluter…"}</small></div>`
+               : `<div class="pl"><span class="dot" style="background:#3a5068"></span><small>Väntar på att någon går med…</small></div>`);
+  $("lobbySet").hidden=false;
+  [["lMap",S.mode],["lClue",S.clue],["lN",String(S.n)]].forEach(([id,v])=>{
+    $(id).querySelectorAll("button").forEach(b=>{ b.setAttribute("aria-pressed",b.dataset.v===v?"true":"false"); b.disabled=!host; });
+  });
+  $("lobbyStart").hidden=!host; $("lobbyStart").disabled=!live;
+  $("lobbyStart").textContent = live ? "Starta spelet" : "Starta spelet (väntar på den andra)";
+  if(!host){
+    $("lobbyLead").textContent=live?"Ansluten till":"Ansluter till"; $("lobbyCode").textContent=NET.code;
+    $("lobbyMsg").textContent = live ? `Väntar på att ${hostName} startar spelet. Inställningarna här ändras när ${hostName} väljer.` : "Letar efter spelet…";
+  }
+  $("lobbyScr").hidden=false;
+}
+function showLobby(){ S.inLobby=true; $("endScr").hidden=true; $("startScr").hidden=true; lobbyView(); }
+["lMap","lClue","lN"].forEach(id=>$(id).querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  if(!NET || NET.role!=="host") return;
+  if(id==="lMap") S.mode=b.dataset.v; else if(id==="lClue") S.clue=b.dataset.v; else S.n=+b.dataset.v;
+  // keep the start screen in step
+  const main={lMap:"segMap",lClue:"segClue",lN:"segN"}[id];
+  $(main).querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.v===b.dataset.v?"true":"false"));
+  lobbyView(); broadcast();
+}));
+$("lobbyStart").onclick=()=>{ if(NET && NET.role==="host" && NET.live && connected()) hostStartRound(); };
 function hostState(){
   const reveal=S.phase==="reveal";
-  return {t:"state", v:NET_VERSION, gid:S.gid, names:S.names, mode:S.mode, qs:S.qs, kinds:S.kinds,
+  return {t:"state", v:NET_VERSION, inLobby:!!S.inLobby, hostName:myName(), clue:S.clue, n:S.n,
+          gid:S.gid, names:S.names, mode:S.mode, qs:S.qs, kinds:S.kinds,
           i:S.i, phase:S.phase, locked:S.locked, score:S.score, km:S.km, ended:!!S.ended,
           pins: reveal ? S.pins : [null,null]};
 }
@@ -996,8 +1053,9 @@ async function hostGame(){
     NET=me;
     peer.on("open",()=>{
       if(NET!==me) return;
-      lobby("Er kod",code,"Tryck på Skicka inbjudan och välj sms eller WhatsApp. Sitter ni tillsammans räcker det att läsa upp koden.");
+      lobby("Er kod",code,"Läs upp koden för den andra, eller tryck på Skicka inbjudan och välj sms eller WhatsApp.");
       $("shareBtn").hidden=false;
+      showLobby();
     });
     peer.on("connection",c=>{
       if(NET!==me) { try{ c.close(); }catch(e){} return; }
@@ -1014,10 +1072,12 @@ async function hostGame(){
   tryCode(0);
 }
 function hostStartRound(){
+  S.inLobby=false;
   const {qs,kinds}=pickQuestions();
   const names=[myName(), NET.guestName||"Gäst"];
   say(`Välkomna till Närmast vinner! ${names[0]} mot ${names[1]}.`);
   beginGame(names, S.mode, qs, kinds, Date.now().toString(36));
+  $("lobbyScr").hidden=true;
   broadcast();
 }
 function hostOnMsg(m){
@@ -1028,10 +1088,11 @@ function hostOnMsg(m){
       netNote(`${esc(NET.guestName)} har en annan version av spelet. Båda behöver ladda om sidan.`);
       return;
     }
-    const resume = NET.live && S.gid;
+    const resume = NET.live && S.gid && !S.inLobby;
     NET.live=true; netNote(null);
-    if(resume){ S.names[1]=NET.guestName; updateUI(); broadcast(); }
-    else hostStartRound();
+    if(resume){ S.names[1]=NET.guestName; updateUI(); }
+    else showLobby();
+    broadcast();
     clearInterval(beat); beat=setInterval(broadcast,4000);
     return;
   }
@@ -1082,6 +1143,11 @@ function guestApply(m){
   const firstTime=!NET.live;
   NET.live=true; netNote(null);
   if(firstTime) setVoice(false,false); // the starting phone reads the results aloud
+  if(m.inLobby){
+    S.mode=m.mode; S.clue=m.clue; S.n=m.n; S.names=[m.hostName, myName()];
+    showLobby(); return;
+  }
+  if(S.inLobby){ S.inLobby=false; $("lobbyScr").hidden=true; }
   const newGame = m.gid!==S.gid || !sameQs(m.qs,S.qs);
   if(newGame){
     beginGame(m.names, m.mode, m.qs, m.kinds, m.gid);
@@ -1125,6 +1191,7 @@ function attach(c){
   c.on("open",()=>{
     if(NET!==mine || mine.conn!==c) return;
     if(mine.role==="guest"){ send({t:"hello", name:myName(), v:NET_VERSION}); if(mine.live) netNote(null); }
+    if(S.inLobby) lobbyView();
     updateUI();
   });
   c.on("data",m=>{
@@ -1134,6 +1201,7 @@ function attach(c){
   c.on("close",()=>{
     if(NET!==mine || mine.conn!==c) return;
     updateUI();
+    if(S.inLobby){ lobbyView(); if(mine.role==="guest") $("lobbyMsg").innerHTML=`Tappade kontakten. <button class="btn ghost" id="rejoinL" type="button">Anslut igen</button>`, document.getElementById("rejoinL").onclick=()=>{ connectGuest(); }; return; }
     const other=esc(S.names[1-mine.me]||"den andra");
     if(mine.role==="host") netNote(`Tappade kontakten med ${other}. Be hen trycka på Anslut igen, eller gå med på nytt med koden <b>${mine.code}</b>.`);
     else { netNote(`Tappade kontakten med ${other}. <button id="rejoin">Anslut igen</button>`); bindRejoin(); }
@@ -1160,6 +1228,7 @@ $("exitBtn").onclick=()=>{ closeNet(); $("endScr").hidden=true; $("startScr").hi
 function setPlay(v){
   S.play=v; const two=v==="two";
   $("f2").hidden=two; $("hideRow").hidden=two; $("startBtn").hidden=two; $("twoBox").hidden=!two;
+  $("fMap").hidden=two; $("fClue").hidden=two; $("fN").hidden=two;
   $("l1").textContent = two ? "Ditt namn" : "Lag 1";
   $("namesRow").style.gridTemplateColumns = two ? "1fr" : "";
 }
@@ -1175,7 +1244,7 @@ $("action").onclick=()=>{
 $("handBtn").onclick=()=>{ $("handScr").hidden=true; };
 $("startBtn").onclick=startGame;
 $("againBtn").onclick=()=>{
-  if(NET && NET.live){ if(NET.role==="host") hostStartRound(); return; }
+  if(NET && NET.live){ if(NET.role==="host"){ showLobby(); broadcast(); } return; }
   $("endScr").hidden=true; $("startScr").hidden=false;
 };
 function seg(id,key,num){
