@@ -5,6 +5,7 @@ Peters appar – https://appar.elisabethnorlanderkeramik.se
 ## Versioner
 
 ### Närmast vinner (`narmast/`)
+- **2.1** – 2 november 2026. Platser upprepas inte mellan omgångar: spelet minns vilka platser som spelats (per karta) och tar osedda först. Knappen "Skicka inbjudan" skickar en länk med koden via sms/WhatsApp; den som öppnar länken har koden ifylld och trycker bara Gå med.
 - **2.0** – 2 november 2026. Spelsätt "Två telefoner": den ena startar och får en fyrställig kod, den andra går med via koden. Båda gissar samtidigt på sin egen skärm, resultat och poäng visas på båda. Kopplingen går direkt mellan telefonerna (PeerJS). Tappas kontakten kan man ansluta igen och fortsätta. Bara telefonen som startade läser upp resultatet.
 - **1.7** – 2 november 2026. Namnrutorna töms när man trycker i dem. Skriver man inget kommer det gamla namnet tillbaka.
 - **1.6** – 2 november 2026. Rösten säger bara vem som var närmast och hur långt ifrån. Val av röst på startskärmen med testknapp; spelet väljer automatiskt den bästa svenska rösten (Premium/Förbättrad) om den finns i telefonen.

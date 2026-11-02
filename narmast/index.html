@@ -208,7 +208,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
         <div class="vrow"><input id="codeIn" placeholder="KOD" maxlength="4" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="go"><button class="btn ghost" id="joinBtn" type="button">Gå med</button></div>
       </div>
     </div>
-    <p class="ver">Version 2.0 · 2 november 2026</p>
+    <p class="ver">Version 2.1 · 2 november 2026</p>
   </div>
 </div>
 
@@ -220,6 +220,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
     <p id="lobbyLead">Er kod</p>
     <div class="big code" id="lobbyCode">····</div>
     <p id="lobbyMsg">Ansluter…</p>
+    <button class="btn" id="shareBtn" type="button" hidden>Skicka inbjudan</button>
+    <p class="note2" id="shareMsg" hidden></p>
     <button class="btn ghost" id="lobbyCancel" type="button">Avbryt</button>
   </div>
 </div>
@@ -869,13 +871,29 @@ function showEnd(){
   if(w<0) say(`Oavgjort! ${a} poäng var.`);
   else say(`Och vinnaren är ${S.names[w]}, med ${S.score[w]} poäng mot ${S.score[1-w]}!` + (a===b?" Avgjort på minst antal kilometer totalt.":""));
 }
+/* Remember which places have been played (per map) so new rounds start with places not seen recently. */
+function seenList(){ try{ return JSON.parse(localStorage.getItem("nv-seen-"+S.mode)||"[]"); }catch(e){ return SEEN[S.mode]||[]; } }
+const SEEN={};
+function fresh(list){
+  const seen=seenList(), pos=new Map(seen.map((n,i)=>[n,i]));
+  const unseen=shuffle(list.filter(q=>!pos.has(q[0])));
+  const old=list.filter(q=>pos.has(q[0])).sort((a,b)=>pos.get(a[0])-pos.get(b[0]));
+  return unseen.concat(old);
+}
+function rememberPlayed(qs){
+  const total=Q[S.mode].length;
+  let seen=seenList().filter(n=>!qs.some(q=>q[0]===n)).concat(qs.map(q=>q[0]));
+  if(seen.length>total-5) seen=seen.slice(seen.length-(total-5));
+  SEEN[S.mode]=seen;
+  try{ localStorage.setItem("nv-seen-"+S.mode, JSON.stringify(seen)); }catch(e){}
+}
 function pickQuestions(){
   let qs, kinds;
   if(S.clue==="bild"){
-    qs=shuffle(Q[S.mode].filter(q=>PIC[q[0]])).slice(0,S.n);
+    qs=fresh(Q[S.mode].filter(q=>PIC[q[0]])).slice(0,S.n);
     kinds=qs.map(()=>"bild");
   } else if(S.clue==="blandat"){
-    const withPic=shuffle(Q[S.mode].filter(q=>PIC[q[0]])), rest=shuffle(Q[S.mode].filter(q=>!PIC[q[0]]));
+    const withPic=fresh(Q[S.mode].filter(q=>PIC[q[0]])), rest=fresh(Q[S.mode].filter(q=>!PIC[q[0]]));
     qs=[]; kinds=[];
     for(let i=0;i<S.n;i++){
       const wantPic=i%2===1, src = wantPic ? (withPic.length?withPic:rest) : (rest.length?rest:withPic);
@@ -883,8 +901,9 @@ function pickQuestions(){
       const q=src.shift(); qs.push(q); kinds.push(PIC[q[0]]&&wantPic?"bild":"namn");
     }
   } else {
-    qs=shuffle(Q[S.mode]).slice(0,S.n); kinds=qs.map(()=>"namn");
+    qs=fresh(Q[S.mode]).slice(0,S.n); kinds=qs.map(()=>"namn");
   }
+  rememberPlayed(qs);
   return {qs,kinds};
 }
 function beginGame(names, mode, qs, kinds){
@@ -921,6 +940,7 @@ function peerId(code){ return "narmast-vinner-"+code.toLowerCase(); }
 function myName(){ return $("in1").value.trim() || $("in1").dataset.prev || "Jag"; }
 function send(m){ try{ if(NET && NET.conn && NET.conn.open) NET.conn.send(m); }catch(e){} }
 function lobby(lead,code,msg){
+  $("shareBtn").hidden=true; $("shareMsg").hidden=true;
   $("lobbyLead").textContent=lead; $("lobbyCode").textContent=code; $("lobbyMsg").textContent=msg;
   $("lobbyScr").hidden=false;
 }
@@ -949,7 +969,10 @@ async function hostGame(){
     const code=newCode();
     const peer=new Peer(peerId(code));
     NET={role:"host", me:0, peer, conn:null, code, live:false};
-    peer.on("open",()=>{ lobby("Er kod",code,"Be den andra öppna Närmast vinner, välja Två telefoner och skriva in koden."); });
+    peer.on("open",()=>{
+      lobby("Er kod",code,"Skicka en inbjudan med sms eller WhatsApp. Den andra trycker på länken och sedan på Gå med. Eller läs upp koden.");
+      $("shareBtn").hidden=false; $("shareMsg").hidden=true;
+    });
     peer.on("connection",c=>{
       if(NET.conn && NET.conn.open && NET.conn!==c){ try{ NET.conn.close(); }catch(e){} }
       attach(c);
@@ -1052,6 +1075,18 @@ $("hostBtn").onclick=hostGame;
 $("joinBtn").onclick=joinGame;
 $("codeIn").addEventListener("keydown",e=>{ if(e.key==="Enter") joinGame(); });
 $("codeIn").addEventListener("input",()=>{ $("codeIn").value=$("codeIn").value.toUpperCase(); });
+function inviteLink(){ return location.origin+location.pathname+"#"+NET.code; }
+$("shareBtn").onclick=async ()=>{
+  if(!NET || NET.role!=="host") return;
+  const url=inviteLink(), text=`Häng med och spela Närmast vinner med mig! Tryck på länken och sedan på Gå med. Koden är ${NET.code}.`;
+  if(navigator.share){
+    try{ await navigator.share({title:"Närmast vinner", text, url}); return; }catch(e){ if(e && e.name==="AbortError") return; }
+  }
+  let copied=false;
+  try{ await navigator.clipboard.writeText(text+" "+url); copied=true; }catch(e){}
+  $("shareMsg").hidden=false;
+  $("shareMsg").innerHTML = (copied ? "Länken är kopierad. Klistra in den i ett sms." : "Skicka den här länken:")+`<br><b style="user-select:all;word-break:break-all">${esc(url)}</b>`;
+};
 $("lobbyCancel").onclick=()=>{ closeNet(); $("lobbyScr").hidden=true; $("startScr").hidden=false; };
 $("exitBtn").onclick=()=>{ closeNet(); $("endScr").hidden=true; $("startScr").hidden=false; };
 function setPlay(v){
@@ -1122,6 +1157,18 @@ let fineAsked=false;
 function ensureDetail(){
   if(S.mode!=="varlden" && !fineAsked){ fineAsked=true; loadLayer("lakesFine","ne_10m_lakes.geojson",toRings); }
 }
+// Opened from an invitation link (…/narmast/#KX4P)
+(function(){
+  const m=(location.hash||"").match(/^#([A-Za-z0-9]{4})$/);
+  if(!m) return;
+  const code=m[1].toUpperCase();
+  const btn=document.querySelector('#segPlay [data-v="two"]'); if(btn) btn.click();
+  $("codeIn").value=code;
+  const lead=document.querySelector("#startScr .logo small");
+  if(lead) lead.textContent="Du är inbjuden till ett spel. Skriv ditt namn och tryck på Gå med.";
+  $("joinBtn").classList.remove("ghost");
+  try{ history.replaceState(null,"",location.pathname); }catch(e){}
+})();
 // Sample state behind the start screen
 S.qs=[Q.europa[0]]; buildMap(); updateUI(); $("msg").textContent="Välj lag och karta för att börja.";
 $("mapnote").hidden=false; $("mapnote").textContent="Laddar kartan…";
