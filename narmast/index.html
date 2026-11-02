@@ -58,17 +58,15 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
 .sign .lbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;opacity:.75}
 .sign .place{font-family:var(--display);font-weight:900;font-size:clamp(30px,8vw,46px);line-height:1;letter-spacing:.01em;text-transform:uppercase;text-wrap:balance}
 .sign .sub{font-size:13px;font-weight:600}
-.sign .sub a{color:inherit}
-.pic{margin-top:8px;position:relative;height:clamp(120px,24vh,230px);border-radius:6px;overflow:hidden;background:#1b2c42;display:grid;place-items:center;color:var(--muted);font-size:13px;cursor:zoom-in}
-.pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.pic .hint{position:absolute;right:8px;bottom:8px;background:#0a1220cc;color:var(--ink);border-radius:6px;padding:3px 8px;font-size:12px;font-weight:600}
-.picfull{position:fixed;inset:0;z-index:30;background:#05090fef;display:grid;place-items:center;padding:calc(env(safe-area-inset-top,0px) + 16px) max(16px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 16px) max(16px,env(safe-area-inset-left,0px));cursor:zoom-out}
-.picfull img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px}
+.sign .place.sym{text-transform:none;font-size:clamp(40px,12vw,58px);letter-spacing:.08em;line-height:1.15}
 
 /* Map */
 .mapbox{flex:1;position:relative;min-height:0;background:var(--sea);touch-action:none}
 #map{width:100%;height:100%;display:block}
 .land{fill:var(--land);stroke:var(--border);stroke-width:.6px;vector-effect:non-scaling-stroke}
+.lake{fill:var(--sea);stroke:var(--border);stroke-width:.5px;vector-effect:non-scaling-stroke}
+.river{fill:none;stroke:#3f6f93;stroke-width:1px;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.border{fill:none;stroke:#7d93a6;stroke-width:.7px;stroke-dasharray:3 2;vector-effect:non-scaling-stroke;opacity:.7}
 .grat{fill:none;stroke:#ffffff10;stroke-width:1px;vector-effect:non-scaling-stroke}
 .arc{fill:none;stroke-width:2.5px;stroke-dasharray:6 5;vector-effect:non-scaling-stroke}
 .mapnote{position:absolute;left:12px;right:12px;bottom:12px;background:#0a1220e6;border:1px solid #22344a;border-radius:8px;padding:8px 12px;font-size:13px;color:var(--muted)}
@@ -134,7 +132,6 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
       <span class="place" id="place">…</span>
       <span class="sub" id="sub" hidden></span>
     </div>
-    <div class="pic" id="pic" hidden role="button" aria-label="Visa bilden större"></div>
   </section>
   <div class="mapbox" id="mapbox">
     <svg id="map" role="img" aria-label="Karta där spelarna sätter ut sina pilar"></svg>
@@ -166,7 +163,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
     <div class="field"><span class="legend">Ledtråd</span>
       <div class="seg" id="segClue">
         <button data-v="namn" aria-pressed="true">Namn</button>
-        <button data-v="bild" aria-pressed="false">Bild</button>
+        <button data-v="symboler" aria-pressed="false">Symboler</button>
         <button data-v="blandat" aria-pressed="false">Blandat</button>
       </div>
     </div>
@@ -179,11 +176,9 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
     </div>
     <label class="check"><input type="checkbox" id="hide" checked>Dölj första lagets pil medan andra laget gissar (när ni delar en telefon)</label>
     <button class="btn" id="startBtn">Kör!</button>
-    <p class="ver">Version 1.2 · 2 november 2026</p>
+    <p class="ver">Version 1.3 · 2 november 2026</p>
   </div>
 </div>
-
-<div class="picfull" id="picFull" hidden role="button" aria-label="Stäng bilden"></div>
 
 <!-- Hand-over screen -->
 <div class="overlay" id="handScr" hidden>
@@ -264,79 +259,122 @@ const Q = {
     ["Dubai","Förenade Arabemiraten",25.205,55.271],["Nairobi","Kenya",-1.292,36.822],["Buenos Aires","Argentina",-34.604,-58.382]
   ]
 };
-/* Picture clues: English Wikipedia article whose lead image is used, and the Swedish caption shown after the answer. */
-const PIC = {
-  "Reykjavík":["Hallgrímskirkja","Hallgrímskirkja"],"Lissabon":["Belém Tower","Belémtornet"],"Dubrovnik":["Walls of Dubrovnik","Stadsmuren"],
-  "Venedig":["Rialto Bridge","Rialtobron"],"Kraków":["Wawel Castle","Wawelslottet"],"Bergen":["Bryggen","Bryggen"],
-  "Sevilla":["Giralda","Giralda"],"Edinburgh":["Edinburgh Castle","Edinburghs slott"],"Istanbul":["Hagia Sophia","Hagia Sofia"],
-  "Sankt Petersburg":["Church of the Savior on Blood","Frälsarkyrkan på blodet"],"Tallinn":["Tallinn Town Hall","Rådhuset"],
-  "Neapel":["Mount Vesuvius","Vesuvius"],"Monaco":["Monte Carlo Casino","Kasinot i Monte Carlo"],"Santorini":["Oia, Greece","Oia"],
-  "Brygge":["Belfry of Bruges","Klocktornet Belfort"],"Salzburg":["Hohensalzburg Fortress","Fästningen Hohensalzburg"],
-  "Riga":["House of the Blackheads (Riga)","Svarthuvudenas hus"],"Porto":["Dom Luís I Bridge","Dom Luís I-bron"],
-  "Marseille":["Notre-Dame de la Garde","Notre-Dame de la Garde"],"Hamburg":["Elbphilharmonie","Elbphilharmonie"],
-  "Dublin":["Ha'penny Bridge","Ha'penny Bridge"],"Nordkap":["North Cape (Norway)","Nordkapp-platån"],"Mont Blanc":["Mont Blanc","Mont Blanc"],
-  "Prag":["Charles Bridge","Karlsbron"],"Valletta":["St. John's Co-Cathedral","Sankt Johannes katedral"],"Sarajevo":["Sebilj in Sarajevo","Sebilj-brunnen"],
-  "Bordeaux":["Place de la Bourse","Place de la Bourse"],"Gibraltar":["Rock of Gibraltar","Gibraltarklippan"],"Helsingfors":["Helsinki Cathedral","Domkyrkan"],
-  "Budapest":["Hungarian Parliament Building","Parlamentet"],"Palma":["Palma Cathedral","Katedralen La Seu"],"Vilnius":["Gediminas' Tower","Gediminas torn"],
-  "Bukarest":["Palace of the Parliament","Parlamentspalatset"],"Aten":["Parthenon","Parthenon"],"Vaduz":["Vaduz Castle","Vaduz slott"],
-  "Köln":["Cologne Cathedral","Kölnerdomen"],"Zermatt":["Matterhorn","Matterhorn"],"Ajaccio":["Ajaccio","Ajaccio"],
-  "Tromsø":["Arctic Cathedral","Ishavskatedralen"],"Belfast":["Titanic Belfast","Titanic Belfast"],"Gdańsk":["Żuraw","Krantornet Żuraw"],
-  "Florens":["Florence Cathedral","Domkyrkan"],
-  "Kiruna":["Kiruna Church","Kiruna kyrka"],"Visby":["Visby City Wall","Ringmuren"],"Ystad":["Ales stenar","Ales stenar"],
-  "Strömstad":["Strömstad","Strömstad"],"Haparanda":["Haparanda","Haparanda"],"Sundsvall":["Sundsvall","Sundsvall"],
-  "Mora":["Vasaloppet","Vasaloppet"],"Kalmar":["Kalmar Castle","Kalmar slott"],"Karlstad":["Karlstad","Karlstad"],
-  "Östersund":["Östersund","Östersund"],"Jokkmokk":["Jokkmokk","Jokkmokk"],"Åre":["Åreskutan","Åreskutan"],
-  "Gränna":["Polkagris","Polkagrisar"],"Umeå":["Umeå","Umeå"],"Falun":["Falun Mine","Falu gruva"],"Västervik":["Västervik","Västervik"],
-  "Treriksröset":["Treriksröset","Treriksröset"],"Smögen":["Smögen","Smögen"],"Borgholm":["Borgholm Castle","Borgholms slottsruin"],
-  "Sälen":["Sälen","Sälen"],"Luleå":["Gammelstad Church Town","Gammelstads kyrkstad"],"Halmstad":["Halmstad","Halmstad"],
-  "Arvika":["Arvika","Arvika"],"Fårösund":["Fårö","Raukar på Fårö"],"Örnsköldsvik":["Örnsköldsvik","Örnsköldsvik"],
-  "Vadstena":["Vadstena Castle","Vadstena slott"],"Torsby":["Torsby","Torsby"],"Sveg":["Sveg","Sveg"],"Söderhamn":["Söderhamn","Söderhamn"],
-  "Trelleborg":["Trelleborg","Trelleborg"],"Norrtälje":["Norrtälje","Norrtälje"],"Lysekil":["Lysekil","Lysekil"],"Eksjö":["Eksjö","Eksjö"],
-  "Hemavan":["Hemavan","Hemavan"],"Karlskrona":["Naval Port of Karlskrona","Örlogsstaden Karlskrona"],
-  "Ushuaia":["Ushuaia","Ushuaia"],"Timbuktu":["Djinguereber Mosque","Djinguereber-moskén"],"Machu Picchu":["Machu Picchu","Machu Picchu"],
-  "Uluru":["Uluru","Uluru"],"Ulan Bator":["Sükhbaatar Square","Sükhbaatartorget"],"Honolulu":["Diamond Head, Hawaii","Diamond Head"],
-  "Kapstaden":["Table Mountain","Taffelberget"],"Anchorage":["Anchorage, Alaska","Anchorage"],"Katmandu":["Boudhanath","Boudhanath"],
-  "Zanzibar":["Stone Town","Stone Town"],"Havanna":["El Capitolio","Capitolio"],"Petra":["Petra","Petra"],"Singapore":["Marina Bay Sands","Marina Bay Sands"],
-  "Nuuk":["Nuuk","Nuuk"],"Las Palmas":["Las Palmas","Las Palmas"],"Rio de Janeiro":["Christ the Redeemer (statue)","Kristusstatyn"],
-  "Wellington":["Wellington Cable Car","Kabelbanan"],"Samarkand":["Registan","Registan"],"Angkor Wat":["Angkor Wat","Angkor Wat"],
-  "Tokyo":["Tokyo Skytree","Tokyo Skytree"],"Chicago":["Cloud Gate","Cloud Gate"],"Addis Abeba":["Addis Ababa","Addis Abeba"],
-  "Påskön":["Moai","Moai-statyer"],"Vancouver":["Lions Gate Bridge","Lions Gate Bridge"],"Mumbai":["Gateway of India","Gateway of India"],
-  "Marrakech":["Jemaa el-Fnaa","Jemaa el-Fnaa"],"Galápagos":["Galápagos tortoise","Galápagossköldpadda"],"Longyearbyen":["Longyearbyen","Longyearbyen"],
-  "Kairo":["Giza pyramid complex","Pyramiderna i Giza"],"Lima":["Plaza Mayor, Lima","Plaza Mayor"],"Bangkok":["Wat Arun","Wat Arun"],
-  "Mexico City":["Palacio de Bellas Artes","Palacio de Bellas Artes"],"Perth":["Perth","Perth"],"Dubai":["Burj Khalifa","Burj Khalifa"],
-  "Nairobi":["Nairobi National Park","Nairobi nationalpark"],"Buenos Aires":["Obelisco de Buenos Aires","Obelisken"]
+/* Symbol clues: emojis typical for the place, and the explanation shown with the answer. */
+const SYM = {
+  "Reykjavík":["🌋♨️🐴","Vulkaner, varma källor och islandshästar"],
+  "Lissabon":["🚋🎶🥧","Den gula spårvagnen, fado och pastel de nata"],
+  "Dubrovnik":["🏰🐉👑","Stadsmuren som blev Kungshamn i Game of Thrones"],
+  "Venedig":["🛶🎭🌉","Gondoler, karnevalsmasker och Rialtobron"],
+  "Kraków":["🐉🏰🥨","Wawelslottet, draken som enligt sägnen bodde under det, och kringlorna"],
+  "Bergen":["🌧️🐟🏘️","Regnet, fisketorget och husen på Bryggen"],
+  "Sevilla":["💃🍊🐂","Flamenco, apelsinträden och tjurfäktningsarenan"],
+  "Edinburgh":["🏰🥃🎭","Borgen på berget, whiskyn och festivalen i augusti"],
+  "Istanbul":["🕌🌉🐈","Hagia Sofia, broarna över Bosporen och alla gatukatter"],
+  "Sankt Petersburg":["🩰🌃🌉","Baletten, de vita nätterna och klaffbroarna över Neva"],
+  "Tallinn":["🏰🧱⛴️","Medeltida gamla stan, ringmuren och färjorna från Stockholm"],
+  "Neapel":["🍕🌋⚽","Pizzans hemstad, Vesuvius och Maradona"],
+  "Monaco":["🏎️🎰🛥️","Formel 1 på gatorna, kasinot och lyxbåtarna"],
+  "Santorini":["🌅⛪🔵","Solnedgången i Oia och de blå kupolerna"],
+  "Brygge":["🍫🧇🛶","Choklad, våfflor och båtturer på kanalerna"],
+  "Salzburg":["🎼🏔️🎬","Mozarts födelsestad och Sound of Music"],
+  "Riga":["🏛️🎄⛪","Jugendhusen och, enligt Riga själva, en av världens första julgranar"],
+  "Porto":["🍷🌉🚤","Portvinet, Dom Luís-bron och båtarna på Douro"],
+  "Marseille":["🐟🍲⚓","Bouillabaisse och Frankrikes största hamn"],
+  "Hamburg":["⚓🎻🍔","Hamnen, Elbphilharmonie och kanske hamburgarens namn"],
+  "Dublin":["🍺☘️🎻","Guinness, klövern och pubmusiken"],
+  "Nordkap":["🌍☀️🧭","Globen på klippan, midnattssolen och Europas nordligaste utsiktspunkt"],
+  "Mont Blanc":["🏔️🧗❄️","Alpernas högsta topp"],
+  "Prag":["🌉🍺⏰","Karlsbron, ölet och det astronomiska uret"],
+  "Valletta":["⚔️🏰⛵","Johanniterriddarnas fästningsstad vid hamnen"],
+  "Sarajevo":["🕌⛷️🏅","Moskéerna och vinter-OS 1984"],
+  "Bordeaux":["🍷🍇🏛️","Vinet, vingårdarna och de ståtliga kajerna"],
+  "Gibraltar":["🐒🪨✈️","Aporna, klippan och landningsbanan som korsar huvudgatan"],
+  "Helsingfors":["🧖⛪🚢","Bastun, domkyrkan och Finlandsbåtarna"],
+  "Budapest":["♨️🏛️🌉","Termalbaden, parlamentet och Kedjebron"],
+  "Palma":["🏖️⛪☀️","Stränderna, katedralen vid havet och solen"],
+  "Vilnius":["🏀🏰⛪","Basketlandets huvudstad med Gediminas torn"],
+  "Bukarest":["🏛️🗼","Parlamentspalatset, en av världens största byggnader, och smeknamnet Lilla Paris"],
+  "Aten":["🏛️🦉🏃","Parthenon, Athenas uggla och maratonloppet"],
+  "Vaduz":["🏰🏦🏔️","Furstens slott, bankerna och Alperna runt omkring"],
+  "Köln":["⛪🎭🍺","Domen, karnevalen och Kölsch-ölet"],
+  "Zermatt":["🏔️🚠🚫🚗","Matterhorn, linbanorna och den bilfria byn"],
+  "Ajaccio":["🎩⚔️🏝️","Napoleons födelsestad på Korsika"],
+  "Tromsø":["🌌🐋⛪","Norrsken, valsafari och Ishavskatedralen"],
+  "Belfast":["🚢🧊🏗️","Varvet där Titanic byggdes"],
+  "Gdańsk":["🏗️✊🟠","Varvet där Solidaritet föddes, och bärnstenen"],
+  "Florens":["🗿🎨⛪","Michelangelos David, renässanskonsten och domkyrkans kupol"],
+  "Kiruna":["⛏️🚚🏘️","Gruvan och staden som flyttas"],
+  "Visby":["🏰🌹🗡️","Ringmuren, rosornas stad och Medeltidsveckan"],
+  "Ystad":["🕵️🚓🌊","Wallanders stad"],
+  "Strömstad":["🦐⛴️🛒","Räkorna, Kosterbåtarna och norska handlare"],
+  "Haparanda":["🛋️🇫🇮🌉","Världens nordligaste IKEA, precis vid finska gränsen"],
+  "Sundsvall":["🔥🏛️🌲","Branden 1888 och stenstaden som byggdes efteråt"],
+  "Mora":["🎿🐴🏁","Vasaloppets mål och dalahästarna"],
+  "Kalmar":["🏰👑🌉","Kalmar slott, Kalmarunionen och Ölandsbron"],
+  "Karlstad":["☀️🌊🏞️","Sola i Karlstad, Vänern och Klarälven"],
+  "Östersund":["🐉🌊⛷️","Storsjöodjuret"],
+  "Jokkmokk":["🦌🛷❄️","Jokkmokks vintermarknad och renarna"],
+  "Åre":["⛷️🚠🏔️","Skidorten under Åreskutan"],
+  "Gränna":["🍬🎈","Polkagrisar och Andrées ballongfärd mot Nordpolen"],
+  "Umeå":["🌳🎓","Björkarnas stad och universitetet"],
+  "Falun":["⛏️🟥🏠","Kopparbergsgruvan och Falu rödfärg"],
+  "Västervik":["🎸🎤⛵","Visfestivalen och skärgården"],
+  "Treriksröset":["🇸🇪🇳🇴🇫🇮","Där Sverige, Norge och Finland möts"],
+  "Smögen":["🦐⚓🚶","Räkorna och den långa bryggan"],
+  "Borgholm":["🏰👑🌾","Slottsruinen, kungens sommarställe Solliden och Ölands odlingslandskap"],
+  "Sälen":["⛷️🎿🚌","Fjällen dit halva Stockholm åker på sportlovet"],
+  "Luleå":["⛪🏘️🧊","Gammelstads kyrkstad och isvägarna i skärgården"],
+  "Halmstad":["🏖️🎤","Tylösand och Per Gessle"],
+  "Arvika":["🎸🎪","Arvikafestivalen"],
+  "Fårösund":["⛴️🗿🎬","Färjan till Fårö, raukarna och Ingmar Bergman"],
+  "Örnsköldsvik":["🏒🌲🌊","MoDo-hockeyn och Höga kusten"],
+  "Vadstena":["🙏⛪🏰","Heliga Birgitta, klosterkyrkan och slottet vid Vättern"],
+  "Torsby":["🎿🌲","Skidtunneln och Finnskogen"],
+  "Sveg":["🧸🚂🌲","Den jättelika träbjörnen och Inlandsbanan"],
+  "Söderhamn":["🗼✈️","Oscarsborgstornet och den gamla flygflottiljen F 15"],
+  "Trelleborg":["🌴⛴️🇩🇪","Palmernas stad med färjorna till Tyskland"],
+  "Norrtälje":["🌊⛵🌲","Roslagens huvudort"],
+  "Lysekil":["🐟🌊⛵","Havets hus och västkustens fiske"],
+  "Eksjö":["🪖🏘️","Trästaden och militärstaden"],
+  "Hemavan":["🥾🏔️⛷️","Kungsledens södra start"],
+  "Karlskrona":["⚓🚢🏛️","Örlogsstaden, flottans hemmabas"],
+  "Ushuaia":["🐧🌍🚢","Världens ände och båtarna mot Antarktis"],
+  "Timbuktu":["🐫📜🏜️","Karavanerna, de gamla manuskripten och Sahara"],
+  "Machu Picchu":["🦙🏔️🏛️","Inkastaden högt uppe i Anderna"],
+  "Uluru":["🪨🦘🌅","Den röda klippan i Australiens inland"],
+  "Ulan Bator":["🐎⛺🥶","Hästar, jurtor och världens kallaste huvudstad"],
+  "Honolulu":["🏄🌺🌋","Surfing på Waikiki, blomsterkransar och vulkaner"],
+  "Kapstaden":["🏔️🐧🍷","Taffelberget, pingvinerna och vinodlingarna"],
+  "Anchorage":["🐻🛷✈️","Björnarna, starten på hundspannsloppet Iditarod och flyget"],
+  "Katmandu":["🏔️🙏🐒","Himalaya, templen och aporna"],
+  "Zanzibar":["🌶️🏝️🎤","Kryddön och Freddie Mercurys födelseort"],
+  "Havanna":["🚗🚬💃","De gamla amerikanska bilarna, cigarrerna och salsan"],
+  "Petra":["🏜️🏛️🐪","Klippstaden i öknen"],
+  "Singapore":["🦁🏙️🌸","Lejonstaden med sina skyskrapor och trädgårdar"],
+  "Nuuk":["🧊🏔️🐋","Isen, fjällen och valarna på Grönland"],
+  "Las Palmas":["🏖️☀️✈️","Charterresornas sol och strand"],
+  "Rio de Janeiro":["🎉💃🏖️","Karnevalen, sambadansen och Copacabana"],
+  "Wellington":["🚠🌬️🎬","Kabelbanan, blåsten och filmstudiorna bakom Sagan om ringen"],
+  "Samarkand":["🕌🐫🧵","Sidenvägens stad med de blå moskéerna"],
+  "Angkor Wat":["🛕🌅🐒","Världens största tempelanläggning"],
+  "Tokyo":["🗼🍣🚄","Tokyotornet, sushin och snabbtågen"],
+  "Chicago":["🌬️🍕🏙️","Windy City, deep dish-pizzan och skyskraporna"],
+  "Addis Abeba":["☕🏃","Kaffets hemland och långdistanslöparna"],
+  "Påskön":["🗿🗿🌊","Moai-statyerna mitt i Stilla havet"],
+  "Vancouver":["🌲🏔️🏒","Skogarna, bergen och ishockeyn"],
+  "Mumbai":["🎬🚂🍛","Bollywood, tågen och gatumaten"],
+  "Marrakech":["🕌🐍🧿","Torget med ormtjusare och basarerna"],
+  "Galápagos":["🐢🦎🐦","Jättesköldpaddor, havsleguaner och Darwins finkar"],
+  "Longyearbyen":["🐻‍❄️❄️🌱","Isbjörnarna, kylan och fröbanken i berget"],
+  "Kairo":["🔺🐪🌊","Pyramiderna, kamelerna och Nilen"],
+  "Lima":["🐟🍋🏄","Ceviche och surfing vid Stilla havet"],
+  "Bangkok":["🛕🛺🌶️","Templen, tuk-tukarna och den starka maten"],
+  "Mexico City":["🌮🤼💀","Tacos, fribrottning och De dödas dag"],
+  "Perth":["🦘🏖️🌅","Kängurur, stränderna och solnedgången över Indiska oceanen"],
+  "Dubai":["🏙️🏜️🛍️","Världens högsta skyskrapa, öknen och shoppingen"],
+  "Nairobi":["🦒🏙️🦁","Nationalparken med giraffer och lejon precis utanför city"],
+  "Buenos Aires":["💃🥩⚽","Tangon, grillat kött och fotbollen"]
 };
-const imgCache = {}; // place name -> Promise<{src,url,cap}|null>
-const BAD_IMG = /map|karta|locat|position|coat_of_arms|vapen|flag|logo|seal|\.svg/i;
-function wikiImage(title){
-  return fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(title.replace(/ /g,"_")))
-    .then(r=>r.ok?r.json():null)
-    .then(j=>{
-      if(!j||!j.thumbnail||!j.thumbnail.source) return null;
-      const orig=(j.originalimage&&j.originalimage.source)||j.thumbnail.source;
-      if(BAD_IMG.test(decodeURIComponent(orig))) return null;
-      const t=j.thumbnail.source, sized=w=>t.replace(/\/(\d+)px-/,"/"+w+"px-");
-      const url=(j.content_urls&&j.content_urls.mobile&&j.content_urls.mobile.page)||("https://en.wikipedia.org/wiki/"+encodeURIComponent(title));
-      const cands=[...new Set([sized(960),sized(500),t])];
-      return {cands,url};
-    }).catch(()=>null);
-}
-function firstLoading(list){
-  return new Promise(ok=>{
-    const next=i=>{ if(i>=list.length) return ok(null);
-      const im=new Image(); im.onload=()=>ok(list[i]); im.onerror=()=>next(i+1); im.src=list[i]; };
-    next(0);
-  });
-}
-function getPic(q){
-  const name=q[0];
-  if(!imgCache[name]){
-    const def=PIC[name];
-    imgCache[name] = !def ? Promise.resolve(null) :
-      wikiImage(def[0]).then(r=> r ? firstLoading(r.cands).then(src=> src ? {src,url:r.url,cap:def[1]} : null) : null);
-  }
-  return imgCache[name];
-}
 /* Map views: [west, south, east, north] */
 const VIEW = {
   europa:{bbox:[-24,34,42,71.5], proj:()=>d3.geoAzimuthalEqualArea().rotate([-12,-52])},
@@ -345,7 +383,7 @@ const VIEW = {
 };
 
 /* ---------- State ---------- */
-const S = {mode:"europa", clue:"namn", kinds:[], pic:null, n:10, hide:true, names:["Lag 1","Lag 2"], score:[0,0], km:[0,0],
+const S = {mode:"europa", clue:"namn", kinds:[], n:10, hide:true, names:["Lag 1","Lag 2"], score:[0,0], km:[0,0],
   qs:[], i:0, turn:0, starter:0, pins:[null,null], locked:[false,false], phase:"guess"};
 const $ = id=>document.getElementById(id);
 
@@ -378,9 +416,23 @@ function decodeGeo(geo){
 /* Flatten to a list of rings with a lon/lat bounding box each.
    Land is drawn as plain projected polygons (even-odd fill), which avoids the
    spherical winding problems that made the land fill the whole globe. */
+function bboxOf(r){
+  let w=180,e=-180,s=90,n=-90;
+  r.forEach(p=>{ if(p[0]<w)w=p[0]; if(p[0]>e)e=p[0]; if(p[1]<s)s=p[1]; if(p[1]>n)n=p[1]; });
+  return [w,s,e,n];
+}
+function toLines(geo){
+  const out=[];
+  (geo.features||[]).forEach(f=>{
+    const g=f.geometry; if(!g) return;
+    const ls = g.type==="LineString"?[g.coordinates]:g.type==="MultiLineString"?g.coordinates:[];
+    ls.forEach(l=>{ if(l&&l.length>1) out.push({r:l,b:bboxOf(l)}); });
+  });
+  return out.length?out:null;
+}
 function toRings(geo){
   const rings=[];
-  geo.features.forEach(f=>{
+  (geo.features||[]).forEach(f=>{
     const g=f.geometry; if(!g) return;
     const name=(f.properties&&f.properties.name)||"";
     if(name==="Antarctica") return;
@@ -389,25 +441,38 @@ function toRings(geo){
       if(!r || r.length<3) return;
       let w=180,e=-180,s=90,n=-90;
       r.forEach(p=>{ if(p[0]<w)w=p[0]; if(p[0]>e)e=p[0]; if(p[1]<s)s=p[1]; if(p[1]>n)n=p[1]; });
+      if(n<-60) return; // Antarctica
       rings.push({r,b:[w,s,e,n]});
     }));
   });
   return rings.length?rings:null;
 }
-function landPath(){
+function shapesPath(list, closed){
+  if(!list) return "";
   const v=VIEW[S.mode], m=S.mode==="varlden"?999:25;
   const [W0,S0,E0,N0]=v.bbox;
   let d="";
-  world.forEach(({r,b})=>{
+  list.forEach(({r,b})=>{
     if(b[2]<W0-m||b[0]>E0+m||b[3]<S0-m||b[1]>N0+m) return;
     let seg="";
     for(let i=0;i<r.length;i++){
       const p=projection(r[i]); if(!p||!isFinite(p[0])||!isFinite(p[1])) { seg=""; break; }
       seg += (i?"L":"M")+p[0].toFixed(1)+","+p[1].toFixed(1);
     }
-    if(seg) d+=seg+"Z";
+    if(seg) d+=seg+(closed?"Z":"");
   });
   return d;
+}
+function drawLayers(){
+  if(!projection) return;
+  gLand.selectAll("*").remove();
+  const land = L.land || world;
+  if(!land) return;
+  gLand.append("path").attr("class","land").attr("fill-rule","evenodd").attr("d",shapesPath(land,true));
+  const lakes = (S.mode!=="varlden" && L.lakesFine) ? L.lakesFine : L.lakes;
+  if(lakes) gLand.append("path").attr("class","lake").attr("fill-rule","evenodd").attr("d",shapesPath(lakes,true));
+  if(L.rivers) gLand.append("path").attr("class","river").attr("d",shapesPath(L.rivers,false));
+  if(L.borders && L.land) gLand.append("path").attr("class","border").attr("d",shapesPath(L.borders,false));
 }
 
 /* ---------- Map ---------- */
@@ -418,6 +483,8 @@ const gLand = gMap.append("g");
 const gArcs = gMap.append("g");
 const gPins = svg.append("g");
 let projection, path, zoom, T=d3.zoomIdentity, W=0, H=0, world=null;
+/* Detailed layers from Natural Earth (public domain); world = fallback land from ECharts. */
+const L = {land:null, borders:null, lakes:null, lakesFine:null, rivers:null};
 
 function size(){
   const r=$("mapbox").getBoundingClientRect(); W=Math.max(1,r.width); H=Math.max(1,r.height);
@@ -435,10 +502,7 @@ function buildMap(){
   projection=v.proj().fitExtent([[12,12],[W-12,H-12]], bboxFeature(v.bbox));
   path=d3.geoPath(projection);
   gGrat.attr("d", path(d3.geoGraticule10()));
-  gLand.selectAll("path").remove();
-  if(world){
-    gLand.append("path").attr("class","land").attr("fill-rule","evenodd").attr("d",landPath());
-  }
+  drawLayers();
   zoom=d3.zoom().scaleExtent([1,S.mode==="varlden"?400:80]).translateExtent([[-W*.25,-H*.25],[W*1.25,H*1.25]])
     .on("zoom",e=>{T=e.transform; gMap.attr("transform",T); drawPins();});
   svg.call(zoom).on("dblclick.zoom",null);
@@ -529,9 +593,7 @@ function updateUI(){
     btn.disabled=!S.pins[S.turn];
   } else {
     $("sub").hidden=false;
-    if(S.kinds[S.i]==="bild" && S.pic){
-      $("sub").innerHTML=`${esc(q[1])} · Bilden: ${esc(S.pic.cap)} (<a href="${esc(S.pic.url)}" target="_blank" rel="noopener">Wikipedia</a>)`;
-    } else $("sub").textContent=q[1];
+    $("sub").textContent = S.kinds[S.i]==="symboler" && SYM[q[0]] ? `${q[1]} · ${SYM[q[0]][0]} ${SYM[q[0]][1]}` : q[1];
     const d=[0,1].map(k=>dist(S.pins[k],[q[3],q[2]]));
     const w = Math.abs(d[0]-d[1])<0.05 ? -1 : (d[0]<d[1]?0:1);
     $("msg").innerHTML = w<0
@@ -545,32 +607,15 @@ function updateUI(){
   }
 }
 function renderClue(q){
-  const asPic = S.kinds[S.i]==="bild" && S.pic!==false; // false = no picture found
-  const pic=$("pic");
-  if(!asPic){
-    pic.hidden=true; $("place").hidden=false;
-    $("lbl").textContent = S.kinds[S.i]==="bild" ? "Ingen bild hittades – var ligger" : "Var ligger";
-    return;
+  const sym = S.kinds[S.i]==="symboler" && SYM[q[0]];
+  const pl=$("place");
+  if(sym && S.phase==="guess"){
+    $("lbl").textContent="Var ligger det här?"; pl.textContent=sym[0]; pl.classList.add("sym");
+  } else {
+    $("lbl").textContent = sym ? "Det var" : "Var ligger";
+    pl.textContent=q[0]; pl.classList.remove("sym");
   }
-  if(S.phase==="guess"){
-    $("lbl").textContent="Var ligger det här?"; $("place").hidden=true;
-  } else { $("lbl").textContent="Det var"; $("place").hidden=false; }
-  pic.hidden=false;
-  if(S.pic){
-    if(!pic.querySelector("img") || pic.querySelector("img").getAttribute("src")!==S.pic.src)
-      pic.innerHTML=`<img src="${esc(S.pic.src)}" alt="Bildledtråd"><span class="hint">Tryck för större bild</span>`;
-  } else pic.innerHTML="Hämtar bild…";
 }
-function loadPicFor(i){
-  S.pic=null;
-  if(S.kinds[i]!=="bild") return;
-  const q=S.qs[i];
-  getPic(q).then(r=>{ if(S.qs[S.i]!==q) return; S.pic = r || false; updateUI(); });
-  // warm up the next one
-  if(S.qs[i+1] && S.kinds[i+1]==="bild") getPic(S.qs[i+1]);
-}
-$("pic").onclick=()=>{ if(!S.pic) return; $("picFull").innerHTML=`<img src="${esc(S.pic.src)}" alt="">`; $("picFull").hidden=false; };
-$("picFull").onclick=()=>{ $("picFull").hidden=true; };
 function lockPin(){
   S.locked[S.turn]=true;
   const other=1-S.turn;
@@ -604,7 +649,6 @@ function nextQ(){
   if(S.i+1>=S.qs.length){ showEnd(); return; }
   S.i++; S.starter=1-S.starter; S.turn=S.starter;
   S.pins=[null,null]; S.locked=[false,false]; S.phase="guess";
-  loadPicFor(S.i);
   drawArcs(); drawPins(); updateUI();
   svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity);
 }
@@ -626,9 +670,8 @@ function startGame(){
   S.score=[0,0]; S.km=[0,0]; S.i=0; S.starter=0; S.turn=0;
   S.pins=[null,null]; S.locked=[false,false]; S.phase="guess";
   S.qs=shuffle(Q[S.mode]).slice(0,S.n);
-  S.kinds=S.qs.map((q,i)=> S.clue==="blandat" ? (i%2?"bild":"namn") : S.clue);
-  if(S.clue!=="namn") S.qs.forEach((q,i)=>{ if(S.kinds[i]==="bild") getPic(q); });
-  loadPicFor(0);
+  S.kinds=S.qs.map((q,i)=> S.clue==="blandat" ? (i%2?"symboler":"namn") : S.clue);
+  ensureDetail();
   $("startScr").hidden=true; $("endScr").hidden=true;
   buildMap(); updateUI();
 }
@@ -664,15 +707,37 @@ async function loadWorld(){
   }
   return null;
 }
+const NE = [
+  "https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@v5.1.2/geojson/",
+  "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/"
+];
+async function fetchNE(file){
+  for(const base of NE){
+    try{ const r=await fetch(base+file); if(r.ok) return await r.json(); }catch(e){}
+  }
+  return null;
+}
+let redrawT;
+function redrawSoon(){ clearTimeout(redrawT); redrawT=setTimeout(drawLayers,60); }
+function loadLayer(key,file,conv){
+  return fetchNE(file).then(g=>{ if(g){ try{ L[key]=conv(g); }catch(e){} redrawSoon(); } return !!L[key]; });
+}
+let fineAsked=false;
+function ensureDetail(){
+  if(S.mode!=="varlden" && !fineAsked){ fineAsked=true; loadLayer("lakesFine","ne_10m_lakes.geojson",toRings); }
+}
 // Sample state behind the start screen
 S.qs=[Q.europa[0]]; buildMap(); updateUI(); $("msg").textContent="Välj lag och karta för att börja.";
 $("mapnote").hidden=false; $("mapnote").textContent="Laddar kartan…";
-loadWorld().then(r=>{
-  world=r;
-  if(world){ $("mapnote").hidden=true; }
-  else $("mapnote").textContent="Kartbilden kunde inte laddas, så bara gradnätet visas. Spelet fungerar ändå – avstånden räknas som vanligt.";
-  buildMap();
-  if(S.phase==="reveal"){drawArcs();drawPins();}
+const neLand = loadLayer("land","ne_50m_land.geojson",toRings);
+loadLayer("borders","ne_50m_admin_0_boundary_lines_land.geojson",toLines);
+loadLayer("lakes","ne_50m_lakes.geojson",toRings);
+loadLayer("rivers","ne_50m_rivers_lake_centerlines.geojson",toLines);
+const fallback = loadWorld().then(r=>{ world=r; redrawSoon(); return !!r; });
+neLand.then(ok=>{ if(ok) $("mapnote").hidden=true; });
+fallback.then(ok=>{ if(ok) $("mapnote").hidden=true; });
+Promise.all([neLand,fallback]).then(([a,b])=>{
+  if(!a && !b) $("mapnote").textContent="Kartbilden kunde inte laddas, så bara gradnätet visas. Spelet fungerar ändå – avstånden räknas som vanligt.";
 });
 })();
 </script>
