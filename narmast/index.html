@@ -158,8 +158,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
   <div class="card">
     <div class="logo">Närmast<br>vinner<small>Två lag sätter ut var sin pil på kartan. Den som hamnar närmast rätt plats tar poängen.</small></div>
     <div class="names">
-      <div class="field"><label for="in1">Lag 1</label><input id="in1" value="Lag 1" maxlength="18" autocomplete="off"></div>
-      <div class="field"><label for="in2">Lag 2</label><input id="in2" value="Lag 2" maxlength="18" autocomplete="off"></div>
+      <div class="field"><label for="in1">Lag 1</label><input id="in1" value="" placeholder="Lag 1" maxlength="18" autocomplete="off" autocapitalize="words" enterkeyhint="next"></div>
+      <div class="field"><label for="in2">Lag 2</label><input id="in2" value="" placeholder="Lag 2" maxlength="18" autocomplete="off" autocapitalize="words" enterkeyhint="done"></div>
     </div>
     <div class="field"><span class="legend">Karta</span>
       <div class="seg" id="segMap">
@@ -188,7 +188,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
     </div>
     <label class="check"><input type="checkbox" id="hide" checked>Dölj första lagets pil medan andra laget gissar (när ni delar en telefon)</label>
     <button class="btn" id="startBtn">Kör!</button>
-    <p class="ver">Version 1.6 · 2 november 2026</p>
+    <p class="ver">Version 1.7 · 2 november 2026</p>
   </div>
 </div>
 
@@ -848,7 +848,11 @@ function seg(id,key,num){
   });
 }
 seg("segMap","mode",false); seg("segN","n",true); seg("segClue","clue",false);
-try{ const saved=JSON.parse(localStorage.getItem("nv-names")||"null"); if(saved){$("in1").value=saved[0];$("in2").value=saved[1];} }catch(e){}
+try{ const saved=JSON.parse(localStorage.getItem("nv-names")||"null");
+  if(saved) ["in1","in2"].forEach((id,k)=>{ const v=(saved[k]||"").trim(); $(id).value = /^Lag [12]$/.test(v) ? "" : v; }); }catch(e){}
+// Tapping a name field empties it, so a new name can be typed straight away
+["in1","in2"].forEach(id=>$(id).addEventListener("focus",()=>{ $(id).dataset.prev=$(id).value; $(id).value=""; }));
+["in1","in2"].forEach(id=>$(id).addEventListener("blur",()=>{ if(!$(id).value.trim() && $(id).dataset.prev) $(id).value=$(id).dataset.prev; }));
 ["in1","in2"].forEach(id=>$(id).addEventListener("input",()=>{try{localStorage.setItem("nv-names",JSON.stringify([$("in1").value,$("in2").value]));}catch(e){}}));
 
 let rt; window.addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>{ if(S.qs.length){buildMap(); if(S.phase==="reveal"){drawArcs();drawPins();}} },150);});
