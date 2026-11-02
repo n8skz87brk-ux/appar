@@ -110,6 +110,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
 .seg button{flex:1 1 auto;border:1px solid #2c4258;background:#13202f;color:var(--ink);border-radius:8px;padding:10px 12px;font-weight:700}
 .seg button[aria-pressed="true"]{background:var(--sign);color:#14171c;border-color:var(--sign)}
 .ver{margin:0;text-align:center;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.vrow{display:flex;gap:8px}
+.vrow select{flex:1;min-width:0;background:#13202f;border:1px solid #2c4258;border-radius:8px;color:var(--ink);padding:10px;font:inherit;font-size:16px}
 .check{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--muted);line-height:1.4}
 .check input{width:20px;height:20px;accent-color:var(--sign);flex:none;margin-top:1px}
 .handoff{text-align:center;align-items:center;margin-top:12vh}
@@ -181,9 +183,12 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sign);outline-o
       </div>
     </div>
     <label class="check"><input type="checkbox" id="voice" checked>Läs upp vem som var närmast (slå på ljudet på telefonen)</label>
+    <div class="field" id="voiceRow"><label for="voiceSel">Röst</label>
+      <div class="vrow"><select id="voiceSel"></select><button class="btn ghost" id="voiceTest" type="button">Testa</button></div>
+    </div>
     <label class="check"><input type="checkbox" id="hide" checked>Dölj första lagets pil medan andra laget gissar (när ni delar en telefon)</label>
     <button class="btn" id="startBtn">Kör!</button>
-    <p class="ver">Version 1.5 · 2 november 2026</p>
+    <p class="ver">Version 1.6 · 2 november 2026</p>
   </div>
 </div>
 
@@ -710,11 +715,21 @@ function lockPin(){
   } else reveal();
 }
 /* ---------- Speaker voice ---------- */
-let voiceOn=true, svVoice=null;
-function pickVoice(){
-  try{ const vs=speechSynthesis.getVoices(); svVoice = vs.find(v=>/^sv/i.test(v.lang)&&/alva|klara|oskar/i.test(v.name)) || vs.find(v=>/^sv/i.test(v.lang)) || null; }catch(e){}
+let voiceOn=true, svVoice=null, svList=[];
+function voiceScore(v){
+  const id=(v.name+" "+v.voiceURI).toLowerCase();
+  return (/premium/.test(id)?30:0) + (/enhanced|förbättrad|neural|natural|online/.test(id)?20:0) + (/alva|klara|oskar|sofie|mattias/.test(id)?2:0) + (v.localService?0:1);
 }
-if("speechSynthesis" in window){ pickVoice(); try{ speechSynthesis.onvoiceschanged=pickVoice; }catch(e){} }
+function pickVoice(){
+  try{
+    svList = speechSynthesis.getVoices().filter(v=>/^sv/i.test(v.lang)).sort((a,b)=>voiceScore(b)-voiceScore(a));
+    let saved=null; try{ saved=localStorage.getItem("nv-voicename"); }catch(e){}
+    svVoice = svList.find(v=>v.voiceURI===saved) || svList[0] || null;
+    const sel=$("voiceSel"); if(!sel) return;
+    sel.innerHTML = svList.length ? svList.map(v=>`<option value="${esc(v.voiceURI)}">${esc(v.name)}</option>`).join("") : `<option value="">Standardröst</option>`;
+    if(svVoice) sel.value=svVoice.voiceURI;
+  }catch(e){}
+}
 function say(text){
   if(!voiceOn || !("speechSynthesis" in window)) return;
   try{
@@ -731,15 +746,14 @@ function spokenKm(d){
 }
 function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
 function announce(q,d){
-  const [n1,n2]=S.names;
-  if(Math.abs(d[0]-d[1])<0.05){ say(`Det var ${q[0]}. Exakt lika nära, ${spokenKm(d[0])}! Båda får en poäng.`); return; }
-  const w=d[0]<d[1]?0:1, l=1-w, W=S.names[w], Lz=S.names[l];
-  const lines=[
-    `Det var ${q[0]}. ${W} var närmast, ${spokenKm(d[w])} ifrån. ${Lz} hamnade ${spokenKm(d[l])} bort.`,
-    `${q[0]}! Poängen går till ${W}, bara ${spokenKm(d[w])} fel. ${Lz} var ${spokenKm(d[l])} ifrån.`,
-    `Rätt svar: ${q[0]}. ${W} vinner frågan med ${spokenKm(d[w])}. ${Lz} missade med ${spokenKm(d[l])}.`
-  ];
-  say(d[w]<1 ? `${q[0]}! Nästan pricken mitt i, ${W} var bara ${spokenKm(d[w])} ifrån!` : pick(lines));
+  if(Math.abs(d[0]-d[1])<0.05){ say(`${q[0]}. Exakt lika nära, ${spokenKm(d[0])}! Båda får en poäng.`); return; }
+  const w=d[0]<d[1]?0:1, N=S.names[w], km=spokenKm(d[w]);
+  if(d[w]<1){ say(`${q[0]}! ${N} var nästan mitt i prick, bara ${km} ifrån!`); return; }
+  say(pick([
+    `${q[0]}. ${N} var närmast, ${km} ifrån.`,
+    `${q[0]}! Poängen går till ${N}, ${km} ifrån.`,
+    `Det var ${q[0]}. ${N} tar poängen, ${km} fel.`
+  ]));
 }
 function setVoice(on){
   voiceOn=on; $("voice").checked=on;
@@ -750,8 +764,11 @@ function setVoice(on){
 }
 try{ if(localStorage.getItem("nv-voice")==="0") setVoice(false); }catch(e){}
 $("speak").onclick=()=>setVoice(!voiceOn);
+if("speechSynthesis" in window){ pickVoice(); try{ speechSynthesis.addEventListener("voiceschanged",pickVoice); }catch(e){} setTimeout(pickVoice,800); }
+$("voiceSel").onchange=()=>{ svVoice=svList.find(v=>v.voiceURI===$("voiceSel").value)||null; try{ localStorage.setItem("nv-voicename",$("voiceSel").value); }catch(e){} };
+$("voiceTest").onclick=()=>{ const on=voiceOn; voiceOn=true; say(`${$("in1").value||"Lag 1"} var närmast, 3,2 kilometer ifrån.`); voiceOn=on; };
 $("voice").onchange=()=>setVoice($("voice").checked);
-if(!("speechSynthesis" in window)){ $("speak").hidden=true; $("voice").closest("label").hidden=true; }
+if(!("speechSynthesis" in window)){ $("speak").hidden=true; $("voice").closest("label").hidden=true; $("voiceRow").hidden=true; }
 
 function reveal(){
   const q=S.qs[S.i]; S.phase="reveal";
