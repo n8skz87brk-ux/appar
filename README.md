@@ -5,6 +5,7 @@ Peters appar – https://appar.elisabethnorlanderkeramik.se
 ## Versioner
 
 ### Närmast vinner (`narmast/`)
+- **2.7** – 2 november 2026. Sverigekartan utökad från 51 till 160 platser (alla residensstäder, mellanstora orter, Gotland, Öland, fjäll, skärgård och kända platser). Bildläget för Sverige har nu 65 platser.
 - **2.6** – 2 november 2026. Ljus karta är nu standard, den mörka är borttagen. Länsgränser (prickade) på Sverigekartan, bara gränserna mellan län, inte kusten.
 - **2.5** – 2 november 2026. Nytt val Kartstil: Mörk karta eller Ljus karta (atlasstil med beige land, ljusblått vatten och tydliga gränser). Väljs på startskärmen eller med ◐-knappen på kartan; sparas per telefon. Den gula ringen för rätt svar har fått mörk kant så att den syns på båda.
 - **2.4** – 2 november 2026. Ljusare land och mörka, lite tjockare streckade landsgränser för bättre kontrast. Älvarna en aning ljusare så att de syns lika bra på det ljusare landet.
