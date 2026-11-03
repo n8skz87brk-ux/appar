@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="sv"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="description" content="Anatomispel: ett latinskt namn visas och du pekar ut benet, muskeln, organet eller blodkärlet på kroppen.">
+<meta name="theme-color" content="#0b1317">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Människokroppen">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}*,*::before,*::after{box-sizing:inherit}body{margin:0;padding:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}
+.ver{color:#8fa6ad;font-size:.82rem;margin:0}.ver a{color:inherit}</style>
+<title>Människokroppen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;1,500;1,600&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head><body>
+<style>
+/* Layout: one column — settings, then a sticky question card floating over a lightbox plate of the body */
+:root{
+  --film:#0b1317; --film-2:#16262e; --panel:rgba(15,28,34,.92);
+  --text:#e6eef0; --muted:#8fa6ad; --rule:rgba(143,166,173,.25); --skin:rgba(200,225,232,.07);
+  --bone:#dbe7ea; --edge:#6f8b93;
+  --muscle:#d98a78; --artery:#ff6e6e; --vein:#6fa6ff;
+  --brain:#e9b9c4; --eye:#eef3f4; --gland:#f0a35e; --airway:#a9d3e0; --lung:#e9a7b4; --heart:#e2574c;
+  --liver:#b8614f; --bile:#9fcf6a; --stomach:#e7b08f; --spleen:#a77bbd; --pancreas:#f2cf8a; --kidney:#b85a66;
+  --gut:#d9b38c; --gut2:#e8c9a6; --bladder:#e6d27a;
+  --ok:#6fdc9c; --miss:#ff8b6e; --mark:#f5d565;
+  --display:"Spectral", Georgia, "Times New Roman", serif;
+  --ui:"Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:dark;
+}
+html,body{background:var(--film)}
+body{
+  color:var(--text);font-family:var(--ui);font-size:15px;line-height:1.45;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--film)}
+.wrap{max-width:480px;margin:0 auto;padding-block:14px 36px;display:flex;flex-direction:column;gap:12px}
+h1{font-family:var(--display);font-weight:500;font-size:1.7rem;margin:0;letter-spacing:.01em;text-wrap:balance}
+.setup{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center}
+.lbl{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.opts{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.opt{appearance:none;border:1px solid var(--rule);background:transparent;color:var(--muted);font:600 .84rem var(--ui);padding:7px 12px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.opt[aria-pressed="true"]{background:var(--bone);border-color:var(--bone);color:var(--film)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--sw)}
+.opt:focus-visible,.btn:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+.card{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:5;
+  background:var(--panel);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  border:1px solid var(--rule);border-radius:14px;padding:12px 14px;
+  display:flex;flex-direction:column;gap:4px;
+}
+.meta{display:flex;justify-content:space-between;gap:8px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-variant-numeric:tabular-nums}
+.latin{font-family:var(--display);font-style:italic;font-weight:600;font-size:2rem;line-height:1.12;min-height:1.12em;overflow-wrap:anywhere;text-wrap:balance}
+.fb{font-size:.95rem;min-height:1.4em}
+.fb.ok{color:var(--ok)} .fb.miss{color:var(--miss)}
+.fb small{display:block;color:var(--muted);font-size:.85rem;margin-top:2px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.actions:empty{display:none}
+.btn{appearance:none;border:0;border-radius:10px;padding:10px 16px;font:600 .95rem var(--ui);cursor:pointer;background:var(--mark);color:#1b1606}
+.plate{background:radial-gradient(ellipse at 50% 30%, var(--film-2), var(--film) 78%);border:1px solid var(--rule);border-radius:16px;padding-block:6px}
+svg{display:block;width:100%;height:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
+.skin{fill:var(--skin);stroke:var(--rule);stroke-width:.8;pointer-events:none}
+.layer{transition:opacity .25s}
+.layer.ghost{opacity:.13;pointer-events:none}
+.layer[data-sys="skelett"]{filter:drop-shadow(0 0 2.4px rgba(190,225,232,.35))}
+.layer[data-sys="muskler"] .b{fill-opacity:.82}
+g[data-id]{--c:var(--bone)}
+.b{fill:var(--c);fill-opacity:.88;stroke:var(--film);stroke-opacity:.6;stroke-width:.6;cursor:pointer;transition:fill .2s}
+.bs{fill:none;stroke:var(--c);stroke-opacity:.92;stroke-linecap:round;stroke-linejoin:round;cursor:pointer;transition:stroke .2s}
+.layer[data-sys="skelett"] .b{stroke:var(--edge)}
+.hole{fill:var(--film);stroke:var(--edge);stroke-width:.4;pointer-events:none}
+.seam{stroke:var(--film);stroke-width:.8;stroke-opacity:.7;fill:none;pointer-events:none}
+.ctx{fill:none;stroke:var(--muted);stroke-width:.8;stroke-dasharray:2 2;pointer-events:none}
+g.ok .b{fill:var(--ok);fill-opacity:1} g.ok .bs{stroke:var(--ok);stroke-opacity:1}
+g.show .b{fill:var(--mark);fill-opacity:1} g.show .bs{stroke:var(--mark);stroke-opacity:1}
+g.miss .b{fill:var(--film-2);fill-opacity:1;stroke:var(--miss);stroke-width:1.4;stroke-opacity:1}
+g.miss .bs{stroke:var(--miss);stroke-dasharray:3 2;stroke-opacity:1}
+g.pulse{animation:pulse 1s ease-in-out 3}
+@keyframes pulse{50%{opacity:.35}}
+g.lm{opacity:0;pointer-events:none;transition:opacity .2s}
+.layer.showlm g.lm{opacity:.45}
+g.lm.ok,g.lm.show,g.lm.miss{opacity:1}
+.ring{fill:none;stroke:var(--mark);stroke-width:1.5}
+.ringdot{fill:var(--mark)}
+g.lm.ok .ring{stroke:var(--ok)} g.lm.ok .ringdot{fill:var(--ok)}
+g.lm.miss .ring{stroke:var(--miss)} g.lm.miss .ringdot{fill:var(--miss)}
+.tap{fill:none;stroke:var(--mark);stroke-width:1.3;pointer-events:none}
+.tapdot{fill:var(--mark);pointer-events:none}
+.marker{font:700 9px var(--ui);letter-spacing:.12em;fill:var(--muted)}
+.foot{color:var(--muted);font-size:.82rem;margin:0}
+@media (prefers-reduced-motion:reduce){g.pulse{animation:none}.b,.bs,.layer{transition:none}}
+</style>
+
+<div class="wrap">
+  <h1>Människokroppen</h1>
+
+  <section class="setup" aria-label="Inställningar">
+    <span class="lbl">Läge</span>
+    <div class="opts" id="modeOpts">
+      <button class="opt" id="mode-play" aria-pressed="true">Spela</button>
+      <button class="opt" id="mode-learn" aria-pressed="false">Lär dig</button>
+    </div>
+    <span class="lbl">Visa</span>
+    <div class="opts" id="sysOpts"></div>
+    <span class="lbl">Nivå</span>
+    <div class="opts" id="lvlOpts">
+      <button class="opt" id="lvl-1" aria-pressed="true">Lätt · stora delar</button>
+      <button class="opt" id="lvl-2" aria-pressed="false">Svår · allt</button>
+      <button class="opt" id="lvl-3" aria-pressed="false">Supersvår · detaljer</button>
+    </div>
+  </section>
+
+  <section class="card" aria-live="polite">
+    <div class="meta"><span id="metaL"></span><span id="metaR"></span></div>
+    <div class="latin" id="latin"></div>
+    <div class="fb" id="fb"></div>
+    <div class="actions" id="actions"></div>
+  </section>
+
+  <div class="plate">
+    <svg id="sk" viewBox="30 0 240 666" role="img" aria-label="Människokropp framifrån">
+      <g id="base"></g>
+      <g id="layers"></g>
+      <g id="taps"></g>
+    </svg>
+  </div>
+  <p class="foot">Kroppen visas framifrån. Delar som finns på båda sidor räknas rätt oavsett sida. DX och SIN är personens högra och vänstra sida, som på en röntgenbild.</p>
+  <p class="ver"><a href="../">&larr; Alla Peters appar</a> · Version 1.0 (prov) · 3 november 2026</p>
+</div>
+
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg", W=300, ROUNDS=10, TOL=7, LMTOL=7;
+
+/* ---------- shape helpers: left side is drawn, pairs are mirrored around x=150 ---------- */
+const mx=d=>{let i=0;return d.replace(/-?\d+(?:\.\d+)?/g,m=>(i++%2===0)?String(+(W-parseFloat(m)).toFixed(2)):m)};
+const P=(d,o={})=>({t:"path",d,...o});
+const E=(cx,cy,rx,ry,o={})=>({t:"ellipse",cx,cy,rx,ry,...o});
+const C=(cx,cy,r,o={})=>({t:"circle",cx,cy,r,...o});
+const Rc=(x,y,w,h,rx=1.5,o={})=>({t:"rect",x,y,w,h,rx,...o});
+const r1=n=>+n.toFixed(2);
+const L=(x1,y1,x2,y2,s,cls)=>P(`M ${x1} ${y1} L ${x2} ${y2}`,cls?{cls}:{s});
+function finger(bx,by,dx,lens,s){const out=[];let y=by;for(const len of lens){const y1=y+2.3,y2=y1+len;out.push(L(r1(bx+dx*(y1-by)),r1(y1),r1(bx+dx*(y2-by)),r1(y2),s));y=y2;}return out;}
+
+const ribs=[24,31,35,38,40,40,39,37,34,30].map((w,i)=>{const y=152+i*9.5;return P(`M 146 ${r1(y)} Q ${150-w-5} ${r1(y-3)} ${150-w} ${r1(y+14+i*0.6)}`,{s:4.2});});
+const upperTeeth=[],lowerTeeth=[];
+for(let x=139;x<=161.5;x+=3.75){upperTeeth.push(L(r1(x),80.5,r1(x),86,0,"seam"));lowerTeeth.push(L(r1(x),86.5,r1(x),91,0,"seam"));}
+
+const SYSTEMS=[
+ {key:"skelett",name:"Skelett",sw:"var(--bone)",q:"Var sitter det här benet?"},
+ {key:"muskler",name:"Muskler",sw:"var(--muscle)",q:"Var sitter den här muskeln?"},
+ {key:"organ",name:"Organ",sw:"var(--liver)",q:"Var ligger det här organet?"},
+ {key:"blodkarl",name:"Blodkärl",sw:"var(--artery)",q:"Var går det här blodkärlet?"}
+];
+
+/* ---------- items, per system, in drawing order (lvl 1 = lätt, 2 = svår, 3 = supersvår) ---------- */
+const ITEMS={
+skelett:[
+ {id:"cranium",la:"Cranium",sv:"kraniet (skallen)",q:false,shapes:[E(150,46,33,38)]},
+ {id:"os-frontale",la:"Os frontale",sv:"pannbenet",lvl:1,shapes:[P("M 118 48 C 116 10 184 10 182 48 C 168 42 132 42 118 48 Z")]},
+ {id:"os-zygomaticum",la:"Os zygomaticum",sv:"okbenet (kindbenet)",lvl:2,pair:true,shapes:[P("M 116 62 C 122 59 130 63 133 68 C 131 74 123 77 118 74 C 114 70 114 66 116 62 Z")]},
+ {id:"maxilla",la:"Maxilla",sv:"överkäken",lvl:2,shapes:[P("M 131 66 C 139 63 161 63 169 66 L 167 85 C 159 88 141 88 133 85 Z"),P("M 150 63 C 156 66 158 76 154 79 L 146 79 C 142 76 144 66 150 63 Z",{cls:"hole"}),...upperTeeth]},
+ {id:"os-nasale",la:"Os nasale",sv:"näsbenet",lvl:2,shapes:[P("M 147 47 L 153 47 L 155 61 L 150 63.5 L 145 61 Z")]},
+ {id:"mandibula",la:"Mandibula",sv:"underkäken",lvl:1,shapes:[P("M 120 70 L 127 70 L 128 86 C 132 90 140 91 150 91 C 160 91 168 90 172 86 L 173 70 L 180 70 L 180 90 C 178 102 166 109 150 109 C 134 109 122 102 120 90 Z"),...lowerTeeth]},
+ {id:"vert-cerv",la:"Vertebrae cervicales",sv:"halskotorna",lvl:2,shapes:[0,1,2,3,4].map(i=>Rc(143,r1(111+i*6.6),14,5.2,1.5))},
+ {id:"scapula",la:"Scapula",sv:"skulderbladet",lvl:1,pair:true,shapes:[P("M 100 146 L 126 152 L 124 170 L 114 212 L 106 206 L 98 172 Z")]},
+ {id:"costae",la:"Costae",sv:"revbenen",lvl:1,pair:true,shapes:ribs},
+ {id:"sternum",la:"Sternum",sv:"bröstbenet",lvl:1,shapes:[P("M 143 148 L 157 148 L 156 162 L 144 162 Z"),P("M 145 163.5 L 155 163.5 L 154 220 L 146 220 Z"),P("M 147 221.5 L 153 221.5 L 150 230 Z")]},
+ {id:"clavicula",la:"Clavicula",sv:"nyckelbenet",lvl:1,pair:true,shapes:[P("M 145 151 C 130 145 116 152 99 145",{s:6})]},
+ {id:"vert-lumb",la:"Vertebrae lumbales",sv:"ländkotorna",lvl:2,shapes:[0,1,2,3,4].flatMap(i=>{const y=246+i*10;return [Rc(134,y+3,32,3,1.2),Rc(141,y,18,8.5,2)];})},
+ {id:"os-coxae",la:"Os coxae",sv:"höftbenet",lvl:1,pair:true,shapes:[P("M 142 298 C 124 284 104 288 101 306 C 99 322 108 338 118 348 C 122 356 126 366 132 374 C 138 380 146 380 148 374 L 148 364 C 142 360 138 354 136 346 C 132 334 136 318 142 306 Z"),E(136,363,4.5,7,{cls:"hole"})]},
+ {id:"os-sacrum",la:"Os sacrum",sv:"korsbenet",lvl:2,shapes:[P("M 140 300 L 160 300 L 157 336 C 155 342 145 342 143 336 Z")]},
+ {id:"os-coccygis",la:"Os coccygis",sv:"svanskotan",lvl:2,shapes:[P("M 146 344 L 154 344 L 151.5 355 L 148.5 355 Z")]},
+ {id:"humerus",la:"Humerus",sv:"överarmsbenet",lvl:1,pair:true,shapes:[P("M 94 156 L 104 158 L 86 244 L 90 252 L 68 252 L 75 244 Z"),C(101,152,8)]},
+ {id:"radius",la:"Radius",sv:"strålbenet",lvl:1,pair:true,shapes:[P("M 70 257 L 76 257 L 66 341 L 56 341 Z")]},
+ {id:"ulna",la:"Ulna",sv:"armbågsbenet",lvl:1,pair:true,shapes:[P("M 80 254 L 90 254 L 86 262 L 77 341 L 71 341 L 80 262 Z")]},
+ {id:"ossa-carpi",la:"Ossa carpi",sv:"handlovsbenen",lvl:2,pair:true,shapes:[E(58,347,3,3),E(64,347,3,3),E(70,347,3,3),E(76,347,3,3),E(57,354,3,3),E(63,354,3,3),E(69,354,3,3),E(75,354,3,3)]},
+ {id:"ossa-metacarpi",la:"Ossa metacarpi",sv:"mellanhandsbenen",lvl:2,pair:true,shapes:[L(55,358,48,372,3.6),L(61,359,58,382,3.4),L(66,359,65,384,3.4),L(71,359,72,383,3.4),L(76,358,79,380,3.4)]},
+ {id:"phal-manus",la:"Phalanges manus",sv:"fingrarnas ben",lvl:2,pair:true,shapes:[...finger(48,372,-0.35,[7,5.5],3.2),...finger(58,382,-0.06,[9,6,4],3),...finger(65,384,-0.02,[10,7,4.5],3),...finger(72,383,0.02,[9.5,6.5,4.5],3),...finger(79,380,0.06,[7.5,5,4],2.8)]},
+ {id:"femur",la:"Femur",sv:"lårbenet",lvl:1,pair:true,shapes:[P("M 102 350 L 118 340 L 127 349 L 116 362 L 122 466 L 128 474 L 127 484 L 105 484 L 104 474 L 110 466 L 104 362 Z"),C(123,345,7)]},
+ {id:"patella",la:"Patella",sv:"knäskålen",lvl:1,pair:true,shapes:[E(117,474,7,8)]},
+ {id:"fibula",la:"Fibula",sv:"vadbenet",lvl:1,pair:true,shapes:[P("M 103 494 L 109 494 L 110 498 L 108 594 L 109 604 L 102 606 L 102 596 L 104 498 Z")]},
+ {id:"tibia",la:"Tibia",sv:"skenbenet",lvl:1,pair:true,shapes:[P("M 108 488 L 129 488 L 128 498 L 124 502 L 124 592 L 130 600 L 129 606 L 114 606 L 114 596 L 114 502 L 110 498 Z")]},
+ {id:"ossa-tarsi",la:"Ossa tarsi",sv:"fotrotsbenen",lvl:2,pair:true,shapes:[E(117,611,9,4),E(108,618,3,2.8),E(114.5,618,3,2.8),E(121,618,3,2.8),E(127.5,618,3.2,2.8)]},
+ {id:"ossa-metatarsi",la:"Ossa metatarsi",sv:"mellanfotsbenen",lvl:2,pair:true,shapes:[L(107,623,104,636,2.8),L(112,623,110.5,636,2.8),L(117,623,117,636,2.8),L(122,623,123.5,636,2.8),L(127.5,623,130,636,3.8)]},
+ {id:"phal-pedis",la:"Phalanges pedis",sv:"tårnas ben",lvl:2,pair:true,shapes:[...finger(104,636,-0.1,[3.2,2.5],2.6),...finger(110.5,636,-0.05,[3.6,2.8],2.6),...finger(117,636,0,[4,3],2.6),...finger(123.5,636,0.05,[4,3],2.6),...finger(130,636,0.1,[5.5,4.5],3.6)]}
+],
+muskler:[
+ {id:"m-trapezius",la:"M. trapezius",sv:"kappmuskeln",lvl:2,pair:true,shapes:[P("M 138 116 C 126 130 112 136 99 141 L 104 146 C 116 143 130 140 141 133 Z")]},
+ {id:"m-scm",la:"M. sternocleidomastoideus",sv:"nickmuskeln",lvl:2,pair:true,shapes:[P("M 129 94 C 134 115 140 132 146 147",{s:6})]},
+ {id:"m-masseter",la:"M. masseter",sv:"tuggmuskeln",lvl:2,pair:true,shapes:[P("M 120 72 L 129 72 L 131 89 L 123 95 L 120 88 Z")]},
+ {id:"m-deltoideus",la:"M. deltoideus",sv:"deltamuskeln (axelmuskeln)",lvl:1,pair:true,shapes:[P("M 99 143 C 86 140 77 152 77 168 L 84 198 C 89 182 96 168 105 160 Z")]},
+ {id:"m-pectoralis",la:"M. pectoralis major",sv:"stora bröstmuskeln",lvl:1,pair:true,shapes:[P("M 148 150 C 130 146 110 146 101 157 C 104 172 108 186 116 197 C 128 201 140 199 148 196 Z")]},
+ {id:"m-obliquus",la:"M. obliquus externus abdominis",sv:"yttre sneda bukmuskeln",lvl:2,pair:true,shapes:[P("M 132 204 L 112 200 C 108 230 108 262 104 290 C 112 310 124 330 138 338 C 133 290 130 245 132 204 Z")]},
+ {id:"m-serratus",la:"M. serratus anterior",sv:"främre sågmuskeln",lvl:2,pair:true,shapes:[P("M 106 202 L 118 206 L 107 210 Z"),P("M 107 214 L 119 218 L 108 222 Z"),P("M 108 226 L 120 230 L 109 234 Z")]},
+ {id:"m-rectus",la:"M. rectus abdominis",sv:"raka bukmuskeln (magrutorna)",lvl:1,pair:true,shapes:[P("M 148 202 L 134 204 C 132 240 134 280 140 340 L 148 344 Z"),L(134,232,148,231,0,"seam"),L(134,258,148,257,0,"seam"),L(135.5,284,148,283,0,"seam")]},
+ {id:"m-biceps",la:"M. biceps brachii",sv:"tvåhövdade överarmsmuskeln (biceps)",lvl:1,pair:true,shapes:[P("M 93 172 C 86 192 79 220 74 244 L 85 246 C 90 222 96 198 99 177 Z")]},
+ {id:"m-flexores",la:"Mm. flexores antebrachii",sv:"underarmens böjmuskler",lvl:2,pair:true,shapes:[P("M 70 252 L 87 254 C 85 282 81 310 77 338 L 60 338 C 62 310 66 282 70 252 Z")]},
+ {id:"m-quadriceps",la:"M. quadriceps femoris",sv:"fyrhövdade lårmuskeln",lvl:1,pair:true,shapes:[P("M 106 360 C 101 400 103 440 110 468 L 127 468 C 133 440 135 400 129 372 C 121 362 112 357 106 360 Z")]},
+ {id:"m-adductores",la:"Mm. adductores",sv:"lårets inåtförare (adduktorerna)",lvl:2,pair:true,shapes:[P("M 146 378 C 140 400 136 430 132 456 C 128 430 128 400 133 376 Z")]},
+ {id:"m-sartorius",la:"M. sartorius",sv:"skräddarmuskeln",lvl:2,pair:true,shapes:[P("M 104 322 C 112 370 126 420 133 486",{s:5})]},
+ {id:"m-tibialis",la:"M. tibialis anterior",sv:"främre skenbensmuskeln",lvl:2,pair:true,shapes:[P("M 111 500 C 107 530 107 560 113 598 L 120 598 C 120 560 120 530 122 500 Z")]},
+ {id:"m-gastrocnemius",la:"M. gastrocnemius",sv:"vadmuskeln",lvl:1,pair:true,shapes:[P("M 128 498 C 139 520 139 548 131 572 L 126 566 C 128 540 128 520 125 500 Z"),P("M 106 500 C 99 520 99 546 105 566 L 108 560 C 106 540 106 520 109 502 Z")]}
+],
+organ:[
+ {id:"cerebrum",la:"Cerebrum",sv:"storhjärnan",lvl:1,c:"--brain",shapes:[P("M 122 42 C 120 16 180 16 178 42 C 176 50 164 52 150 52 C 136 52 124 50 122 42 Z"),L(150,20,150,51,0,"seam"),P("M 130 30 C 136 26 140 34 146 30",{cls:"seam"}),P("M 154 30 C 160 26 164 34 170 30",{cls:"seam"}),P("M 128 42 C 134 38 140 46 146 42",{cls:"seam"}),P("M 154 42 C 160 38 166 46 172 42",{cls:"seam"})]},
+ {id:"bulbus",la:"Bulbus oculi",sv:"ögongloben",lvl:2,c:"--eye",pair:true,shapes:[C(136,57,6),C(136,57,2.2,{cls:"hole"})]},
+ {id:"trachea",la:"Trachea",sv:"luftstrupen",lvl:2,c:"--airway",shapes:[P("M 150 104 L 150 170",{s:6}),P("M 150 170 L 140 182",{s:4}),P("M 150 170 L 160 182",{s:4})]},
+ {id:"thyroidea",la:"Glandula thyroidea",sv:"sköldkörteln",lvl:2,c:"--gland",pair:true,shapes:[P("M 150 131 C 146 124 138 124 138 132 C 138 140 146 141 150 137 Z")]},
+ {id:"pulmo",la:"Pulmo",sv:"lungan",lvl:1,c:"--lung",pair:true,shapes:[P("M 141 150 C 126 154 114 176 112 210 C 112 226 116 234 126 234 C 136 232 144 226 146 218 L 146 162 Z")]},
+ {id:"cor",la:"Cor",sv:"hjärtat",lvl:1,c:"--heart",shapes:[P("M 141 188 C 144 177 159 175 166 185 C 173 196 168 212 152 223 C 143 214 137 200 141 188 Z")]},
+ {id:"hepar",la:"Hepar",sv:"levern",lvl:1,c:"--liver",shapes:[P("M 111 236 C 124 226 150 228 166 235 C 162 247 150 257 130 263 C 118 265 109 255 111 236 Z")]},
+ {id:"vesica-biliaris",la:"Vesica biliaris",sv:"gallblåsan",lvl:2,c:"--bile",shapes:[E(141,263,3.5,5)]},
+ {id:"lien",la:"Lien",sv:"mjälten",lvl:1,c:"--spleen",shapes:[E(191,247,5,11)]},
+ {id:"gaster",la:"Gaster",sv:"magsäcken",lvl:1,c:"--stomach",shapes:[P("M 158 237 C 170 229 187 233 187 248 C 187 262 177 268 165 268 C 156 268 152 262 156 258 C 160 254 158 248 158 237 Z")]},
+ {id:"pancreas",la:"Pancreas",sv:"bukspottkörteln",lvl:2,c:"--pancreas",shapes:[P("M 136 271 C 146 267 156 267 165 268 L 165 273 C 156 275 146 277 138 278 Z")]},
+ {id:"crassum",la:"Intestinum crassum",sv:"tjocktarmen",lvl:1,c:"--gut",shapes:[P("M 115 346 L 115 292 L 185 292 L 185 344 C 184 354 164 350 152 356",{s:8})]},
+ {id:"appendix",la:"Appendix vermiformis",sv:"blindtarmens bihang (appendix)",lvl:2,c:"--gut",shapes:[P("M 115 351 L 120 362",{s:2.6})]},
+ {id:"tenue",la:"Intestinum tenue",sv:"tunntarmen",lvl:1,c:"--gut2",shapes:[P("M 128 306 C 150 300 172 306 170 314 C 150 318 132 314 130 322 C 132 330 168 326 170 334 C 166 342 134 338 132 346",{s:5})]},
+ {id:"ren",la:"Ren",sv:"njuren",lvl:1,c:"--kidney",pair:true,shapes:[P("M 126 262 C 118 262 114 272 116 282 C 118 292 126 296 132 292 C 130 284 128 278 132 272 C 134 266 132 262 126 262 Z")]},
+ {id:"ureter",la:"Ureter",sv:"urinledaren",lvl:2,c:"--bladder",pair:true,shapes:[P("M 131 284 C 136 310 140 340 144 360",{s:1.8})]},
+ {id:"vesica-urinaria",la:"Vesica urinaria",sv:"urinblåsan",lvl:1,c:"--bladder",shapes:[E(150,367,10,8)]}
+],
+blodkarl:[
+ {id:"a-carotis",la:"A. carotis communis",sv:"halspulsådern",lvl:1,c:"--artery",pair:true,shapes:[P("M 147 166 L 141 96",{s:3})]},
+ {id:"v-jugularis",la:"V. jugularis interna",sv:"inre halsvenen",lvl:2,c:"--vein",pair:true,shapes:[P("M 143 160 C 138 140 134 118 132 96",{s:2.8})]},
+ {id:"a-subclavia",la:"A. subclavia",sv:"nyckelbensartären",lvl:2,c:"--artery",pair:true,shapes:[P("M 147 168 C 136 158 118 155 104 157",{s:3})]},
+ {id:"v-cava-sup",la:"V. cava superior",sv:"övre hålvenen",lvl:2,c:"--vein",shapes:[P("M 145 196 L 144 160",{s:4.5})]},
+ {id:"v-cava-inf",la:"V. cava inferior",sv:"nedre hålvenen",lvl:1,c:"--vein",shapes:[P("M 145 300 L 145 202",{s:5})]},
+ {id:"aorta",la:"Aorta",sv:"stora kroppspulsådern",lvl:1,c:"--artery",shapes:[P("M 152 198 C 149 172 151 160 159 160 C 167 160 166 172 159 184 L 155 230 L 152 300",{s:5})]},
+ {id:"a-brachialis",la:"A. brachialis",sv:"överarmsartären",lvl:2,c:"--artery",pair:true,shapes:[P("M 104 157 C 98 190 90 222 81 252",{s:2.6})]},
+ {id:"a-radialis",la:"A. radialis",sv:"strålbensartären (pulsen vid handleden)",lvl:2,c:"--artery",pair:true,shapes:[P("M 79 256 L 64 338",{s:2.2})]},
+ {id:"a-ulnaris",la:"A. ulnaris",sv:"armbågsartären",lvl:2,c:"--artery",pair:true,shapes:[P("M 82 256 L 77 338",{s:2.2})]},
+ {id:"a-renalis",la:"A. renalis",sv:"njurartären",lvl:2,c:"--artery",pair:true,shapes:[P("M 153 270 L 134 274",{s:2.6})]},
+ {id:"a-iliaca",la:"A. iliaca communis",sv:"gemensamma höftartären",lvl:2,c:"--artery",pair:true,shapes:[P("M 151 300 L 134 330",{s:3.4})]},
+ {id:"a-femoralis",la:"A. femoralis",sv:"lårartären",lvl:1,c:"--artery",pair:true,shapes:[P("M 134 330 C 129 360 125 420 124 470",{s:3})]},
+ {id:"v-saphena",la:"V. saphena magna",sv:"stora rosenvenen",lvl:2,c:"--vein",pair:true,shapes:[P("M 140 362 C 136 420 136 470 132 520 C 130 560 130 582 131 604",{s:2.2})]}
+]};
+/* faint context outlines inside a layer (not tappable) */
+const CTX={blodkarl:[P("M 141 188 C 144 177 159 175 166 185 C 173 196 168 212 152 223 C 143 214 137 200 141 188 Z"),P("M 126 262 C 118 262 114 272 116 282 C 118 292 126 296 132 292 C 130 284 128 278 132 272 C 134 266 132 262 126 262 Z",{pair:true})]};
+
+
+/* ---------- supersvår: anatomical landmarks as points (left side; pairs mirrored) ---------- */
+const LM={
+skelett:[
+ ["spina-ias","Spina iliaca anterior superior","främre övre höftbenstaggen",[103,318],1],
+ ["crista-iliaca","Crista iliaca","höftbenskammen",[116,290],1],
+ ["promontorium","Promontorium","korsbenets framkant (promontoriet)",[150,301],0],
+ ["symphysis","Symphysis pubica","blygdbensfogen",[150,377],0],
+ ["foramen-obt","Foramen obturatum","höftbenshålet",[136,363],1],
+ ["caput-femoris","Caput femoris","lårbenshuvudet",[123,345],1],
+ ["collum-femoris","Collum femoris","lårbenshalsen",[114,351],1],
+ ["trochanter-major","Trochanter major","stora lårbenstrochantern",[103,356],1],
+ ["condylus-med-fem","Condylus medialis femoris","lårbenets inre ledknapp",[126,480],1],
+ ["condylus-lat-fem","Condylus lateralis femoris","lårbenets yttre ledknapp",[107,480],1],
+ ["caput-fibulae","Caput fibulae","vadbenshuvudet",[106,496],1],
+ ["tuberositas-tibiae","Tuberositas tibiae","skenbensknölen",[119,503],1],
+ ["malleolus-med","Malleolus medialis","inre fotknölen",[130,603],1],
+ ["malleolus-lat","Malleolus lateralis","yttre fotknölen",[102,604],1],
+ ["caput-humeri","Caput humeri","överarmsbenshuvudet",[101,153],1],
+ ["acromion","Acromion","skulderhöjden (akromion)",[97,143],1],
+ ["proc-coracoideus","Processus coracoideus","korpnäbbsutskottet",[114,157],1],
+ ["angulus-inf-scap","Angulus inferior scapulae","skulderbladets nedre vinkel",[112,209],1],
+ ["epicondylus-med-hum","Epicondylus medialis humeri","överarmsbenets inre knöl (tjuvsenan)",[90,250],1],
+ ["epicondylus-lat-hum","Epicondylus lateralis humeri","överarmsbenets yttre knöl",[69,250],1],
+ ["proc-styl-radii","Processus styloideus radii","strålbenets griffelutskott",[57,340],1],
+ ["manubrium","Manubrium sterni","bröstbenshandtaget",[150,155],0],
+ ["proc-xiphoideus","Processus xiphoideus","svärdsutskottet",[150,226],0],
+ ["angulus-mandibulae","Angulus mandibulae","käkvinkeln",[121,92],1],
+ ["protuberantia-mentalis","Protuberantia mentalis","hakknölen",[150,106],0],
+ ["orbita","Orbita","ögonhålan",[136,56],1]
+],
+muskler:[
+ ["linea-alba","Linea alba","vita linjen (mittlinjen på magen)",[150,272],0],
+ ["intersectiones","Intersectiones tendineae","senstrierna i raka bukmuskeln",[141,258],1],
+ ["lig-inguinale","Ligamentum inguinale","ljumskbandet",[121,348],1],
+ ["rectus-femoris","M. rectus femoris","raka lårmuskeln (del av quadriceps)",[118,410],1],
+ ["vastus-medialis","M. vastus medialis","inre vidgade lårmuskeln",[127,455],1],
+ ["vastus-lateralis","M. vastus lateralis","yttre vidgade lårmuskeln",[106,425],1],
+ ["lig-patellae","Ligamentum patellae","knäskålssenan",[117,488],1],
+ ["caput-med-gastro","Caput mediale m. gastrocnemii","vadmuskelns inre huvud",[134,535],1],
+ ["caput-lat-gastro","Caput laterale m. gastrocnemii","vadmuskelns yttre huvud",[103,535],1],
+ ["fossa-cubiti","Fossa cubiti","armvecket",[79,250],1],
+ ["pars-clav-delt","Pars clavicularis m. deltoidei","deltamuskelns främre del",[94,156],1]
+],
+organ:[
+ ["ventriculus-sin","Ventriculus sinister","hjärtats vänstra kammare",[160,205],0],
+ ["ventriculus-dex","Ventriculus dexter","hjärtats högra kammare",[148,206],0],
+ ["atrium-dex","Atrium dextrum","hjärtats högra förmak",[142,190],0],
+ ["apex-cordis","Apex cordis","hjärtspetsen",[153,220],0],
+ ["lobus-sup-pulm","Lobus superior pulmonis","lungans överlob",[128,172],1],
+ ["lobus-inf-pulm","Lobus inferior pulmonis","lungans underlob",[121,224],1],
+ ["lobus-dex-hep","Lobus dexter hepatis","leverns högra lob",[124,246],0],
+ ["lobus-sin-hep","Lobus sinister hepatis","leverns vänstra lob",[156,236],0],
+ ["fundus-ventr","Fundus gastricus","magsäckens kupol (fundus)",[178,237],0],
+ ["pylorus","Pylorus","magportens muskel (pylorus)",[156,259],0],
+ ["hilum-renale","Hilum renale","njurens kärlport",[131,277],1],
+ ["colon-asc","Colon ascendens","uppåtgående tjocktarmen",[115,322],0],
+ ["colon-trans","Colon transversum","tvärgående tjocktarmen",[150,292],0],
+ ["colon-desc","Colon descendens","nedåtgående tjocktarmen",[185,322],0],
+ ["colon-sigm","Colon sigmoideum","S-formade tjocktarmen",[168,352],0]
+],
+blodkarl:[
+ ["arcus-aortae","Arcus aortae","aortabågen",[163,162],0],
+ ["aorta-thor","Aorta thoracica","bröstaortan",[157,208],0],
+ ["aorta-abd","Aorta abdominalis","bukaortan",[153.5,272],0],
+ ["bifurcatio-aortae","Bifurcatio aortae","aortans delning",[152,301],0],
+ ["truncus-brach","Truncus brachiocephalicus","arm-huvudartärstammen",[147,167],0],
+ ["bifurcatio-carotidis","Bifurcatio carotidis","halspulsåderns delning",[141,98],1],
+ ["a-axillaris","A. axillaris","armhålsartären",[105,160],1],
+ ["a-iliaca-ext","A. iliaca externa","yttre höftartären",[134,330],1]
+]};
+for(const k in LM)for(const [id,la,sv,pt,pair] of LM[k])ITEMS[k].push({id,la,sv,lvl:3,pt,pair:!!pair});
+const ALL=[];const byId={};
+for(const s of SYSTEMS)for(const it of ITEMS[s.key]){it.sys=s.key;byId[it.id]=it;if(it.q!==false)ALL.push(it);}
+
+/* ---------- render ---------- */
+const svg=document.getElementById("sk"),base=document.getElementById("base"),layersG=document.getElementById("layers"),taps=document.getElementById("taps");
+function el(name,attrs,parent){const e=document.createElementNS(NS,name);for(const k in attrs)e.setAttribute(k,attrs[k]);parent&&parent.appendChild(e);return e;}
+function drawShape(s,g,mirror,forceCls){
+  let e;
+  if(s.t==="path")e=el("path",{d:mirror?mx(s.d):s.d},g);
+  else if(s.t==="ellipse")e=el("ellipse",{cx:mirror?W-s.cx:s.cx,cy:s.cy,rx:s.rx,ry:s.ry},g);
+  else if(s.t==="circle")e=el("circle",{cx:mirror?W-s.cx:s.cx,cy:s.cy,r:s.r},g);
+  else if(s.t==="rect")e=el("rect",{x:mirror?W-s.x-s.w:s.x,y:s.y,width:s.w,height:s.h,rx:s.rx},g);
+  if(forceCls)e.setAttribute("class",forceCls);
+  else if(s.cls)e.setAttribute("class",s.cls);
+  else if(s.s){e.setAttribute("class","bs");e.setAttribute("stroke-width",s.s);e.dataset.s=s.s;}
+  else e.setAttribute("class","b");
+}
+// body silhouette
+const SKIN=["M 150 100 L 137 102 L 137 128 C 124 134 108 138 98 146 L 104 200 L 110 250 C 106 280 98 300 98 330 L 100 380 C 102 420 104 450 103 482 C 99 520 98 560 100 600 L 98 640 C 100 656 114 658 136 655 L 134 600 C 132 560 136 520 136 486 C 138 440 142 400 146 380 L 150 377 Z",
+ "M 99 142 C 88 140 79 148 76 166 L 62 250 L 51 340 C 45 352 39 374 37 396 C 37 412 44 421 52 421 L 64 421 C 72 419 83 410 85 392 L 87 360 L 90 340 L 97 262 L 107 200 Z"];
+el("ellipse",{cx:150,cy:57,rx:37,ry:52,class:"skin"},base);
+for(const d of SKIN){el("path",{d,class:"skin"},base);el("path",{d:mx(d),class:"skin"},base);}
+
+const layerEls={},groups={};
+for(const s of SYSTEMS){
+  const lg=el("g",{class:"layer","data-sys":s.key},layersG);layerEls[s.key]=lg;
+  for(const it of ITEMS[s.key]){
+    if(it.pt){
+      it.P=[it.pt];if(it.pair)it.P.push([W-it.pt[0],it.pt[1]]);
+      const g=el("g",{"data-lm":it.id,class:"lm"},lg);groups[it.id]=g;
+      for(const [x,y] of it.P){el("circle",{cx:x,cy:y,r:4.5,class:"ring"},g);el("circle",{cx:x,cy:y,r:1.3,class:"ringdot"},g);}
+      continue;
+    }
+    const g=el("g",{"data-id":it.id},lg);groups[it.id]=g;
+    if(it.c)g.style.setProperty("--c",`var(${it.c})`);
+    for(const sh of it.shapes){drawShape(sh,g,false);if(it.pair)drawShape(sh,g,true);}
+  }
+  for(const sh of (CTX[s.key]||[])){drawShape(sh,lg,false,"ctx");if(sh.pair)drawShape(sh,lg,true,"ctx");}
+  if(s.key==="skelett"){el("ellipse",{cx:136,cy:56,rx:10,ry:9,class:"hole"},lg);el("ellipse",{cx:164,cy:56,rx:10,ry:9,class:"hole"},lg);}
+}
+const m1=el("text",{x:42,y:658,class:"marker"},base);m1.textContent="DX";
+const m2=el("text",{x:258,y:658,class:"marker","text-anchor":"end"},base);m2.textContent="SIN";
+
+/* ---------- geometry ---------- */
+function toSvg(e){const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse());}
+function distTo(p,id){
+  let best=Infinity;
+  if(byId[id].P){for(const [x,y] of byId[id].P)best=Math.min(best,Math.hypot(p.x-x,p.y-y));return best;}
+  for(const c of groups[id].children){
+    const cl=c.getAttribute("class");if(cl!=="b"&&cl!=="bs")continue;
+    const bb=c.getBBox(),pad=c.dataset.s?c.dataset.s/2:0;
+    const dx=Math.max(bb.x-pad-p.x,0,p.x-(bb.x+bb.width+pad)),dy=Math.max(bb.y-pad-p.y,0,p.y-(bb.y+bb.height+pad));
+    best=Math.min(best,Math.hypot(dx,dy));
+  }
+  return best;
+}
+function nearest(p,max,pool){let id=null,d=max;for(const it of pool){const v=distTo(p,it.id);if(v<=d){d=v;id=it.id;}}return id;}
+
+/* ---------- state + settings ---------- */
+const $=id=>document.getElementById(id);
+const metaL=$("metaL"),metaR=$("metaR"),latin=$("latin"),fb=$("fb"),actions=$("actions");
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let cfg=store.get("mk-cfg",{mode:"play",sys:["skelett","muskler","organ","blodkarl"],lvl:1});
+if(!cfg.learn)cfg.learn=cfg.sys[0]||"skelett";
+let qs=[],idx=0,score=0,locked=false,missed=[],timer=null,finished=false;
+
+const sysOpts=$("sysOpts");
+for(const s of SYSTEMS){
+  const b=document.createElement("button");b.className="opt";b.id="sys-"+s.key;b.style.setProperty("--sw",s.sw);
+  b.innerHTML=`<span class="dot"></span>${s.name}`;
+  b.addEventListener("click",()=>{
+    if(cfg.mode==="learn"){cfg.learn=s.key;apply();return;}
+    const on=cfg.sys.includes(s.key);
+    if(on&&cfg.sys.length===1)return;
+    cfg.sys=on?cfg.sys.filter(k=>k!==s.key):SYSTEMS.map(x=>x.key).filter(k=>k===s.key||cfg.sys.includes(k));
+    apply();
+  });
+  sysOpts.appendChild(b);
+}
+$("mode-play").addEventListener("click",()=>{cfg.mode="play";apply();});
+$("mode-learn").addEventListener("click",()=>{cfg.mode="learn";apply();});
+$("lvl-1").addEventListener("click",()=>{cfg.lvl=1;apply();});
+$("lvl-2").addEventListener("click",()=>{cfg.lvl=2;apply();});
+$("lvl-3").addEventListener("click",()=>{cfg.lvl=3;apply();});
+
+function pool(){const sys=cfg.mode==="learn"?[cfg.learn]:cfg.sys;return ALL.filter(it=>sys.includes(it.sys)&&(cfg.lvl===3?it.lvl===3:(it.lvl||1)<=cfg.lvl));}
+function sysName(k){return SYSTEMS.find(s=>s.key===k).name;}
+function cfgKey(){return "mk-best-"+cfg.sys.slice().sort().join("+")+"-"+cfg.lvl;}
+
+function showLayers(active){ // active: array of system keys that are tappable
+  for(const s of SYSTEMS){
+    const lg=layerEls[s.key],on=active.includes(s.key);
+    lg.style.display=on?"":"none";lg.classList.remove("ghost");lg.classList.toggle("showlm",on&&cfg.mode==="learn"&&cfg.lvl===3);
+  }
+}
+function apply(){
+  store.set("mk-cfg",cfg);
+  $("mode-play").setAttribute("aria-pressed",cfg.mode==="play");$("mode-learn").setAttribute("aria-pressed",cfg.mode==="learn");
+  $("lvl-1").setAttribute("aria-pressed",cfg.lvl===1);$("lvl-2").setAttribute("aria-pressed",cfg.lvl===2);$("lvl-3").setAttribute("aria-pressed",cfg.lvl===3);
+  for(const s of SYSTEMS)$("sys-"+s.key).setAttribute("aria-pressed",cfg.mode==="learn"?cfg.learn===s.key:cfg.sys.includes(s.key));
+  cfg.mode==="play"?newGame():learnIntro();
+}
+
+/* ---------- UI ---------- */
+function clearMarks(){for(const id in groups)groups[id].classList.remove("ok","miss","show","pulse");taps.innerHTML="";}
+function markTap(p){el("circle",{cx:p.x,cy:p.y,r:5,class:"tap"},taps);el("circle",{cx:p.x,cy:p.y,r:1.2,class:"tapdot"},taps);}
+function button(label,fn){const b=document.createElement("button");b.className="btn";b.textContent=label;b.addEventListener("click",fn);actions.appendChild(b);return b;}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const cap=s=>s[0].toUpperCase()+s.slice(1);
+
+function newGame(){const pl=pool();qs=shuffle(pl).slice(0,Math.min(ROUNDS,pl.length));idx=0;score=0;missed=[];finished=false;ask();}
+function ask(){
+  clearTimeout(timer);clearMarks();locked=false;actions.innerHTML="";
+  const t=qs[idx];showLayers([t.sys]);
+  metaL.textContent=`${sysName(t.sys)} · ${idx+1} av ${qs.length}`;metaR.textContent=`Poäng ${score}`;
+  latin.textContent=t.la;fb.className="fb";fb.textContent=SYSTEMS.find(s=>s.key===t.sys).q;
+}
+function next(){clearTimeout(timer);if(idx+1>=qs.length)finish();else{idx++;ask();}}
+function answer(p,hit){
+  const t=qs[idx];locked=true;markTap(p);
+  const right=t.P?(hit===t.id||distTo(p,t.id)<=3.5):(hit===t.id||(!hit&&distTo(p,t.id)<=TOL));
+  if(right){
+    score++;groups[t.id].classList.add("ok");
+    fb.className="fb ok";fb.textContent=`Rätt! ${t.la} är ${t.sv}.`;
+  }else{
+    missed.push(t);
+    if(hit)groups[hit].classList.add("miss");
+    groups[t.id].classList.add("ok","pulse");
+    fb.className="fb miss";
+    fb.innerHTML=`Fel – ${t.la} är ${t.sv}, markerad i grönt.`+(hit?`<small>Du tryckte på ${byId[hit].la} (${byId[hit].sv}).</small>`:"");
+  }
+  metaR.textContent=`Poäng ${score}`;actions.innerHTML="";
+  button(idx+1>=qs.length?"Se resultat":"Nästa",next).focus({preventScroll:true});
+  if(right)timer=setTimeout(next,1600);
+}
+function finish(){
+  finished=true;clearMarks();actions.innerHTML="";
+  const n=qs.length,b=store.get(cfgKey(),0),rec=score>b;if(rec)store.set(cfgKey(),score);
+  const lastSys=qs[n-1].sys;showLayers([lastSys]);
+  metaL.textContent="Resultat";metaR.textContent=`Rekord ${Math.max(b,score)} av ${n}`;
+  latin.textContent=`${score} av ${n} rätt`;fb.className="fb";
+  let msg=score===n?"Fullpott.":score>=0.7*n?"Bra jobbat.":score>=0.4*n?"Godkänt, men det finns mer att lära.":"Prova läget Lär dig och kör en gång till.";
+  if(rec&&b>0)msg="Nytt rekord! "+msg;
+  fb.innerHTML=msg+(missed.length?`<small>Öva mer på: ${missed.map(m=>`${m.la} (${m.sv})`).join(", ")}</small>`:"");
+  missed.filter(m=>m.sys===lastSys).forEach(m=>groups[m.id].classList.add("miss"));
+  button("Spela igen",newGame);
+}
+function learnIntro(){
+  clearTimeout(timer);clearMarks();actions.innerHTML="";finished=false;
+  showLayers([cfg.learn]);
+  metaL.textContent="Lär dig · "+sysName(cfg.learn);metaR.textContent=`${pool().length} delar`;
+  latin.textContent="Tryck på en del";fb.className="fb";fb.textContent="Namnet visas på latin och svenska. Byt system ovan.";
+}
+
+svg.addEventListener("click",e=>{
+  const p=toSvg(e);const g=e.target.closest&&e.target.closest("g[data-id]");
+  let hit=g?g.dataset.id:null;if(hit&&byId[hit].q===false)hit=null;
+  if(cfg.mode==="learn"){
+    const pl=pool();let id=cfg.lvl===3?nearest(p,LMTOL,pl):null;
+    if(!id){const bp=cfg.lvl===3?ALL.filter(it=>it.sys===cfg.learn&&!it.P):pl;id=(hit&&bp.includes(byId[hit]))?hit:nearest(p,TOL,bp);}
+    clearMarks();
+    if(!id){latin.textContent="Tryck på en del";fb.textContent=hit?"Den delen ingår bara på nivån Svår.":"Inget just där – prova igen.";return;}
+    const it=byId[id];groups[id].classList.add("show");
+    latin.textContent=it.la;fb.className="fb";fb.textContent=`${cap(it.sv)} · ${sysName(it.sys)}`;
+    return;
+  }
+  if(locked||finished||!qs.length)return;
+  const t=qs[idx];
+  if(t.P){const lm=nearest(p,LMTOL,ALL.filter(it=>it.P&&it.sys===t.sys));if(lm)hit=lm;}
+  answer(p,hit);
+});
+
+apply();
+})();
+</script>
+<script>if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{})</script>
+</body></html>

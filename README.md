@@ -30,6 +30,9 @@ För ett spel görs en provkopia, t.ex. `/ny/huvudstaden/`, som provspelas innan
 
 ## Versioner
 
+### Människokroppen (`ny/manniskokroppen/`, provkopia)
+- **1.0 (prov)** – 3 november 2026. Första versionen: ett latinskt namn visas och man trycker där delen sitter på en kropp framifrån. System: skelett, muskler, organ och blodkärl (bara det aktuella systemet visas). Nivåer: Lätt, Svår och Supersvår (anatomiska punkter som Spina iliaca anterior superior). Läget Lär dig. Ska provas av någon medicinskt kunnig innan den flyttas till `/manniskokroppen/`.
+
 ### I gränslandet (`granslandet/`)
 - **1.0** – 3 november 2026. Första versionen: kortlek med konturen av ett land, län eller en delstat. Vänd kortet så zoomar kartan ut och grannarna fylls i ett i taget med namn och antal. Lägen: hela världen (102 länder), en världsdel, Sveriges 21 län och USA:s 50 delstater. Bara landgränser räknas, med förklarande noter för specialfall. Startmeny med Byt spel och rätt/fel-räkning per omgång.
 
