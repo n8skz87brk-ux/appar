@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Peter Ekvardt</title>
+<link rel="icon" href="/americano/icon-r-192.png">
+<link rel="apple-touch-icon" href="/americano/icon-r-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Utvecklingsvariant av peter.ekvardt.se. Allt som ändras när en app läggs till står i appar.json. */
+:root{
+  --bg:#F3F5F4; --surface:#FFFFFF; --surface2:#F8FAF9; --line:#D8DEDB; --line2:#E4E9E7;
+  --fg:#15201E; --muted:#3C4A47; --faint:#55625F;
+  --accent:#1D5A84; --accent-ink:#FFFFFF; --tint:#E3EDF4; --tint-fg:#123E5C;
+  --new-bg:#FCEBD0; --new-fg:#7A4500; --star:#E8A33A; --star-line:#C07A12;
+  --dark:#15201E; --dark-fg:#DCE3E0;
+  --display:'Space Grotesk','Helvetica Neue',Arial,sans-serif;
+  --body:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#111816; --surface:#18211F; --surface2:#1C2624; --line:#2C3836; --line2:#26312F;
+  --fg:#E8EEEC; --muted:#B4C0BD; --faint:#93A19D;
+  --accent:#6FA8D6; --accent-ink:#0D1A24; --tint:#1F3344; --tint-fg:#BFD9EE;
+  --new-bg:#3D2C12; --new-fg:#F5CE8E; --star:#E8A33A; --star-line:#E8A33A;
+  --dark:#0B100F; --dark-fg:#C9D3D0; color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+img{max-width:100%}
+[hidden]{display:none!important}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.band{background:var(--surface);border-block:1px solid var(--line)}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h2{font-size:clamp(28px,4vw,36px);letter-spacing:-0.01em}
+.eyebrow{margin:0 0 12px;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.lead{color:var(--muted);font-size:17px;line-height:1.65;max-width:62ch}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;border-radius:999px;font:inherit;font-weight:600;text-decoration:none;cursor:pointer;border:0}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{border:1.5px solid var(--fg);color:var(--fg);background:transparent}
+.btn-soft{background:var(--tint);color:var(--tint-fg)}
+
+.devbar{background:var(--new-bg);color:var(--new-fg);font-size:13px;font-weight:600;text-align:center;padding:8px 16px;padding-top:calc(8px + env(safe-area-inset-top,0px))}
+header.top{border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding-block:14px}
+.brand{font-family:var(--display);font-weight:700;font-size:20px;color:var(--fg);text-decoration:none}
+nav{display:flex;flex-wrap:wrap}
+nav a{padding:12px;font-weight:500;font-size:15px;color:var(--fg);text-decoration:none}
+nav a:hover{color:var(--accent)}
+
+.hero{padding-block:60px 40px}
+.hero h1{font-size:clamp(36px,6vw,56px);line-height:1.05;letter-spacing:-0.02em;max-width:16ch}
+.hero .lead{font-size:19px;margin:22px 0 0}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+
+.news{padding-bottom:48px}
+.news-box{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.news-head{display:flex;align-items:center;gap:10px;padding:14px 20px;background:var(--dark);color:#fff;flex:1 0 100%}
+@media (min-width:820px){.news-head{flex:0 0 auto}}
+.news-head h2{font-size:17px;font-weight:600;letter-spacing:0}
+.news ul{flex:1 1 520px;min-width:0;margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap}
+.news li{flex:1 1 230px;min-width:0;padding:14px 20px;border-left:1px solid var(--line2);border-top:1px solid var(--line2);margin:-1px 0 0 -1px;display:flex;flex-direction:column;gap:4px}
+.news a{color:inherit;text-decoration:none}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.pill{font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap;font-family:var(--body);letter-spacing:0}
+.pill.ny{background:var(--new-bg);color:var(--new-fg)}
+.pill.uppdaterad{background:var(--tint);color:var(--tint-fg)}
+.date{font-size:13px;color:var(--faint)}
+.news .txt{font-size:15px;line-height:1.45}
+
+.apps{padding-block:60px}
+.apps > .wrap > .lead{margin:12px 0 8px}
+.cat{margin-top:36px}
+.cat-h{font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-family:var(--body);margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:22px}
+.card{display:flex;flex-direction:column;gap:14px;padding:24px;border:1px solid var(--line);border-radius:16px;background:var(--surface2);scroll-margin-top:20px}
+.card-top{display:flex;align-items:center;gap:14px}
+.card-top img{width:56px;height:56px;border-radius:14px;flex:none}
+.card h3{font-size:22px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ver{font-size:13px;color:var(--faint);font-variant-numeric:tabular-nums;margin-top:2px}
+.card p{margin:0;font-size:15px;line-height:1.55;color:var(--muted);flex-grow:1}
+.card .btns{display:flex;flex-wrap:wrap;gap:10px}
+.card .btn{border-radius:10px;min-height:46px;flex:1 1 140px;padding:0 14px}
+.empty{color:var(--muted)}
+
+.feedback{padding-block:64px}
+.fb-row{display:flex;flex-wrap:wrap;gap:44px;align-items:flex-start}
+.fb-text{flex:1 1 320px;min-width:0}
+.fb-text .lead{margin:16px 0 0}
+form{flex:1 1 400px;min-width:0;display:flex;flex-direction:column;gap:18px;padding:26px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl{font-size:14px;font-weight:600}
+select,input[type=text],textarea{min-height:46px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:var(--surface);color:var(--fg);width:100%}
+textarea{resize:vertical;min-height:120px}
+.stars{display:flex;gap:6px;flex-wrap:wrap}
+.stars button{width:46px;height:46px;border:1px solid var(--line);border-radius:10px;background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.stars svg{fill:none;stroke:var(--star-line)}
+.stars button.on svg{fill:var(--star)}
+.check{display:flex;gap:10px;align-items:center;font-size:15px;color:var(--muted)}
+.check input{width:20px;height:20px;accent-color:var(--accent)}
+.msg{margin:0;font-size:14px;color:var(--muted)}
+.msg.ok{padding:12px 14px;border-radius:10px;background:var(--tint);color:var(--tint-fg)}
+
+.about .wrap{display:flex;flex-wrap:wrap;gap:40px;align-items:center;padding-block:60px}
+.photo{flex:0 1 320px;min-width:0;max-width:100%;aspect-ratio:4/3;border-radius:16px;background:var(--tint);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px}
+.about .txt{flex:1 1 400px;min-width:0}
+.about .lead{margin:16px 0 0}
+.ai{font-size:14px;color:var(--faint);margin:14px 0 0}
+
+.friends{padding-block:60px}
+.friends h2{margin-bottom:22px}
+.friend{display:flex;flex-direction:column;gap:6px;padding:22px;border-radius:14px;border:1px solid var(--line);background:var(--surface);text-decoration:none;color:var(--fg)}
+.friend:hover{border-color:var(--accent)}
+.friend strong{font-family:var(--display);font-size:19px}
+.friend span{font-size:15px;color:var(--muted)}
+
+footer.site{background:var(--dark);color:var(--dark-fg)}
+footer.site .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding-block:32px;padding-bottom:calc(32px + env(safe-area-inset-bottom,0px));font-size:15px}
+footer.site a{color:#fff}
+
+/* Hemskärmsguiden, samma som på nuvarande sida */
+.sheet{border:0;padding:0;margin:auto auto 0;width:100%;max-width:520px;max-height:92dvh;background:var(--surface);color:var(--fg);border-radius:20px 20px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.18)}
+.sheet::backdrop{background:rgba(10,20,18,.45)}
+@media (min-width:600px){.sheet{margin:auto;border-radius:20px}}
+.sheet-in{padding:10px 20px calc(24px + env(safe-area-inset-bottom,0px))}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 14px}
+.sheet-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.sheet-head img{width:48px;height:48px;border-radius:12px}
+.sheet h3{font-size:1.25rem}
+.sheet-head p{margin:0;color:var(--muted);font-size:.9rem}
+.x{margin-left:auto;border:0;background:var(--bg);color:var(--fg);width:40px;height:40px;border-radius:50%;font-size:1.3rem;cursor:pointer;flex:none}
+.seg{display:flex;background:var(--bg);border-radius:10px;padding:3px;margin-bottom:18px}
+.seg button{flex:1;border:0;background:none;color:var(--muted);font:600 .9rem var(--body);padding:10px 8px;border-radius:8px;cursor:pointer}
+.seg button[aria-selected="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+.steps li{counter-increment:s;display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:start;margin-bottom:14px}
+.steps li::before{content:counter(s);width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-weight:600;display:grid;place-items:center}
+.steps b{display:block}
+.steps span{color:var(--muted);font-size:.95rem;line-height:1.35;display:block;margin-top:2px}
+.ico{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;color:var(--accent)}
+.note{background:var(--bg);border-radius:10px;padding:10px 12px;font-size:.92rem;color:var(--muted);margin:4px 0 0}
+.note b{color:var(--fg)}
+.go{margin-top:10px;border-radius:10px}
+.done{text-align:center;margin:6px 0 0;color:var(--muted);font-size:.92rem}
+</style>
+</head>
+<body>
+
+<div class="devbar">Utvecklingsversion – den riktiga sidan finns på <a href="/" style="color:inherit">peter.ekvardt.se</a></div>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top">Peter Ekvardt</a>
+    <nav aria-label="Huvudmeny">
+      <a href="#appar">Appar</a>
+      <a href="#tyck-till">Tyck till</a>
+      <a href="#om">Om mig</a>
+      <a href="#vanner">Vänner</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="wrap hero">
+    <p class="eyebrow">Ljugarn och Täby</p>
+    <h1>Små appar och spel, byggda för skojs skull.</h1>
+    <p class="lead">Appar jag har byggt för mig själv och mina vänner. De är gratis, kräver inget konto och sparar allt i din egen telefon eller dator.</p>
+    <div class="ctas">
+      <a class="btn btn-primary" href="#appar">Se apparna</a>
+      <a class="btn btn-ghost" href="#tyck-till">Tyck till om spelen</a>
+    </div>
+  </section>
+
+  <section class="wrap news" aria-labelledby="nytt-rubrik">
+    <div class="news-box">
+      <div class="news-head">
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+        <h2 id="nytt-rubrik">Senaste nytt</h2>
+      </div>
+      <ul id="news"><li class="empty">Laddar …</li></ul>
+    </div>
+  </section>
+
+  <section id="appar" class="band apps">
+    <div class="wrap">
+      <h2>Appar och spel</h2>
+      <p class="lead">Öppna appen direkt, eller lägg den på hemskärmen så ligger den där som en vanlig app. Ingen App Store behövs.</p>
+      <div id="kategorier"><p class="empty">Laddar apparna …</p></div>
+    </div>
+  </section>
+
+  <section id="tyck-till" class="wrap feedback">
+    <div class="fb-row">
+      <div class="fb-text">
+        <p class="eyebrow">Tyck till</p>
+        <h2>Vad tycker du om spelen?</h2>
+        <p class="lead">Spelen blir bättre av att någon annan än jag spelar dem. Hittade du en bugg, blev något krångligt, eller har du en idé om en ny fråga eller ett nytt spel? Ros och ris uppskattas lika mycket.</p>
+        <p class="lead">Skriv gärna vilken version du spelade, den står på varje app.</p>
+      </div>
+      <form id="tyck-form" novalidate>
+        <div class="field">
+          <label for="tyck-app">Vilket spel?</label>
+          <select id="tyck-app" name="app"><option>Allmänt</option></select>
+        </div>
+        <div class="field">
+          <span class="lbl" id="betyg-lbl">Betyg (frivilligt)</span>
+          <div class="stars" id="stars" role="group" aria-labelledby="betyg-lbl"></div>
+        </div>
+        <div class="field">
+          <label for="tyck-text">Din kommentar</label>
+          <textarea id="tyck-text" name="kommentar" rows="5" placeholder="Vad var bra, vad var dåligt, vad saknas?"></textarea>
+        </div>
+        <div class="field">
+          <label for="tyck-namn">Namn (frivilligt)</label>
+          <input id="tyck-namn" name="namn" type="text" autocomplete="name">
+        </div>
+        <label class="check"><input id="tyck-visa" name="visa" type="checkbox"> Det är okej att visa min kommentar på sidan</label>
+        <button class="btn btn-primary" type="submit">Skicka</button>
+        <p class="msg" id="tyck-msg" role="status"></p>
+      </form>
+    </div>
+  </section>
+
+  <section id="om" class="band about">
+    <div class="wrap">
+      <div class="photo">[Bild från Gotland]</div>
+      <div class="txt">
+        <h2>Om mig</h2>
+        <p class="lead">Jag har jobbat hela livet med IT – mest med att sälja konsulter. Nu som pensionär bor jag större delen av året i Ljugarn på Gotland och har upptäckt hur roligt det är att bygga egna saker med AI. Apparna här började som verktyg för padelgänget och kvällarna hemma, och har blivit fler sedan dess.</p>
+        <p class="ai">Apparna är byggda tillsammans med Claude. Claude är AI och kan göra misstag. Det kan jag också.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="vanner" class="wrap friends">
+    <h2>Vänner &amp; verkstäder</h2>
+    <div class="grid">
+      <a class="friend" href="https://elisabethnorlanderkeramik.se"><strong>Elisabeth Norlander Keramik</strong><span>Handgjord keramik från ateljén i Ljugarn</span></a>
+      <a class="friend" href="https://ateljesjodin.se"><strong>Ateljé Sjödin</strong><span>[Kort beskrivning]</span></a>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <span>Ljugarn och Täby · peter.ekvardt.se</span>
+    <span id="uppdaterad"></span>
+  </div>
+</footer>
+
+<dialog class="sheet" id="installera" aria-labelledby="sheet-title">
+  <div class="sheet-in">
+    <div class="grab"></div>
+    <div class="sheet-head">
+      <img src="/americano/icon-r-192.png" alt="" data-icon>
+      <div><h3 id="sheet-title">Lägg <span data-name>appen</span> på hemskärmen</h3><p>Gratis, ingen App Store behövs</p></div>
+      <button class="x" data-close aria-label="Stäng">×</button>
+    </div>
+    <div class="seg" role="tablist">
+      <button role="tab" data-tab="ios">iPhone</button>
+      <button role="tab" data-tab="android">Android</button>
+      <button role="tab" data-tab="desktop">Dator</button>
+    </div>
+    <div data-pane="ios">
+      <p class="note" data-not-safari hidden><b>Öppna sidan i Safari först.</b> Hemskärmsknappen finns bara där. Kopiera adressen och klistra in den i Safari.</p>
+      <ol class="steps">
+        <li><div><b>Öppna <span data-name>appen</span></b><span>Resten gör du inne i appen, inte på den här sidan.</span><a class="btn btn-primary go" href="/" data-href>Öppna <span data-name>appen</span></a></div></li>
+        <li><div><b>Tryck på <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg> längst ner till höger</b><span>Ser du i stället <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg> längst ner i mitten trycker du direkt på den och hoppar över nästa steg.</span></div></li>
+        <li><div><b>Tryck på Dela <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg></b><span>Överst i menyn som kommer upp.</span></div></li>
+        <li><div><b>Välj Lägg till på hemskärmen <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg></b><span>Syns den inte direkt: scrolla ner eller tryck på <i>Visa fler</i>.</span></div></li>
+        <li><div><b>Tryck på Lägg till</b><span>Nu ligger <span data-name>appen</span> bland dina appar.</span></div></li>
+      </ol>
+    </div>
+    <div data-pane="android" hidden>
+      <ol class="steps">
+        <li><div><b>Öppna appen i Chrome</b><span>Tryck på <i>Öppna</i> på den här sidan.</span></div></li>
+        <li><div><b>Tryck på menyn ⋮</b><span>Uppe till höger i Chrome.</span></div></li>
+        <li><div><b>Välj Installera app</b><span>Eller <i>Lägg till på startskärmen</i>, beroende på telefon.</span></div></li>
+      </ol>
+    </div>
+    <div data-pane="desktop" hidden>
+      <ol class="steps">
+        <li><div><b>Öppna appen i Chrome eller Edge</b><span>Tryck på <i>Öppna</i>.</span></div></li>
+        <li><div><b>Klicka på installera-ikonen</b><span>Längst till höger i adressfältet, eller via menyn → <i>Installera</i>.</span></div></li>
+      </ol>
+      <p class="note">På Mac med Safari: Arkiv → <i>Lägg till i Dock</i>.</p>
+    </div>
+    <p class="done" data-done></p>
+  </div>
+</dialog>
+
+<script>
+(function(){
+  // Web3Forms-nyckel för Tyck till. Tom = formuläret visas men skickar inget ännu.
+  var WEB3FORMS_KEY = "";
+
+  var MANAD = ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
+  function datum(s){ var p = (s||'').split('-'); return p.length===3 ? (+p[2])+' '+MANAD[+p[1]-1]+' '+p[0] : s; }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]}); }
+
+  var APPAR = {};
+
+  fetch('appar.json', {cache:'no-cache'}).then(function(r){ return r.json(); }).then(visa).catch(function(){
+    document.getElementById('kategorier').innerHTML = '<p class="empty">Apparna kunde inte laddas. Ladda om sidan.</p>';
+    document.getElementById('news').innerHTML = '';
+  });
+
+  function visa(data){
+    data.appar.forEach(function(a){ APPAR[a.id] = a; });
+
+    // Appkort per kategori
+    document.getElementById('kategorier').innerHTML = data.kategorier.map(function(k){
+      var appar = data.appar.filter(function(a){ return a.kategori === k.id; });
+      if(!appar.length) return '';
+      return '<section class="cat" aria-labelledby="cat-'+k.id+'"><h3 class="cat-h" id="cat-'+k.id+'">'+esc(k.namn)+'</h3><div class="grid">' +
+        appar.map(function(a){
+          var ver = a.version ? 'Version '+esc(a.version)+(a.status ? ' · '+esc(a.status) : '') : esc(a.status);
+          var arNy = (a.status||'').indexOf('Ny') === 0;
+          return '<article class="card" id="app-'+a.id+'">' +
+            '<div class="card-top"><img src="'+esc(a.ikon)+'" alt="" width="56" height="56">' +
+            '<div><h3>'+esc(a.namn)+(arNy ? ' <span class="pill ny">Ny</span>' : '')+'</h3>' +
+            (ver ? '<div class="ver">'+ver+'</div>' : '') + '</div></div>' +
+            '<p>'+esc(a.text)+'</p>' +
+            '<div class="btns"><a class="btn btn-primary" href="'+esc(a.adress)+'">'+esc(a.knapp||'Öppna')+'</a>' +
+            '<a class="btn btn-soft" href="#installera" data-install="'+a.id+'">Lägg på hemskärmen</a></div>' +
+            '</article>';
+        }).join('') + '</div></section>';
+    }).join('');
+
+    // Senaste nytt: de tre senaste ändringarna, nyast först
+    var nytt = [];
+    data.appar.forEach(function(a){ (a.andringar||[]).forEach(function(c){ nytt.push({a:a, c:c}); }); });
+    nytt.sort(function(x,y){ return (y.c.datum||'').localeCompare(x.c.datum||''); });
+    document.getElementById('news').innerHTML = nytt.slice(0,3).map(function(n){
+      var typ = n.c.typ === 'ny' ? 'ny' : 'uppdaterad';
+      return '<li><a href="#app-'+n.a.id+'"><div class="meta"><span class="pill '+typ+'">'+(typ==='ny'?'Ny app':'Uppdaterad')+'</span>' +
+        '<span class="date">'+esc(datum(n.c.datum))+'</span></div>' +
+        '<span class="txt"><strong>'+esc(n.a.namn)+(n.c.version ? ' '+esc(n.c.version) : '')+'</strong> – '+esc(n.c.text)+'</span></a></li>';
+    }).join('') || '<li class="empty">Inget nytt just nu.</li>';
+
+    // Tyck till: spelen i listan
+    var sel = document.getElementById('tyck-app');
+    sel.innerHTML = '<option>Allmänt</option>' + data.appar.map(function(a){ return '<option>'+esc(a.namn)+(a.version?' '+esc(a.version):'')+'</option>'; }).join('');
+
+    document.getElementById('uppdaterad').textContent = 'Uppdaterad ' + datum(data.uppdaterad);
+
+    kopplaHemskarm();
+  }
+
+  // Hemskärmsguiden
+  var d = document.getElementById('installera');
+  var ua = navigator.userAgent, ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  var flik = ios ? 'ios' : /Android/.test(ua) ? 'android' : 'desktop';
+  function visaFlik(t){
+    d.querySelectorAll('[data-tab]').forEach(function(b){ b.setAttribute('aria-selected', b.dataset.tab===t); });
+    d.querySelectorAll('[data-pane]').forEach(function(p){ p.hidden = p.dataset.pane!==t; });
+  }
+  if(ios && /CriOS|FxiOS|EdgiOS|GSA|FBAN|Instagram/.test(ua)) d.querySelector('[data-not-safari]').hidden = false;
+  visaFlik(flik);
+  d.querySelectorAll('[data-tab]').forEach(function(b){ b.onclick = function(){ visaFlik(b.dataset.tab); }; });
+  d.querySelector('[data-close]').onclick = function(){ d.close(); };
+  d.addEventListener('click', function(e){ if(e.target===d) d.close(); });
+  function kopplaHemskarm(){
+    document.querySelectorAll('[data-install]').forEach(function(l){
+      l.onclick = function(e){
+        var a = APPAR[l.dataset.install]; if(!a || !d.showModal) return;
+        e.preventDefault();
+        d.querySelectorAll('[data-name]').forEach(function(el){ el.textContent = a.namn; });
+        d.querySelector('[data-icon]').src = a.ikon;
+        d.querySelector('[data-href]').setAttribute('href', a.adress);
+        d.querySelector('[data-done]').textContent = a.efterHemskarm || '';
+        d.showModal();
+      };
+    });
+  }
+
+  // Stjärnbetyg
+  var betyg = 0, stars = document.getElementById('stars');
+  function ritaStjarnor(){
+    stars.innerHTML = [1,2,3,4,5].map(function(n){
+      return '<button type="button" data-n="'+n+'" class="'+(n<=betyg?'on':'')+'" aria-label="'+n+' av 5" aria-pressed="'+(n<=betyg)+'">' +
+        '<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z"/></svg></button>';
+    }).join('');
+  }
+  stars.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    var n = +b.dataset.n; betyg = (betyg===n) ? 0 : n; ritaStjarnor();
+    var f = stars.querySelector('[data-n="'+n+'"]'); if(f) f.focus();
+  });
+  ritaStjarnor();
+
+  // Tyck till
+  var f = document.getElementById('tyck-form'), msg = document.getElementById('tyck-msg'), btn = f.querySelector('button[type=submit]');
+  f.addEventListener('submit', function(e){
+    e.preventDefault();
+    msg.className = 'msg';
+    var text = f.kommentar.value.trim();
+    if(!text){ msg.textContent = 'Skriv en kommentar först.'; f.kommentar.focus(); return; }
+    if(!WEB3FORMS_KEY){ msg.className = 'msg ok'; msg.textContent = 'Formuläret är inte kopplat ännu, så inget skickades. (Utvecklingsversion.)'; return; }
+    btn.disabled = true; msg.textContent = 'Skickar …';
+    fetch('https://api.web3forms.com/submit', {
+      method:'POST', headers:{'Content-Type':'application/json', Accept:'application/json'},
+      body: JSON.stringify({ access_key:WEB3FORMS_KEY, subject:'Tyck till: '+f.app.value, from_name:'Peters appar',
+        App:f.app.value, Betyg: betyg ? betyg+' av 5' : '(inget betyg)', Namn:f.namn.value.trim()||'(inget namn)',
+        'Får visas på sidan': f.visa.checked ? 'Ja' : 'Nej', Kommentar:text })
+    }).then(function(r){ return r.json(); }).then(function(res){
+      if(res.success){ f.reset(); betyg = 0; ritaStjarnor(); msg.className = 'msg ok'; msg.textContent = 'Tack! Peter har fått din kommentar.'; }
+      else msg.textContent = 'Det gick inte att skicka. Försök igen om en stund.';
+    }).catch(function(){ msg.textContent = 'Det gick inte att skicka. Kontrollera internet och försök igen.'; })
+    .finally(function(){ btn.disabled = false; });
+  });
+})();
+</script>
+</body>
+</html>
