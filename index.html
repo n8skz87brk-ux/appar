@@ -113,6 +113,18 @@ footer a{color:inherit}
       </div>
     </div>
   </article>
+  <article class="app">
+    <img src="huvudstaden/icon-192.png" alt="">
+    <div>
+      <h2>Huvudstaden</h2>
+      <p>Kartspel om huvudstäder. Du ser ett land på kartan, säger eller skriver namnet på huvudstaden och trycker där du tror att den ligger. Poäng för rätt namn och för hur nära nålen hamnar. 165 länder, hela världen eller en världsdel i taget.</p>
+      <p class="ver"><b>Version 1.1</b> · 3 november 2026 · Ny, under provspelning</p>
+      <div class="btns">
+        <a class="btn primary" href="huvudstaden/">Öppna spelet</a>
+        <a class="btn" href="#installera" data-install="huvudstaden">Lägg på hemskärmen</a>
+      </div>
+    </div>
+  </article>
   </div>
 
   <p class="more">Fler appar kommer.</p>
@@ -173,7 +185,8 @@ footer a{color:inherit}
   var APPS={
     americano:{name:'Americano',icon:'americano/icon-r-192.png',href:'americano/',done:'Appen fungerar sedan även utan internet på banan.'},
     narmast:{name:'Närmast vinner',icon:'narmast/icon-192.png',href:'narmast/',done:'Spelet startar sedan direkt från hemskärmen. Kartan behöver internet första gången.'},
-    granslandet:{name:'I gränslandet',icon:'granslandet/icon-192.png',href:'granslandet/',done:'Spelet startar sedan direkt från hemskärmen. Kartan behöver internet första gången.'}
+    granslandet:{name:'I gränslandet',icon:'granslandet/icon-192.png',href:'granslandet/',done:'Spelet startar sedan direkt från hemskärmen. Kartan behöver internet första gången.'},
+    huvudstaden:{name:'Huvudstaden',icon:'huvudstaden/icon-192.png',href:'huvudstaden/',done:'Spelet startar sedan direkt från hemskärmen. Kartan behöver internet första gången.'}
   };
   function pick(k){
     var a=APPS[k]||APPS.americano;

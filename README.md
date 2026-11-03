@@ -29,3 +29,9 @@ Vid ny version: ändra versionsraden i `index.html` (kortet), `granslandet/index
 - **1.0** – 2 november 2026. Första versionen: två lag, kartor för Europa, Sverige och Världen, 5/10/15 frågor, dold pil vid delad telefon.
 
 Vid ny version: ändra versionsraden i `index.html` (kortet), `narmast/index.html` (startskärmen) och cachenamnet i `narmast/sw.js`, och lägg till en rad här.
+
+### Huvudstaden (`huvudstaden/`)
+- **1.1** – 3 november 2026. Mikrofonknappen ligger kvar på varje kort även om taligenkänningen nekas en gång.
+- **1.0** – 3 november 2026. Första versionen: ett land visas på kartan, spelaren säger (svensk taligenkänning) eller skriver huvudstaden och sätter en nål där den ligger. 50 poäng för rätt namn (små stavfel godkänns), upp till 50 för nålen räknat efter landets storlek. 165 länder, hela världen eller en världsdel. Länder med flera huvudstäder godkänner alla, med förklarande noter.
+
+Vid ny version: ändra versionsraden i `index.html` (kortet), `huvudstaden/index.html` (startmenyn) och cachenamnet i `huvudstaden/sw.js`, och lägg till en rad här.
