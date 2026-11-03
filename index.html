@@ -40,6 +40,21 @@ details li{margin-bottom:4px}
 .ver{font-size:.82rem;color:var(--muted);margin:-8px 0 14px;font-variant-numeric:tabular-nums}
 .ver b{font-weight:600;color:var(--fg)}
 .list{display:flex;flex-direction:column;gap:16px}
+.cat{margin-top:36px}
+.cat:first-of-type{margin-top:0}
+.cat-h{font:600 .8rem var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.tyck{margin-top:40px}
+.tyck p{margin:0 0 12px;color:var(--muted);font-size:.95rem}
+.tyck form{display:flex;flex-direction:column;gap:8px}
+.tyck-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tyck-row.end{justify-content:flex-end}
+.tyck select,.tyck input,.tyck textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+.tyck select{flex:0 1 auto}
+.tyck input{flex:1 1 160px;min-width:0}
+.tyck textarea{width:100%;resize:vertical;min-height:84px}
+.tyck-msg{color:var(--muted);font-size:.9rem;margin-right:auto}
+.tyck button{cursor:pointer}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .more{color:var(--muted);text-align:center;margin:28px 0 0;font-size:.95rem}
 footer{margin-top:40px;color:var(--muted);font-size:.85rem;text-align:center}
 footer a{color:inherit}
@@ -77,7 +92,9 @@ footer a{color:inherit}
   <h1>Peters appar</h1>
   <p class="lead">Små appar jag har byggt för mig själv och mina vänner. De är gratis, kräver inget konto och sparar allt i din egen telefon eller dator.</p>
 
-  <div class="list">
+  <section class="cat" aria-labelledby="cat-idrott">
+    <h2 class="cat-h" id="cat-idrott">Idrott</h2>
+    <div class="list">
   <article class="app">
     <img src="americano/icon-r-192.png" alt="">
     <div>
@@ -89,16 +106,21 @@ footer a{color:inherit}
       </div>
     </div>
   </article>
+    </div>
+  </section>
 
+  <section class="cat" aria-labelledby="cat-spel">
+    <h2 class="cat-h" id="cat-spel">Lek och spel</h2>
+    <div class="list">
   <article class="app">
-    <img src="narmast/icon-192.png" alt="">
+    <img src="huvudstaden/icon-192.png" alt="">
     <div>
-      <h2>Närmast vinner</h2>
-      <p>Kartspel för två lag, som tävlingen i På spåret. Båda sätter ut en pil där de tror att platsen ligger, och den som hamnar närmast tar poängen. Europa, Sverige eller hela världen. Spela på en telefon eller på varsin.</p>
-      <p class="ver"><b>Version 2.8</b> · 3 november 2026 · Ny, under provspelning</p>
+      <h2>Huvudstaden</h2>
+      <p>Kartspel om huvudstäder. Du ser ett land på kartan, säger eller skriver namnet på huvudstaden och trycker där du tror att den ligger. Poäng för rätt namn och för hur nära nålen hamnar. 165 länder, hela världen eller en världsdel i taget.</p>
+      <p class="ver"><b>Version 1.1</b> · 3 november 2026 · Ny, under provspelning</p>
       <div class="btns">
-        <a class="btn primary" href="narmast/">Öppna spelet</a>
-        <a class="btn" href="#installera" data-install="narmast">Lägg på hemskärmen</a>
+        <a class="btn primary" href="huvudstaden/">Öppna spelet</a>
+        <a class="btn" href="#installera" data-install="huvudstaden">Lägg på hemskärmen</a>
       </div>
     </div>
   </article>
@@ -115,20 +137,41 @@ footer a{color:inherit}
     </div>
   </article>
   <article class="app">
-    <img src="huvudstaden/icon-192.png" alt="">
+    <img src="narmast/icon-192.png" alt="">
     <div>
-      <h2>Huvudstaden</h2>
-      <p>Kartspel om huvudstäder. Du ser ett land på kartan, säger eller skriver namnet på huvudstaden och trycker där du tror att den ligger. Poäng för rätt namn och för hur nära nålen hamnar. 165 länder, hela världen eller en världsdel i taget.</p>
-      <p class="ver"><b>Version 1.1</b> · 3 november 2026 · Ny, under provspelning</p>
+      <h2>Närmast vinner</h2>
+      <p>Kartspel för två lag, som tävlingen i På spåret. Båda sätter ut en pil där de tror att platsen ligger, och den som hamnar närmast tar poängen. Europa, Sverige eller hela världen. Spela på en telefon eller på varsin.</p>
+      <p class="ver"><b>Version 2.8</b> · 3 november 2026 · Ny, under provspelning</p>
       <div class="btns">
-        <a class="btn primary" href="huvudstaden/">Öppna spelet</a>
-        <a class="btn" href="#installera" data-install="huvudstaden">Lägg på hemskärmen</a>
+        <a class="btn primary" href="narmast/">Öppna spelet</a>
+        <a class="btn" href="#installera" data-install="narmast">Lägg på hemskärmen</a>
       </div>
     </div>
   </article>
-  </div>
+    </div>
+  </section>
 
-  <p class="more">Fler appar kommer.</p>
+  <section class="tyck" id="tyck" aria-labelledby="tyck-h" hidden>
+    <h2 class="cat-h" id="tyck-h">Tyck till</h2>
+    <p>Tyck gärna till om apparna. Ros och ris uppskattas lika mycket, liksom förslag på förbättringar och fel du har hittat.</p>
+    <form id="tyck-form">
+      <div class="tyck-row">
+        <label class="vh" for="tyck-app">Vilken app</label>
+        <select id="tyck-app" name="app">
+          <option>Allmänt</option><option>Americano</option><option>Huvudstaden</option><option>I gränslandet</option><option>Närmast vinner</option>
+        </select>
+        <label class="vh" for="tyck-namn">Namn</label>
+        <input id="tyck-namn" name="namn" type="text" placeholder="Namn (frivilligt)" autocomplete="name">
+      </div>
+      <label class="vh" for="tyck-text">Din kommentar</label>
+      <textarea id="tyck-text" name="kommentar" rows="3" required placeholder="Skriv här …"></textarea>
+      <div class="tyck-row end">
+        <span class="tyck-msg" id="tyck-msg" role="status"></span>
+        <button class="btn primary" type="submit">Skicka</button>
+      </div>
+    </form>
+  </section>
+
   <p class="ai">Apparna är byggda tillsammans med Claude. Claude är AI och kan göra misstag. Det kan jag också.</p>
   <footer>Ljugarn och Täby · <a href="https://elisabethnorlanderkeramik.se">Elisabeth Norlander Keramik</a><br>Uppdaterad 3 november 2026</footer>
 </div>
@@ -200,6 +243,27 @@ footer a{color:inherit}
   document.querySelectorAll('[data-install]').forEach(function(a){a.onclick=function(e){e.preventDefault();pick(a.dataset.install);d.showModal()}});
   d.querySelector('[data-close]').onclick=function(){d.close()};
   d.addEventListener('click',function(e){if(e.target===d)d.close()});
+})();
+</script>
+<script>
+// Tyck till: skickas via Web3Forms till Peters e-post. Fyll i nyckeln så visas rutan.
+(function(){
+  var KEY=""; // Web3Forms access key
+  var sec=document.getElementById('tyck'); if(!KEY||!sec) return;
+  sec.hidden=false;
+  var f=document.getElementById('tyck-form'), msg=document.getElementById('tyck-msg'), btn=f.querySelector('button');
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var text=f.kommentar.value.trim(); if(!text){f.kommentar.focus();return}
+    btn.disabled=true; msg.textContent='Skickar …';
+    fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
+      body:JSON.stringify({access_key:KEY,subject:'Tyck till: '+f.app.value,from_name:'Peters appar',App:f.app.value,Namn:f.namn.value.trim()||'(inget namn)',Kommentar:text})})
+    .then(function(r){return r.json()}).then(function(d){
+      if(d.success){f.kommentar.value='';msg.textContent='Tack! Peter har fått din kommentar.'}
+      else msg.textContent='Det gick inte att skicka. Försök igen om en stund.';
+    }).catch(function(){msg.textContent='Det gick inte att skicka. Kontrollera internet och försök igen.'})
+    .finally(function(){btn.disabled=false});
+  });
 })();
 </script>
 </body>
