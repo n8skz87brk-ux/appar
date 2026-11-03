@@ -109,7 +109,7 @@ textarea{resize:vertical;min-height:120px}
 .msg.ok{padding:12px 14px;border-radius:10px;background:var(--tint);color:var(--tint-fg)}
 
 .about .wrap{display:flex;flex-wrap:wrap;gap:40px;align-items:center;padding-block:60px}
-.photo{flex:0 1 320px;min-width:0;max-width:100%;aspect-ratio:4/3;border-radius:16px;background:var(--tint);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px}
+.photo{flex:0 1 420px;min-width:0;max-width:100%;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:16px;background:var(--tint);display:block}
 .about .txt{flex:1 1 400px;min-width:0}
 .about .lead{margin:16px 0 0}
 .ai{font-size:14px;color:var(--faint);margin:14px 0 0}
@@ -230,7 +230,7 @@ footer.site a{color:#fff}
 
   <section id="om" class="band about">
     <div class="wrap">
-      <div class="photo">[Bild från Gotland]</div>
+      <img class="photo" src="peter.jpg" alt="Peter vid köksbordet med en kaffekopp och en surfplatta" width="1200" height="900" loading="lazy">
       <div class="txt">
         <h2>Om mig</h2>
         <p class="lead">Jag har jobbat hela livet med IT – mest med att sälja konsulter. Nu som pensionär bor jag större delen av året i Ljugarn på Gotland och har upptäckt hur roligt det är att bygga egna saker med AI. Apparna här började som verktyg för padelgänget och kvällarna hemma, och har blivit fler sedan dess.</p>
