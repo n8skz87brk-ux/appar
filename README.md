@@ -1,6 +1,6 @@
 # appar
 
-Peters appar – https://appar.elisabethnorlanderkeramik.se
+Peters appar – https://peter.ekvardt.se
 
 ## Versioner
 
