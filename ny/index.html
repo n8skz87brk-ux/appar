@@ -105,6 +105,8 @@ nav a:hover{color:var(--accent)}
 }
 .btn-label-short{display:none}
 .ver-short{display:none}
+.info .mer{display:none;align-items:center;gap:4px;margin-top:4px;font-size:14px;font-weight:600;color:var(--accent)}
+@media (max-width:640px){.info .mer{display:inline-flex}}
 @media (max-width:640px){.ver-long{display:none}.ver-short{display:block}}
 @media (max-width:640px){.btn-label-long{display:none}.btn-label-short{display:inline}}
 .info-sheet .lang{color:var(--muted);font-size:16px;line-height:1.6;margin:0 0 18px}
@@ -367,6 +369,7 @@ footer.site a{color:#fff}
               (ver ? '<span class="ver ver-long">'+ver+'</span>' : '') +
               (a.version ? '<span class="ver ver-short">v '+esc(a.version)+'</span>' : '') +
               '<span class="kort">'+esc(a.kort||'')+'</span>' +
+              '<span class="mer">Läs mer <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>' +
             '</button>' +
             '<p class="lang">'+esc(a.text)+'</p>' +
             '<div class="btns"><a class="btn btn-primary" href="'+esc(a.adress)+'"><span class="btn-label-long">'+esc(a.knapp||'Öppna')+'</span><span class="btn-label-short">Öppna</span></a>' +
