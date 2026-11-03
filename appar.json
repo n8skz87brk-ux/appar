@@ -47,6 +47,27 @@
       ]
     },
     {
+      "id": "floder",
+      "namn": "Floder och sjöar",
+      "kategori": "spel",
+      "adress": "/floder/",
+      "ikon": "/floder/icon-192.png",
+      "knapp": "Öppna spelet",
+      "kort": "Vad heter floden eller sjön som lyser på kartan?",
+      "text": "Kartspel om vatten. En flod, älv eller sjö lyses upp på kartan och du säger eller skriver vad den heter. Sverige, Europa, hela världen eller en världsdel i taget, bara floder eller bara sjöar, och två nivåer. Tio kort per omgång, med ledtråd om det tar stopp.",
+      "version": "1.0",
+      "status": "Ny, under provspelning",
+      "efterHemskarm": "Spelet startar sedan direkt från hemskärmen. Kartan behöver internet första gången.",
+      "andringar": [
+        {
+          "datum": "2026-11-03",
+          "typ": "ny",
+          "version": "1.0",
+          "text": "kartspel om floder och sjöar i Sverige och världen"
+        }
+      ]
+    },
+    {
       "id": "granslandet",
       "namn": "I gränslandet",
       "kategori": "spel",
