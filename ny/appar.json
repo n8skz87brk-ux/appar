@@ -1,8 +1,14 @@
 {
   "uppdaterad": "2026-11-03",
   "kategorier": [
-    { "id": "idrott", "namn": "Idrott" },
-    { "id": "spel", "namn": "Lek och spel" }
+    {
+      "id": "idrott",
+      "namn": "Idrott"
+    },
+    {
+      "id": "spel",
+      "namn": "Lek och spel"
+    }
   ],
   "appar": [
     {
@@ -12,6 +18,7 @@
       "adress": "/americano/",
       "ikon": "/americano/icon-r-192.png",
       "knapp": "Öppna appen",
+      "kort": "Lottar matcherna och räknar tabellen i padel-americano.",
       "text": "För padel-americano med 4–12 spelare. Appen lottar matchschemat, räknar tabellen medan ni spelar och ordnar slutspel. Kvällens resultat ligger kvar tills du tömmer dem inför nästa gång.",
       "version": "",
       "status": "",
@@ -25,12 +32,18 @@
       "adress": "/huvudstaden/",
       "ikon": "/huvudstaden/icon-192.png",
       "knapp": "Öppna spelet",
+      "kort": "Säg huvudstaden och sätt nålen där den ligger.",
       "text": "Kartspel om huvudstäder. Du ser ett land på kartan, säger eller skriver namnet på huvudstaden och trycker där du tror att den ligger. Poäng för rätt namn och för hur nära nålen hamnar. 165 länder, hela världen eller en världsdel i taget.",
       "version": "1.1",
       "status": "Ny, under provspelning",
       "efterHemskarm": "Spelet startar sedan direkt från hemskärmen. Kartan behöver internet första gången.",
       "andringar": [
-        { "datum": "2026-11-03", "typ": "ny", "version": "1.1", "text": "kartspel om huvudstäder, nu under provspelning" }
+        {
+          "datum": "2026-11-03",
+          "typ": "ny",
+          "version": "1.1",
+          "text": "kartspel om huvudstäder, nu under provspelning"
+        }
       ]
     },
     {
@@ -40,12 +53,18 @@
       "adress": "/granslandet/",
       "ikon": "/granslandet/icon-192.png",
       "knapp": "Öppna spelet",
+      "kort": "Hur många grannar har landet – och vilka?",
       "text": "Kortspel om gränser. Du ser konturen av ett land och gissar hur många grannar det har, och vilka. Vänd kortet så fylls grannarna i på kartan. Välj hela världen, en världsdel, Sveriges län eller USA:s delstater. Spela själv eller fråga en kompis.",
       "version": "1.0",
       "status": "Ny, under provspelning",
       "efterHemskarm": "Spelet startar sedan direkt från hemskärmen. Kartan behöver internet första gången.",
       "andringar": [
-        { "datum": "2026-11-03", "typ": "ny", "version": "1.0", "text": "gissa grannländer per världsdel, Sveriges län och USA:s delstater" }
+        {
+          "datum": "2026-11-03",
+          "typ": "ny",
+          "version": "1.0",
+          "text": "gissa grannländer per världsdel, Sveriges län och USA:s delstater"
+        }
       ]
     },
     {
@@ -55,12 +74,18 @@
       "adress": "/narmast/",
       "ikon": "/narmast/icon-192.png",
       "knapp": "Öppna spelet",
+      "kort": "Kartduell för två lag, som i På spåret.",
       "text": "Kartspel för två lag, som tävlingen i På spåret. Båda sätter ut en pil där de tror att platsen ligger, och den som hamnar närmast tar poängen. Europa, Sverige eller hela världen. Spela på en telefon eller på varsin.",
       "version": "2.8",
       "status": "Ny, under provspelning",
       "efterHemskarm": "Spelet startar sedan direkt från hemskärmen. Kartan behöver internet första gången.",
       "andringar": [
-        { "datum": "2026-11-03", "typ": "uppdaterad", "version": "2.8", "text": "senaste versionen, under provspelning" }
+        {
+          "datum": "2026-11-03",
+          "typ": "uppdaterad",
+          "version": "2.8",
+          "text": "senaste versionen, under provspelning"
+        }
       ]
     }
   ]

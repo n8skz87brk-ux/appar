@@ -79,14 +79,37 @@ nav a:hover{color:var(--accent)}
 .cat{margin-top:36px}
 .cat-h{font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-family:var(--body);margin-bottom:14px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:22px}
-.card{display:flex;flex-direction:column;gap:14px;padding:24px;border:1px solid var(--line);border-radius:16px;background:var(--surface2);scroll-margin-top:20px}
-.card-top{display:flex;align-items:center;gap:14px}
-.card-top img{width:56px;height:56px;border-radius:14px;flex:none}
-.card h3{font-size:22px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.ver{font-size:13px;color:var(--faint);font-variant-numeric:tabular-nums;margin-top:2px}
-.card p{margin:0;font-size:15px;line-height:1.55;color:var(--muted);flex-grow:1}
-.card .btns{display:flex;flex-wrap:wrap;gap:10px}
-.card .btn{border-radius:10px;min-height:46px;flex:1 1 140px;padding:0 14px}
+/* Kort på iPad/dator, kompakta rader på mobil */
+.card{display:grid;grid-template-columns:56px minmax(0,1fr);column-gap:14px;row-gap:14px;align-items:center;padding:24px;border:1px solid var(--line);border-radius:16px;background:var(--surface2);scroll-margin-top:20px}
+.card > img{width:56px;height:56px;border-radius:14px}
+.info{all:unset;display:flex;flex-direction:column;gap:2px;min-width:0;cursor:pointer;border-radius:8px}
+.info:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.info .name{font-family:var(--display);font-weight:700;font-size:22px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--fg)}
+.ver{font-size:13px;color:var(--faint);font-variant-numeric:tabular-nums}
+.info .kort{display:none;font-size:14px;line-height:1.4;color:var(--muted)}
+.card .lang{grid-column:1 / -1;margin:0;font-size:15px;line-height:1.55;color:var(--muted);align-self:start}
+.card .btns{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:10px;align-self:end}
+.card .btns .btn{border-radius:10px;min-height:46px;flex:1 1 140px;padding:0 14px}
+@media (max-width:640px){
+  .cat .grid{gap:10px}
+  .card{grid-template-columns:48px minmax(0,1fr) auto;padding:12px 12px 12px 14px;row-gap:0;border-radius:14px}
+  .card > img{width:48px;height:48px;border-radius:12px}
+  .info .name{font-size:17px}
+  .info .kort{display:block}
+  .info .ver{font-size:12px}
+  .card .lang{display:none}
+  .card .btns{grid-column:auto}
+  .card .btns .btn{flex:none;min-height:40px;padding:0 16px;border-radius:999px;font-size:15px}
+  .card .btns .btn-soft{display:none}
+  .apps{padding-block:44px}
+}
+.btn-label-short{display:none}
+.ver-short{display:none}
+@media (max-width:640px){.ver-long{display:none}.ver-short{display:block}}
+@media (max-width:640px){.btn-label-long{display:none}.btn-label-short{display:inline}}
+.info-sheet .lang{color:var(--muted);font-size:16px;line-height:1.6;margin:0 0 18px}
+.info-sheet .btns{display:flex;flex-direction:column;gap:10px}
+.info-sheet .btns .btn{border-radius:12px}
 .empty{color:var(--muted)}
 
 .feedback{padding-block:64px}
@@ -253,6 +276,22 @@ footer.site a{color:#fff}
   </div>
 </footer>
 
+<dialog class="sheet info-sheet" id="appinfo" aria-labelledby="appinfo-title">
+  <div class="sheet-in">
+    <div class="grab"></div>
+    <div class="sheet-head">
+      <img src="/americano/icon-r-192.png" alt="" data-i-icon>
+      <div><h3 id="appinfo-title" data-i-name></h3><p data-i-ver></p></div>
+      <button class="x" data-close aria-label="Stäng">×</button>
+    </div>
+    <p class="lang" data-i-text></p>
+    <div class="btns">
+      <a class="btn btn-primary" href="/" data-i-open>Öppna</a>
+      <a class="btn btn-soft" href="#installera" data-install="">Lägg på hemskärmen</a>
+    </div>
+  </div>
+</dialog>
+
 <dialog class="sheet" id="installera" aria-labelledby="sheet-title">
   <div class="sheet-in">
     <div class="grab"></div>
@@ -322,11 +361,15 @@ footer.site a{color:#fff}
           var ver = a.version ? 'Version '+esc(a.version)+(a.status ? ' · '+esc(a.status) : '') : esc(a.status);
           var arNy = (a.status||'').indexOf('Ny') === 0;
           return '<article class="card" id="app-'+a.id+'">' +
-            '<div class="card-top"><img src="'+esc(a.ikon)+'" alt="" width="56" height="56">' +
-            '<div><h3>'+esc(a.namn)+(arNy ? ' <span class="pill ny">Ny</span>' : '')+'</h3>' +
-            (ver ? '<div class="ver">'+ver+'</div>' : '') + '</div></div>' +
-            '<p>'+esc(a.text)+'</p>' +
-            '<div class="btns"><a class="btn btn-primary" href="'+esc(a.adress)+'">'+esc(a.knapp||'Öppna')+'</a>' +
+            '<img src="'+esc(a.ikon)+'" alt="" width="56" height="56">' +
+            '<button class="info" type="button" data-info="'+a.id+'" aria-label="Mer om '+esc(a.namn)+'">' +
+              '<span class="name">'+esc(a.namn)+(arNy ? ' <span class="pill ny">Ny</span>' : '')+'</span>' +
+              (ver ? '<span class="ver ver-long">'+ver+'</span>' : '') +
+              (a.version ? '<span class="ver ver-short">v '+esc(a.version)+'</span>' : '') +
+              '<span class="kort">'+esc(a.kort||'')+'</span>' +
+            '</button>' +
+            '<p class="lang">'+esc(a.text)+'</p>' +
+            '<div class="btns"><a class="btn btn-primary" href="'+esc(a.adress)+'"><span class="btn-label-long">'+esc(a.knapp||'Öppna')+'</span><span class="btn-label-short">Öppna</span></a>' +
             '<a class="btn btn-soft" href="#installera" data-install="'+a.id+'">Lägg på hemskärmen</a></div>' +
             '</article>';
         }).join('') + '</div></section>';
@@ -365,19 +408,39 @@ footer.site a{color:#fff}
   d.querySelectorAll('[data-tab]').forEach(function(b){ b.onclick = function(){ visaFlik(b.dataset.tab); }; });
   d.querySelector('[data-close]').onclick = function(){ d.close(); };
   d.addEventListener('click', function(e){ if(e.target===d) d.close(); });
-  function kopplaHemskarm(){
-    document.querySelectorAll('[data-install]').forEach(function(l){
-      l.onclick = function(e){
-        var a = APPAR[l.dataset.install]; if(!a || !d.showModal) return;
-        e.preventDefault();
-        d.querySelectorAll('[data-name]').forEach(function(el){ el.textContent = a.namn; });
-        d.querySelector('[data-icon]').src = a.ikon;
-        d.querySelector('[data-href]').setAttribute('href', a.adress);
-        d.querySelector('[data-done]').textContent = a.efterHemskarm || '';
-        d.showModal();
-      };
-    });
+  function kopplaHemskarm(){}
+  function oppnaHemskarm(a){
+    d.querySelectorAll('[data-name]').forEach(function(el){ el.textContent = a.namn; });
+    d.querySelector('[data-icon]').src = a.ikon;
+    d.querySelector('[data-href]').setAttribute('href', a.adress);
+    d.querySelector('[data-done]').textContent = a.efterHemskarm || '';
+    d.showModal();
   }
+
+  // Mer om appen (öppnas när man trycker på en rad)
+  var info = document.getElementById('appinfo');
+  function oppnaInfo(a){
+    info.querySelector('[data-i-icon]').src = a.ikon;
+    info.querySelector('[data-i-name]').textContent = a.namn;
+    var ver = a.version ? 'Version '+a.version+(a.status ? ' · '+a.status : '') : (a.status||'');
+    info.querySelector('[data-i-ver]').textContent = ver;
+    info.querySelector('[data-i-text]').textContent = a.text;
+    var oppna = info.querySelector('[data-i-open]');
+    oppna.setAttribute('href', a.adress); oppna.textContent = a.knapp || 'Öppna';
+    info.querySelector('[data-install]').dataset.install = a.id;
+    info.showModal();
+  }
+  info.querySelector('[data-close]').onclick = function(){ info.close(); };
+  info.addEventListener('click', function(e){ if(e.target===info) info.close(); });
+
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('[data-install],[data-info]'); if(!t) return;
+    if(t.dataset.info){ var a1 = APPAR[t.dataset.info]; if(a1 && info.showModal){ e.preventDefault(); oppnaInfo(a1); } return; }
+    var a = APPAR[t.dataset.install]; if(!a || !d.showModal) return;
+    e.preventDefault();
+    if(info.open) info.close();
+    oppnaHemskarm(a);
+  });
 
   // Stjärnbetyg
   var betyg = 0, stars = document.getElementById('stars');
