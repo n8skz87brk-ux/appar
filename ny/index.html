@@ -115,7 +115,10 @@ textarea{resize:vertical;min-height:120px}
 
 .friends{padding-block:60px}
 .friends h2{margin-bottom:22px}
-.friend{display:flex;flex-direction:column;gap:6px;padding:22px;border-radius:14px;border:1px solid var(--line);background:var(--surface);text-decoration:none;color:var(--fg)}
+.friend{display:flex;flex-direction:column;border-radius:14px;border:1px solid var(--line);background:var(--surface);text-decoration:none;color:var(--fg);overflow:hidden}
+.friend img{display:block;width:100%;height:auto;aspect-ratio:5/2;object-fit:cover;border-bottom:1px solid var(--line)}
+.friend .info{display:flex;flex-direction:column;gap:4px;padding:16px 20px 18px}
+.friend em{font-style:normal;font-size:14px;font-weight:600;color:var(--accent);margin-top:4px}
 .friend:hover{border-color:var(--accent)}
 .friend strong{font-family:var(--display);font-size:19px}
 .friend span{font-size:15px;color:var(--muted)}
@@ -237,8 +240,8 @@ footer.site a{color:#fff}
   <section id="vanner" class="wrap friends">
     <h2>Vänner &amp; verkstäder</h2>
     <div class="grid">
-      <a class="friend" href="https://elisabethnorlanderkeramik.se"><strong>Elisabeth Norlander Keramik</strong><span>Handgjord keramik från ateljén i Ljugarn</span></a>
-      <a class="friend" href="https://ateljesjodin.se"><strong>Ateljé Sjödin</strong><span>[Kort beskrivning]</span></a>
+      <a class="friend" href="https://elisabethnorlanderkeramik.se"><img src="van-elisabeth.jpg" alt="" width="800" height="320" loading="lazy"><div class="info"><strong>Elisabeth Norlander Keramik</strong><span>Handdrejad brukskeramik i stengods från ateljén i Ljugarn</span><em>elisabethnorlanderkeramik.se →</em></div></a>
+      <a class="friend" href="https://ateljesjodin.se"><img src="van-sjodin.jpg" alt="" width="1000" height="381" loading="lazy"><div class="info"><strong>Ateljé Sjödin</strong><span>Brickor, kuddfodral och kökshanddukar med handmålade motiv</span><em>ateljesjodin.se →</em></div></a>
     </div>
   </section>
 </main>
