@@ -207,9 +207,9 @@ body.lightmap .arc{stroke-width:3px}
     </div>
     <div class="field" id="fN"><span class="legend">Antal frågor</span>
       <div class="seg" id="segN">
-        <button data-v="5" aria-pressed="false">5</button>
-        <button data-v="10" aria-pressed="true">10</button>
-        <button data-v="15" aria-pressed="false">15</button>
+        <button data-v="3" aria-pressed="false">3</button>
+        <button data-v="5" aria-pressed="true">5</button>
+        <button data-v="10" aria-pressed="false">10</button>
       </div>
     </div>
     <label class="check"><input type="checkbox" id="voice" checked>Läs upp vem som var närmast (slå på ljudet på telefonen)</label>
@@ -225,7 +225,7 @@ body.lightmap .arc{stroke-width:3px}
         <div class="vrow"><input id="codeIn" placeholder="KOD" maxlength="4" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="go"><button class="btn ghost" id="joinBtn" type="button">Gå med</button></div>
       </div>
     </div>
-    <p class="ver">Version 2.7 · 2 november 2026</p>
+    <p class="ver">Version 2.8 · 3 november 2026</p>
   </div>
 </div>
 
@@ -250,7 +250,7 @@ body.lightmap .arc{stroke-width:3px}
         <div class="seg" id="lClue"><button data-v="namn">Namn</button><button data-v="bild">Bild</button><button data-v="blandat">Blandat</button></div>
       </div>
       <div class="field"><span class="legend">Antal frågor</span>
-        <div class="seg" id="lN"><button data-v="5">5</button><button data-v="10">10</button><button data-v="15">15</button></div>
+        <div class="seg" id="lN"><button data-v="3">3</button><button data-v="5">5</button><button data-v="10">10</button></div>
       </div>
     </div>
     <button class="btn" id="lobbyStart" type="button" hidden>Starta spelet</button>
@@ -654,7 +654,7 @@ const VIEW = {
 };
 
 /* ---------- State ---------- */
-const S = {mode:"europa", clue:"namn", kinds:[], pic:null, n:10, hide:true, names:["Lag 1","Lag 2"], score:[0,0], km:[0,0],
+const S = {mode:"europa", clue:"namn", kinds:[], pic:null, n:5, hide:true, names:["Lag 1","Lag 2"], score:[0,0], km:[0,0],
   qs:[], i:0, turn:0, starter:0, pins:[null,null], locked:[false,false], phase:"guess"};
 const $ = id=>document.getElementById(id);
 
@@ -1028,7 +1028,7 @@ function reveal(fromHost){
 }
 function nextQ(){
   if(S.i+1>=S.qs.length){ showEnd(); return; }
-  S.i++; S.starter=1-S.starter; S.turn = (NET && NET.live) ? NET.me : S.starter;
+  S.i++; S.starter=0; S.turn = (NET && NET.live) ? NET.me : 0; // red always starts
   S.pins=[null,null]; S.locked=[false,false]; S.phase="guess";
   loadPicFor(S.i);
   drawArcs(); drawPins(); updateUI();
