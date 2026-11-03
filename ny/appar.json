@@ -89,6 +89,27 @@
       ]
     },
     {
+      "id": "kung",
+      "namn": "Vem var kung när…",
+      "kategori": "spel",
+      "adress": "/ny/kung/",
+      "ikon": "/ny/kung/icon-192.png",
+      "knapp": "Öppna spelet",
+      "kort": "En historisk händelse – vem satt på Sveriges tron?",
+      "text": "Historiespel. En händelse visas, till exempel Vasa som sjunker eller Dagen H, och du väljer vem som var Sveriges regent då bland fyra alternativ. Tio händelser per omgång från Gustav Vasa till i dag. Regentlängden finns att titta i, och årtalet kan döljas för den som vill ha det svårare.",
+      "version": "1.0 (prov)",
+      "status": "Ny, under provspelning",
+      "efterHemskarm": "Spelet startar sedan direkt från hemskärmen och fungerar utan internet.",
+      "andringar": [
+        {
+          "datum": "2026-11-03",
+          "typ": "ny",
+          "version": "1.0",
+          "text": "historiespel om Sveriges regenter, nu under provspelning"
+        }
+      ]
+    },
+    {
       "id": "granslandet",
       "namn": "I gränslandet",
       "kategori": "spel",

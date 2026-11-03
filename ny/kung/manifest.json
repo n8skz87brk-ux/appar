@@ -1,0 +1,16 @@
+{
+  "name": "Vem var kung när… (prov)",
+  "short_name": "Vem var kung",
+  "description": "Frågespel: vem var Sveriges regent när händelsen inträffade?",
+  "lang": "sv",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef1f6",
+  "theme_color": "#1d3a7a",
+  "icons": [
+    {"src": "icon-192.png","sizes": "192x192","type": "image/png"},
+    {"src": "icon-512.png","sizes": "512x512","type": "image/png","purpose": "any maskable"}
+  ]
+}
