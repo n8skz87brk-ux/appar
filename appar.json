@@ -58,7 +58,8 @@
       "version": "1.0",
       "status": "Under provspelning",
       "efterHemskarm": "Spelet startar sedan direkt från hemskärmen. Kartan behöver internet första gången.",
-      "andringar": []
+      "andringar": [],
+      "tagline": "Jättesvårt men lärorikt."
     },
     {
       "id": "narmast",
