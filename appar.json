@@ -34,7 +34,7 @@
       "knapp": "Öppna spelet",
       "kort": "Säg huvudstaden och sätt nålen där den ligger.",
       "text": "Kartspel om huvudstäder. Du ser ett land på kartan, säger eller skriver namnet på huvudstaden och trycker där du tror att den ligger. Poäng för rätt namn och för hur nära nålen hamnar. 162 länder, hela världen eller en världsdel i taget.",
-      "version": "1.3",
+      "version": "1.4",
       "status": "Ny, under provspelning",
       "efterHemskarm": "Spelet startar sedan direkt från hemskärmen. Kartan behöver internet första gången.",
       "andringar": [
@@ -42,7 +42,7 @@
           "datum": "2026-11-03",
           "typ": "ny",
           "version": "1.3",
-          "text": "kartspel om huvudstäder, nu under provspelning"
+          "text": "kartspel om huvudstäder"
         }
       ]
     },
@@ -64,6 +64,48 @@
           "typ": "ny",
           "version": "1.0",
           "text": "kartspel om floder och sjöar i Sverige och världen"
+        }
+      ]
+    },
+    {
+      "id": "manniskokroppen",
+      "namn": "Människokroppen",
+      "kategori": "spel",
+      "adress": "/manniskokroppen/",
+      "ikon": "/manniskokroppen/icon-192.png",
+      "knapp": "Öppna spelet",
+      "kort": "Peka ut benet, muskeln eller organet utifrån det latinska namnet.",
+      "text": "Anatomispel. Ett latinskt namn visas, till exempel Femur eller Lien, och du trycker där det sitter på kroppen. Välj skelett, muskler, organ eller blodkärl och tre nivåer, från stora delar till detaljer som Spina iliaca anterior superior. Läget Lär dig visar namnet på allt du trycker på.",
+      "version": "1.0",
+      "status": "Ny, under provspelning",
+      "efterHemskarm": "Spelet startar sedan direkt från hemskärmen och fungerar utan internet.",
+      "andringar": [
+        {
+          "datum": "2026-11-03",
+          "typ": "ny",
+          "version": "1.0",
+          "text": "anatomispel med skelett, muskler, organ och blodkärl"
+        }
+      ]
+    },
+    {
+      "id": "kung",
+      "namn": "Vem var kung när…",
+      "kategori": "spel",
+      "adress": "/kung/",
+      "ikon": "/kung/icon-192.png",
+      "knapp": "Öppna spelet",
+      "kort": "En historisk händelse – vem satt på Sveriges tron?",
+      "text": "Historiespel. En händelse visas, till exempel Vasa som sjunker eller Dagen H, och du väljer vem som var Sveriges regent då bland fyra alternativ. Tio händelser per omgång från Gustav Vasa till i dag. Regentlängden finns att titta i, och årtalet kan döljas för den som vill ha det svårare.",
+      "version": "1.0",
+      "status": "Ny, under provspelning",
+      "efterHemskarm": "Spelet startar sedan direkt från hemskärmen och fungerar utan internet.",
+      "andringar": [
+        {
+          "datum": "2026-11-03",
+          "typ": "ny",
+          "version": "1.0",
+          "text": "historiespel om Sveriges regenter"
         }
       ]
     },
