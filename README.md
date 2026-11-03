@@ -30,6 +30,9 @@ För ett spel görs en provkopia, t.ex. `/ny/huvudstaden/`, som provspelas innan
 
 ## Versioner
 
+### Floder och sjöar (`ny/floder/`, provkopia)
+- **1.0 (prov)** – 3 november 2026. Första versionen: en flod, älv eller sjö lyses upp på kartan och man säger eller skriver namnet. 143 floder och sjöar (Natural Earth 1:10m, förenklade): Sverige 40, Europa 38, Afrika 16, Asien och Oceanien 24, Amerika 25. Kortlekar Sverige, Hela världen (utom Sverige) och världsdelar, filter för bara floder eller bara sjöar, nivåerna Lätt och Svår. Tio kort per omgång, ledtråd som visar en bokstav i taget, röstinmatning som i Huvudstaden. Data byggs med ett Python-skript från Natural Earth och ligger inbäddad i sidan.
+
 ### Människokroppen (`ny/manniskokroppen/`, provkopia)
 - **1.0 (prov)** – 3 november 2026. Första versionen: ett latinskt namn visas och man trycker där delen sitter på en kropp framifrån. System: skelett, muskler, organ och blodkärl (bara det aktuella systemet visas). Nivåer: Lätt, Svår och Supersvår (anatomiska punkter som Spina iliaca anterior superior). Läget Lär dig. Ska provas av någon medicinskt kunnig innan den flyttas till `/manniskokroppen/`.
 
