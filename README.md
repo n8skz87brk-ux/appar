@@ -57,6 +57,7 @@ Vid ny version: ändra versionen i `appar.json` och `ny/appar.json`, `granslande
 Vid ny version: ändra versionen i `appar.json` och `ny/appar.json`, `narmast/index.html` (startskärmen) och cachenamnet i `narmast/sw.js`, och lägg till en rad här.
 
 ### Huvudstaden (`huvudstaden/`)
+- **1.4 (prov, i `/ny/huvudstaden/`)** – 3 november 2026. Liggande layout: kartan till vänster, frågan och svaret till höger, större text. För telefon på tvären, iPad, dator och tv via skärmdelning. Stående läge oförändrat.
 - **1.3** – 3 november 2026. Liechtenstein, Andorra och Malta borttagna – för små för att träffa med nålen. 162 länder.
 - **1.2** – 3 november 2026. Havet på kartan är ljusblått i stället för vitt, och landet lite ljusare så att land och hav skiljer sig tydligt.
 - **1.1** – 3 november 2026. Mikrofonknappen ligger kvar på varje kort även om taligenkänningen nekas en gång.
