@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="sv"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>I gränslandet</title>
+<meta name="description" content="Kortspel om gränser: se konturen av ett land, ett län eller en delstat, gissa grannarna och vänd kortet.">
+<meta name="theme-color" content="#e6ebe6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1416" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gränslandet">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}*,*::before,*::after{box-sizing:inherit}body{margin:0;padding:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one-screen card table — header, a single tall map card, action bar at the thumb. */
+:root{
+  --table:#e6ebe6;      /* the table the card lies on */
+  --card:#fbfcfa;       /* card face = sea */
+  --ink:#16252b;        /* text */
+  --muted:#5b6c70;
+  --land:#d5ddd8;       /* other countries */
+  --land-edge:#b7c3bd;
+  --subject:#c2412d;    /* the asked country: border-post red */
+  --subject-edge:#7d2214;
+  --line:#c9d3cd;
+  --btn:#16252b; --btn-fg:#fbfcfa;
+  --good:#2f7d4f; --bad:#b03a2e;
+  --n1:#3f7fa8; --n2:#d39a2a; --n3:#5c9a6b; --n4:#8a6bb0; --n5:#c06a8a; --n6:#4f9a9a;
+  --label-halo:rgba(251,252,250,.9);
+  --f-display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --f-body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --table:#0e1416; --card:#162024; --ink:#e7eeea; --muted:#94a5a8;
+  --land:#26333a; --land-edge:#36474f; --subject:#e8664f; --subject-edge:#ffb3a3;
+  --line:#2b3a40; --btn:#e7eeea; --btn-fg:#10181b; --good:#5fbf86; --bad:#ef7a6c;
+  --n1:#5fa3cf; --n2:#e2b04a; --n3:#7bbd8b; --n4:#a88bd0; --n5:#d98aa8; --n6:#6dbcbc;
+  --label-halo:rgba(22,32,36,.92); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --table:#0e1416; --card:#162024; --ink:#e7eeea; --muted:#94a5a8;
+  --land:#26333a; --land-edge:#36474f; --subject:#e8664f; --subject-edge:#ffb3a3;
+  --line:#2b3a40; --btn:#e7eeea; --btn-fg:#10181b; --good:#5fbf86; --bad:#ef7a6c;
+  --n1:#5fa3cf; --n2:#e2b04a; --n3:#7bbd8b; --n4:#a88bd0; --n5:#d98aa8; --n6:#6dbcbc;
+  --label-halo:rgba(22,32,36,.92); color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--table);color:var(--ink);font-family:var(--f-body);font-size:15px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  box-sizing:border-box;overflow:hidden}
+.app{height:100%;max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px;padding-block:12px;box-sizing:border-box}
+
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:8px}
+.brand h1{font-family:var(--f-display);font-weight:800;font-size:30px;letter-spacing:.01em;margin:0;line-height:1;text-transform:uppercase}
+.brand .stripe{width:26px;height:10px;border-radius:2px;align-self:center;
+  background:repeating-linear-gradient(135deg,var(--subject) 0 5px,var(--card) 5px 10px);border:1px solid var(--subject-edge)}
+.ctrls{display:flex;align-items:center;gap:8px}
+.back{font:500 14px/1 var(--f-body);color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer}
+.menu{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:18px;padding-block:6px 4px}
+.menu .ver{margin:auto 0 0;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.menu .ver a{color:var(--ink)}
+.menu .lead{margin:0;color:var(--muted);font-size:15px}
+.menu .last{margin:0;font-size:14px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-variant-numeric:tabular-nums}
+.group{display:flex;flex-direction:column;gap:8px}
+.group.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.group.two>div{display:flex;flex-direction:column;gap:8px;min-width:0}
+.group h3{margin:0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.pick{font:600 15px/1.1 var(--f-body);color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;text-align:left}
+.pick:hover{border-color:var(--subject)}
+.pick.big{display:flex;flex-direction:column;gap:6px;padding:16px;min-height:76px;justify-content:center}
+.pick.big span{font-family:var(--f-display);font-weight:800;font-size:28px;text-transform:uppercase;line-height:.95}
+.pick.big small{font-weight:500;font-size:13px;color:var(--muted)}
+.score{font-variant-numeric:tabular-nums;font-size:14px;color:var(--muted);background:none;border:1px solid var(--line);border-radius:8px;padding:6px 9px;cursor:pointer;font-family:inherit}
+.score b{color:var(--ink)}
+
+.card{flex:1;min-height:0;background:var(--card);border-radius:14px;border:1px solid var(--line);
+  box-shadow:0 1px 0 rgba(0,0,0,.04),0 10px 30px -18px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden;position:relative}
+.card.swap-out{animation:out .22s ease-in forwards}
+.card.swap-in{animation:in .3s ease-out}
+@keyframes out{to{transform:translateX(-24px) rotate(-1.2deg);opacity:0}}
+@keyframes in{from{transform:translateX(24px) rotate(1.2deg);opacity:0}}
+.cardtop{display:flex;justify-content:space-between;align-items:center;padding:12px 14px 0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-variant-numeric:tabular-nums}
+.mapwrap{flex:1;min-height:140px;position:relative}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.status{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--muted);font-size:14px}
+
+.q{padding:4px 16px 16px;display:flex;flex-direction:column;gap:6px}
+.q .ask{font-size:15px;color:var(--muted);margin:0}
+.q h2{font-family:var(--f-display);font-weight:800;font-size:40px;line-height:.95;margin:0;text-transform:uppercase;text-wrap:balance;letter-spacing:.005em}
+.answer{display:flex;gap:14px;align-items:flex-start}
+.answer[hidden]{display:none!important}
+.count{font-family:var(--f-display);font-weight:800;font-size:68px;line-height:.8;color:var(--subject);font-variant-numeric:tabular-nums;min-width:.6em}
+.countlbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.chip{font-size:13.5px;font-weight:500;padding:3px 9px 3px 7px;border-radius:999px;background:color-mix(in srgb,var(--c) 16%,var(--card));
+  border:1px solid color-mix(in srgb,var(--c) 45%,var(--card));display:inline-flex;gap:6px;align-items:center;opacity:0;transform:translateY(4px);transition:opacity .3s,transform .3s}
+.chip.on{opacity:1;transform:none}
+.chip i{width:9px;height:9px;border-radius:2px;background:var(--c);display:inline-block}
+.note{font-size:12.5px;color:var(--muted);margin:2px 0 0;line-height:1.4}
+.none{font-size:15px;color:var(--ink);margin:0}
+
+.bar{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bar button{font:600 17px/1 var(--f-body);border-radius:12px;padding:16px 12px;border:1px solid transparent;cursor:pointer;min-height:54px}
+.bar .primary{grid-column:1/-1;background:var(--btn);color:var(--btn-fg)}
+.bar .good{background:color-mix(in srgb,var(--good) 14%,var(--card));color:var(--good);border-color:color-mix(in srgb,var(--good) 45%,var(--card))}
+.bar .bad{background:color-mix(in srgb,var(--bad) 12%,var(--card));color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,var(--card))}
+.bar button:disabled{opacity:.45;cursor:default}
+button:focus-visible{outline:2px solid var(--subject);outline-offset:2px}
+.skip{grid-column:1/-1;background:none!important;border:none!important;color:var(--muted)!important;font-weight:500!important;font-size:14px!important;padding:4px!important;min-height:0!important}
+@media (max-height:640px){.q h2{font-size:32px}.count{font-size:54px}.brand h1{font-size:24px}}
+@media (prefers-reduced-motion:reduce){.card.swap-out,.card.swap-in{animation:none}.chip{transition:none}}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><span class="stripe" aria-hidden="true"></span><h1>I gränslandet</h1></div>
+    <div class="ctrls">
+      <button class="back" id="back" hidden>&larr; Byt spel</button>
+      <button class="score" id="score" title="Tryck för att nollställa" hidden>Rätt <b id="sc-r">0</b> av <b id="sc-n">0</b></button>
+    </div>
+  </header>
+
+  <section class="menu" id="menu" aria-label="Välj spel">
+    <p class="lead">Se konturen, gissa grannarna och vänd kortet.</p>
+    <p class="last" id="last" hidden></p>
+    <div class="group">
+      <h3>Länder</h3>
+      <button class="pick big" data-choice="Alla"><span>Hela världen</span><small>102 länder</small></button>
+      <div class="row">
+        <button class="pick" data-choice="Europa">Europa</button>
+        <button class="pick" data-choice="Asien">Asien</button>
+        <button class="pick" data-choice="Afrika">Afrika</button>
+        <button class="pick" data-choice="Amerika">Amerika</button>
+        <button class="pick" data-choice="Oceanien">Oceanien</button>
+      </div>
+    </div>
+    <div class="group two">
+      <div><h3>Sverige</h3><button class="pick big" data-choice="se"><span>Sveriges län</span><small>21 län</small></button></div>
+      <div><h3>USA</h3><button class="pick big" data-choice="us"><span>Delstater</span><small>50 stater</small></button></div>
+    </div>
+    <p class="ver"><a href="../">&larr; Alla Peters appar</a> · Version 1.0 · 3 november 2026</p>
+  </section>
+
+  <div class="card" id="card" hidden>
+    <div class="cardtop"><span id="deckpos">Kort –</span><span id="regionlbl"></span></div>
+    <div class="mapwrap" id="mapwrap">
+      <canvas id="map" aria-label="Karta"></canvas>
+      <div class="status" id="status">Laddar världskartan …</div>
+    </div>
+    <div class="q">
+      <p class="ask" id="ask">Hur många länder gränsar till – och vilka?</p>
+      <h2 id="cname">&nbsp;</h2>
+      <div class="answer" id="answer" hidden>
+        <div><div class="count" id="count">0</div><div class="countlbl" id="countlbl">grannar</div></div>
+        <div style="min-width:0;display:flex;flex-direction:column;gap:6px">
+          <div class="chips" id="chips"></div>
+          <p class="note" id="note" hidden></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bar" id="bar" hidden>
+    <button class="primary" id="reveal" disabled>Visa svaret</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+// ---------- Facit: landgränser (kontrollerad lista, ISO-koder) ----------
+const NAMES={SE:"Sverige",NO:"Norge",FI:"Finland",DK:"Danmark",IS:"Island",DE:"Tyskland",CZ:"Tjeckien",SK:"Slovakien",PL:"Polen",AT:"Österrike",CH:"Schweiz",FR:"Frankrike",ES:"Spanien",PT:"Portugal",IT:"Italien",BE:"Belgien",NL:"Nederländerna",LU:"Luxemburg",GB:"Storbritannien",IE:"Irland",HU:"Ungern",SI:"Slovenien",HR:"Kroatien",BA:"Bosnien och Hercegovina",RS:"Serbien",ME:"Montenegro",MK:"Nordmakedonien",AL:"Albanien",RO:"Rumänien",BG:"Bulgarien",GR:"Grekland",UA:"Ukraina",BY:"Belarus",LT:"Litauen",LV:"Lettland",EE:"Estland",MD:"Moldavien",LI:"Liechtenstein",AD:"Andorra",SM:"San Marino",VA:"Vatikanstaten",MC:"Monaco",RU:"Ryssland",TR:"Turkiet",GE:"Georgien",AM:"Armenien",AZ:"Azerbajdzjan",KZ:"Kazakstan",CN:"Kina",MN:"Mongoliet",KP:"Nordkorea",KR:"Sydkorea",KG:"Kirgizistan",TJ:"Tadzjikistan",AF:"Afghanistan",PK:"Pakistan",IN:"Indien",NP:"Nepal",BT:"Bhutan",MM:"Myanmar",LA:"Laos",VN:"Vietnam",BD:"Bangladesh",IR:"Iran",IQ:"Irak",TM:"Turkmenistan",KW:"Kuwait",SA:"Saudiarabien",JO:"Jordanien",SY:"Syrien",IL:"Israel",LB:"Libanon",QA:"Qatar",AE:"Förenade Arabemiraten",OM:"Oman",YE:"Jemen",KH:"Kambodja",TH:"Thailand",MY:"Malaysia",ID:"Indonesien",BN:"Brunei",PG:"Papua Nya Guinea",TL:"Östtimor",UZ:"Uzbekistan",JP:"Japan",EG:"Egypten",LY:"Libyen",SD:"Sudan",TD:"Tchad",NE:"Niger",DZ:"Algeriet",TN:"Tunisien",ML:"Mali",MR:"Mauretanien",EH:"Västsahara",MA:"Marocko",CF:"Centralafrikanska republiken",SS:"Sydsudan",ET:"Etiopien",ER:"Eritrea",KE:"Kenya",UG:"Uganda",CD:"Kongo-Kinshasa",DJ:"Djibouti",SO:"Somalia",CG:"Kongo-Brazzaville",RW:"Rwanda",BI:"Burundi",TZ:"Tanzania",ZM:"Zambia",AO:"Angola",MW:"Malawi",MZ:"Moçambique",ZA:"Sydafrika",NA:"Namibia",BW:"Botswana",ZW:"Zimbabwe",SZ:"Eswatini",LS:"Lesotho",NG:"Nigeria",BJ:"Benin",CM:"Kamerun",BF:"Burkina Faso",CI:"Elfenbenskusten",GN:"Guinea",SN:"Senegal",GM:"Gambia",US:"USA",CA:"Kanada",MX:"Mexiko",GT:"Guatemala",BZ:"Belize",BR:"Brasilien",UY:"Uruguay",AR:"Argentina",PY:"Paraguay",BO:"Bolivia",PE:"Peru",CO:"Colombia",VE:"Venezuela",GY:"Guyana",SR:"Surinam",GF:"Franska Guyana (Frankrike)",CL:"Chile",EC:"Ecuador",PA:"Panama",CR:"Costa Rica",DO:"Dominikanska republiken",HT:"Haiti",HN:"Honduras",SV:"El Salvador",NI:"Nicaragua",AU:"Australien",NZ:"Nya Zeeland"};
+
+const KALI="Gränsen mot Ryssland går vid Kaliningrad.";
+const DECK=[
+ // Europa
+ ["SE","Europa","NO FI"],["NO","Europa","SE FI RU"],["FI","Europa","SE NO RU"],["DK","Europa","DE"],
+ ["IS","Europa","","Bara hav runt om."],
+ ["DE","Europa","DK PL CZ AT CH FR LU BE NL"],["CZ","Europa","DE PL SK AT"],["SK","Europa","CZ PL UA HU AT"],
+ ["PL","Europa","DE CZ SK UA BY LT RU",KALI],["AT","Europa","DE CZ SK HU SI IT CH LI"],["CH","Europa","DE FR IT AT LI"],
+ ["FR","Europa","BE LU DE CH IT MC AD ES","Räknat för Frankrike i Europa. Via Franska Guyana gränsar Frankrike också till Brasilien och Surinam."],
+ ["ES","Europa","FR AD PT","Dessutom gränsar Spanien till Gibraltar (brittiskt) och till Marocko vid Ceuta och Melilla."],
+ ["PT","Europa","ES"],["IT","Europa","FR CH AT SI SM VA"],["BE","Europa","FR LU DE NL"],["NL","Europa","DE BE"],
+ ["LU","Europa","BE DE FR"],["GB","Europa","IE","Gibraltar, som är brittiskt, gränsar dessutom till Spanien."],["IE","Europa","GB"],
+ ["HU","Europa","AT SK UA RO RS HR SI"],["SI","Europa","IT AT HU HR"],["HR","Europa","SI HU RS BA ME"],["BA","Europa","HR RS ME"],
+ ["RS","Europa","HU RO BG MK HR BA ME","Kosovo räknas inte här, eftersom Serbien inte erkänner Kosovo som eget land."],
+ ["RO","Europa","HU UA MD BG RS"],["BG","Europa","RO RS MK GR TR"],["GR","Europa","AL MK BG TR"],
+ ["UA","Europa","PL SK HU RO MD RU BY"],["BY","Europa","PL LT LV RU UA"],["LT","Europa","LV BY PL RU",KALI],
+ ["LV","Europa","EE LT BY RU"],["EE","Europa","LV RU"],["MD","Europa","RO UA"],["LI","Europa","CH AT"],["AD","Europa","FR ES"],
+ ["SM","Europa","IT"],["VA","Europa","IT"],["MC","Europa","FR"],
+ ["RU","Europa","NO FI EE LV LT PL BY UA GE AZ KZ CN MN KP","Litauen och Polen nås via Kaliningrad."],
+ // Asien
+ ["TR","Asien","GR BG GE AM AZ IR IQ SY","Azerbajdzjan nås via exklaven Nachitjevan."],
+ ["CN","Asien","KP RU MN KZ KG TJ AF PK IN NP BT MM LA VN"],
+ ["IN","Asien","PK CN NP BT MM BD","Indien gör även anspråk på en kort gräns mot Afghanistan i Kashmir."],
+ ["MN","Asien","RU CN"],["KZ","Asien","RU CN KG UZ TM"],["AF","Asien","IR TM UZ TJ CN PK"],["IR","Asien","IQ TR AM AZ TM AF PK"],
+ ["IQ","Asien","TR IR KW SA JO SY"],["SA","Asien","JO IQ KW QA AE OM YE"],["SY","Asien","TR IQ JO IL LB"],
+ ["KR","Asien","KP"],["KP","Asien","CN KR RU"],["VN","Asien","CN LA KH"],["LA","Asien","CN VN KH TH MM"],["TH","Asien","MM LA KH MY"],
+ ["MM","Asien","BD IN CN LA TH"],["NP","Asien","CN IN"],["BT","Asien","CN IN"],["BD","Asien","IN MM"],["MY","Asien","TH ID BN"],
+ ["ID","Asien","MY PG TL"],["BN","Asien","MY"],["GE","Asien","RU TR AM AZ"],["UZ","Asien","KZ KG TJ AF TM"],
+ ["JP","Asien","","Bara hav runt om."],
+ // Afrika
+ ["EG","Afrika","LY SD IL","Dessutom gränsar Egypten till Gazaremsan."],["LY","Afrika","EG SD TD NE DZ TN"],
+ ["DZ","Afrika","TN LY NE ML MR EH MA"],["SD","Afrika","EG LY TD CF SS ET ER"],["SS","Afrika","SD ET KE UG CD CF"],
+ ["ET","Afrika","ER DJ SO KE SS SD"],["CD","Afrika","CG CF SS UG RW BI TZ ZM AO"],["TZ","Afrika","KE UG RW BI CD ZM MW MZ"],
+ ["ZA","Afrika","NA BW ZW MZ SZ LS"],["LS","Afrika","ZA"],["SZ","Afrika","ZA MZ"],["NG","Afrika","BJ NE TD CM"],
+ ["NE","Afrika","DZ LY TD NG BJ BF ML"],["ML","Afrika","DZ NE BF CI GN SN MR"],["GM","Afrika","SN"],
+ ["AO","Afrika","CG CD ZM NA","Gränsen mot Kongo-Brazzaville går vid exklaven Cabinda."],["ZM","Afrika","CD TZ MW MZ ZW BW NA AO"],
+ ["KE","Afrika","SS ET SO TZ UG"],
+ // Amerika
+ ["US","Amerika","CA MX"],["CA","Amerika","US"],["MX","Amerika","US GT BZ"],
+ ["BR","Amerika","UY AR PY BO PE CO VE GY SR GF","Franska Guyana är en del av Frankrike, så därför fylls hela Frankrike i."],
+ ["AR","Amerika","CL BO PY BR UY"],["CL","Amerika","PE BO AR"],["BO","Amerika","BR PY AR CL PE"],["PY","Amerika","AR BO BR"],
+ ["PE","Amerika","EC CO BR BO CL"],["CO","Amerika","PA VE BR PE EC"],["VE","Amerika","CO BR GY"],["PA","Amerika","CR CO"],
+ ["DO","Amerika","HT"],["HN","Amerika","GT SV NI"],["GT","Amerika","MX BZ HN SV"],
+ // Oceanien
+ ["AU","Oceanien","","Bara hav runt om."],["NZ","Oceanien","","Bara hav runt om."],["PG","Oceanien","ID"],["TL","Oceanien","ID"],
+].map(([id,region,n,note])=>({id,region,neighbors:n?n.split(" "):[],note}));
+
+
+// ---------- Sveriges län (kontrollerat mot kartans gemensamma gränser) ----------
+const LAN={Stockholm:"Stockholms län",Uppsala:"Uppsala län",Södermanland:"Södermanlands län",Östergötland:"Östergötlands län",Jönköping:"Jönköpings län",Kronoberg:"Kronobergs län",Kalmar:"Kalmar län",Gotland:"Gotlands län",Blekinge:"Blekinge län",Skåne:"Skåne län",Halland:"Hallands län","Västra Götaland":"Västra Götalands län",Värmland:"Värmlands län",Örebro:"Örebro län",Västmanland:"Västmanlands län",Dalarna:"Dalarnas län",Gävleborg:"Gävleborgs län",Västernorrland:"Västernorrlands län",Jämtland:"Jämtlands län",Västerbotten:"Västerbottens län",Norrbotten:"Norrbottens län"};
+const NOR="Dessutom gräns mot Norge.";
+const LAN_NB=[
+ ["Stockholm","Uppsala|Södermanland"],["Uppsala","Stockholm|Gävleborg|Västmanland|Södermanland"],
+ ["Södermanland","Östergötland|Stockholm|Uppsala|Örebro|Västmanland"],["Östergötland","Kalmar|Västra Götaland|Jönköping|Örebro|Södermanland"],
+ ["Jönköping","Kalmar|Östergötland|Västra Götaland|Kronoberg|Halland"],["Kronoberg","Kalmar|Blekinge|Jönköping|Halland|Skåne"],
+ ["Kalmar","Östergötland|Blekinge|Jönköping|Kronoberg"],["Gotland","","Bara hav runt om."],["Blekinge","Kalmar|Kronoberg|Skåne"],
+ ["Skåne","Blekinge|Kronoberg|Halland"],["Halland","Västra Götaland|Jönköping|Kronoberg|Skåne"],
+ ["Västra Götaland","Östergötland|Jönköping|Örebro|Halland|Värmland",NOR],["Värmland","Västra Götaland|Dalarna|Örebro",NOR],
+ ["Örebro","Östergötland|Västra Götaland|Dalarna|Västmanland|Södermanland|Värmland"],["Västmanland","Uppsala|Dalarna|Gävleborg|Örebro|Södermanland"],
+ ["Dalarna","Gävleborg|Örebro|Västmanland|Värmland|Jämtland",NOR],["Gävleborg","Västernorrland|Uppsala|Dalarna|Västmanland|Jämtland"],
+ ["Västernorrland","Västerbotten|Gävleborg|Jämtland"],["Jämtland","Västernorrland|Västerbotten|Dalarna|Gävleborg",NOR],
+ ["Västerbotten","Norrbotten|Västernorrland|Jämtland",NOR],["Norrbotten","Västerbotten","Dessutom gräns mot Finland och Norge."],
+];
+
+// ---------- USA:s delstater (landgränser; punkter och vatten räknas inte) ----------
+const FOUR="Vid Four Corners möts Arizona, Colorado, New Mexico och Utah i en enda punkt. Det räknas inte som gräns.";
+const LAKE="Michigan möter Illinois och Minnesota bara ute i Stora sjöarna. Det räknas inte som landgräns.";
+const US_NB=[
+ ["Alabama","Florida|Georgia|Mississippi|Tennessee"],["Alaska","","Alaska gränsar bara till Kanada."],
+ ["Arizona","California|Nevada|New Mexico|Utah",FOUR],["Arkansas","Louisiana|Mississippi|Missouri|Oklahoma|Tennessee|Texas"],
+ ["California","Arizona|Nevada|Oregon"],["Colorado","Kansas|Nebraska|New Mexico|Oklahoma|Utah|Wyoming",FOUR],
+ ["Connecticut","Massachusetts|New York|Rhode Island"],["Delaware","Maryland|New Jersey|Pennsylvania"],
+ ["Florida","Alabama|Georgia"],["Georgia","Alabama|Florida|North Carolina|South Carolina|Tennessee"],
+ ["Hawaii","","Bara hav runt om."],["Idaho","Montana|Nevada|Oregon|Utah|Washington|Wyoming"],
+ ["Illinois","Indiana|Iowa|Kentucky|Missouri|Wisconsin",LAKE],["Indiana","Illinois|Kentucky|Michigan|Ohio"],
+ ["Iowa","Illinois|Minnesota|Missouri|Nebraska|South Dakota|Wisconsin"],["Kansas","Colorado|Missouri|Nebraska|Oklahoma"],
+ ["Kentucky","Illinois|Indiana|Missouri|Ohio|Tennessee|Virginia|West Virginia"],["Louisiana","Arkansas|Mississippi|Texas"],
+ ["Maine","New Hampshire"],["Maryland","Delaware|Pennsylvania|Virginia|West Virginia","Dessutom gränsar Maryland till Washington D.C., som inte är en delstat."],
+ ["Massachusetts","Connecticut|New Hampshire|New York|Rhode Island|Vermont"],["Michigan","Indiana|Ohio|Wisconsin",LAKE],
+ ["Minnesota","Iowa|North Dakota|South Dakota|Wisconsin",LAKE],["Mississippi","Alabama|Arkansas|Louisiana|Tennessee"],
+ ["Missouri","Arkansas|Illinois|Iowa|Kansas|Kentucky|Nebraska|Oklahoma|Tennessee"],["Montana","Idaho|North Dakota|South Dakota|Wyoming"],
+ ["Nebraska","Colorado|Iowa|Kansas|Missouri|South Dakota|Wyoming"],["Nevada","Arizona|California|Idaho|Oregon|Utah"],
+ ["New Hampshire","Maine|Massachusetts|Vermont"],["New Jersey","Delaware|New York|Pennsylvania"],
+ ["New Mexico","Arizona|Colorado|Oklahoma|Texas",FOUR],["New York","Connecticut|Massachusetts|New Jersey|Pennsylvania|Vermont"],
+ ["North Carolina","Georgia|South Carolina|Tennessee|Virginia"],["North Dakota","Minnesota|Montana|South Dakota"],
+ ["Ohio","Indiana|Kentucky|Michigan|Pennsylvania|West Virginia"],["Oklahoma","Arkansas|Colorado|Kansas|Missouri|New Mexico|Texas"],
+ ["Oregon","California|Idaho|Nevada|Washington"],["Pennsylvania","Delaware|Maryland|New Jersey|New York|Ohio|West Virginia"],
+ ["Rhode Island","Connecticut|Massachusetts"],["South Carolina","Georgia|North Carolina"],
+ ["South Dakota","Iowa|Minnesota|Montana|Nebraska|North Dakota|Wyoming"],["Tennessee","Alabama|Arkansas|Georgia|Kentucky|Mississippi|Missouri|North Carolina|Virginia"],
+ ["Texas","Arkansas|Louisiana|New Mexico|Oklahoma"],["Utah","Arizona|Colorado|Idaho|Nevada|Wyoming",FOUR],
+ ["Vermont","Massachusetts|New Hampshire|New York"],["Virginia","Kentucky|Maryland|North Carolina|Tennessee|West Virginia","Dessutom gränsar Virginia till Washington D.C., som inte är en delstat."],
+ ["Washington","Idaho|Oregon"],["West Virginia","Kentucky|Maryland|Ohio|Pennsylvania|Virginia"],
+ ["Wisconsin","Illinois|Iowa|Michigan|Minnesota"],["Wyoming","Colorado|Idaho|Montana|Nebraska|South Dakota|Utah"],
+];
+
+// ---------- Spellägen ----------
+const MODES={
+  world:{ask:"Hur många länder gränsar till – och vilka?",none:"Inga landgränser alls.",layers:["w"],hide:null,minDeg:6},
+  se:{ask:"Hur många län gränsar till – och vilka?",none:"Inga andra län.",layers:["w","se"],hide:"SE",minDeg:1},
+  us:{ask:"Hur många delstater gränsar till – och vilka?",none:"Inga andra delstater.",layers:["w","us"],hide:"US",minDeg:1},
+};
+const split=s=>s?s.split("|"):[];
+function buildDeck(choice){
+  if(choice==="se") return LAN_NB.map(([k,n,note])=>({mode:"se",id:"L:"+k,title:LAN[k],tag:"Sveriges län",neighbors:split(n).map(x=>"L:"+x),labels:split(n),note}));
+  if(choice==="us") return US_NB.map(([k,n,note])=>({mode:"us",id:"S:"+k,title:k,tag:"USA",neighbors:split(n).map(x=>"S:"+x),labels:split(n),note}));
+  return DECK.filter(c=>choice==="Alla"||c.region===choice)
+    .map(c=>({mode:"world",id:c.id,title:NAMES[c.id]||c.id,tag:c.region,neighbors:c.neighbors,labels:c.neighbors.map(n=>NAMES[n]||n),note:c.note}));
+}
+
+const NCOL=["--n1","--n2","--n3","--n4","--n5","--n6"];
+
+// ---------- Kartdata ----------
+// Natural Earth 1:50m (world-atlas) — numeriska ISO-koder → våra bokstavskoder
+const NUM={752:"SE",578:"NO",246:"FI",248:"FI",208:"DK",352:"IS",276:"DE",203:"CZ",703:"SK",616:"PL",40:"AT",756:"CH",250:"FR",724:"ES",620:"PT",380:"IT",56:"BE",528:"NL",442:"LU",826:"GB",372:"IE",348:"HU",705:"SI",191:"HR",70:"BA",688:"RS",499:"ME",807:"MK",8:"AL",642:"RO",100:"BG",300:"GR",804:"UA",112:"BY",440:"LT",428:"LV",233:"EE",498:"MD",438:"LI",20:"AD",674:"SM",336:"VA",492:"MC",643:"RU",792:"TR",268:"GE",51:"AM",31:"AZ",398:"KZ",156:"CN",496:"MN",408:"KP",410:"KR",417:"KG",762:"TJ",4:"AF",586:"PK",356:"IN",524:"NP",64:"BT",104:"MM",418:"LA",704:"VN",50:"BD",364:"IR",368:"IQ",795:"TM",414:"KW",682:"SA",400:"JO",760:"SY",376:"IL",422:"LB",634:"QA",784:"AE",512:"OM",887:"YE",116:"KH",764:"TH",458:"MY",360:"ID",96:"BN",598:"PG",626:"TL",860:"UZ",392:"JP",818:"EG",434:"LY",729:"SD",148:"TD",562:"NE",12:"DZ",788:"TN",466:"ML",478:"MR",732:"EH",504:"MA",140:"CF",728:"SS",231:"ET",232:"ER",404:"KE",800:"UG",180:"CD",262:"DJ",706:"SO",178:"CG",646:"RW",108:"BI",834:"TZ",894:"ZM",24:"AO",454:"MW",508:"MZ",710:"ZA",516:"NA",72:"BW",716:"ZW",748:"SZ",426:"LS",566:"NG",204:"BJ",120:"CM",854:"BF",384:"CI",324:"GN",686:"SN",270:"GM",840:"US",124:"CA",484:"MX",320:"GT",84:"BZ",76:"BR",858:"UY",32:"AR",600:"PY",68:"BO",604:"PE",170:"CO",862:"VE",328:"GY",740:"SR",152:"CL",218:"EC",591:"PA",188:"CR",214:"DO",332:"HT",340:"HN",222:"SV",558:"NI",36:"AU",554:"NZ"};
+const BYNAME={"Somaliland":"SO","Kosovo":"XK"};
+const ALIAS={GF:"FR"}; // Franska Guyana ingår i Frankrikes kartform
+const geoCode=c=>ALIAS[c]||c;
+const SRC={
+  w:"https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json/+esm",
+  se:"https://cdn.jsdelivr.net/npm/@highcharts/map-collection@2.3.3/countries/se/se-all.topo.json/+esm",
+  us:"https://cdn.jsdelivr.net/npm/us-atlas@3.0.1/states-10m.json/+esm",
+};
+const TOPO_CLIENT="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js";
+function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
+const loaded={};
+async function loadLayer(layer){
+  if(loaded[layer]) return loaded[layer];
+  loaded[layer]=(async()=>{
+    const [mod]=await Promise.all([import(SRC[layer]), window.topojson?null:loadScript(TOPO_CLIENT)]);
+    const topo=mod.default||mod;
+    let fc;
+    if(layer==="w"){
+      fc=topojson.feature(topo,topo.objects.countries);
+      fc.features.forEach(f=>{const n=f.id!=null?+f.id:NaN;f.code=NUM[n]||BYNAME[f.properties&&f.properties.name]||("N"+(f.id||f.properties.name));});
+      fc.features=fc.features.filter(f=>f.code!=="N010"); // utan Antarktis
+    }else if(layer==="se"){
+      fc=topojson.feature(topo,topo.objects.default);
+      fc.features.forEach(f=>{f.code="L:"+((f.properties&&f.properties.name)||"Skåne");}); // namnlös ö = Ven, Skåne
+    }else{
+      fc=topojson.feature(topo,topo.objects.states);
+      fc.features.forEach(f=>{f.code="S:"+f.properties.name;});
+    }
+    prep(fc,layer);
+  })();
+  try{ await loaded[layer]; }catch(e){ delete loaded[layer]; throw e; }
+}
+
+const R2D=180/Math.PI;
+let polys=[];            // {code, layer, geom, lo, lo2, area, cen, rad}
+const byCode={};          // code -> [poly index]
+function prep(fc,layer){
+  for(const f of fc.features){
+    const code=f.code; if(!code||!f.geometry) continue;
+    const g=f.geometry, list=g.type==="Polygon"?[g.coordinates]:g.type==="MultiPolygon"?g.coordinates:[];
+    for(let rings of list){
+      let geom={type:"Polygon",coordinates:rings};
+      let a=d3.geoArea(geom);
+      if(a>2*Math.PI){geom={type:"Polygon",coordinates:rings.map(r=>r.slice().reverse())};a=d3.geoArea(geom);}
+      const cen=d3.geoCentroid(geom);
+      let rad=0; const ext=geom.coordinates[0], step=Math.max(1,Math.floor(ext.length/200));
+      for(let i=0;i<ext.length;i+=step){const d=d3.geoDistance(cen,ext[i]);if(d>rad)rad=d}
+      const thin=k=>({type:"Polygon",coordinates:geom.coordinates.map(r=>{if(r.length<40)return r;const o=[];for(let i=0;i<r.length-1;i+=k)o.push(r[i]);o.push(r[r.length-1]);return o.length>=4?o:r})});
+      const idx=polys.length; polys.push({code,layer,geom,lo:thin(4),lo2:thin(12),area:a,cen,rad:rad*R2D});
+      (byCode[code]=byCode[code]||[]).push(idx);
+    }
+  }
+}
+// Main part of a country (drops far-off territories like Svalbard or Alaska)
+function mainGroup(code){
+  const ids=byCode[code]||[]; if(!ids.length) return [];
+  const sorted=ids.slice().sort((a,b)=>polys[b].area-polys[a].area), main=polys[sorted[0]];
+  const total=ids.reduce((s,i)=>s+polys[i].area,0);
+  if(main.area<total*.72) return ids; // archipelago
+  return ids.filter(i=>{const p=polys[i];if(p===main)return true;
+    if(p.area>=main.area*.25) return true;
+    return d3.geoDistance(main.cen,p.cen)*R2D < main.rad*1.3+1;});
+}
+function nearestPart(code,toCen){
+  const ids=byCode[geoCode(code)]||[]; if(!ids.length) return null;
+  const maxA=Math.max(...ids.map(i=>polys[i].area));
+  let best=null,bd=1e9;
+  for(const i of ids){const p=polys[i]; if(p.area<maxA*.05&&ids.length>1) continue;
+    const d=d3.geoDistance(p.cen,toCen); if(d<bd){bd=d;best=i}}
+  return best;
+}
+
+// ---------- Ritning ----------
+const canvas=document.getElementById("map"), ctx=canvas.getContext("2d"), wrap=document.getElementById("mapwrap");
+let W=0,H=0,DPR=1;
+const proj=d3.geoAzimuthalEqualArea().clipAngle(90).precision(.4);
+const path=d3.geoPath(proj,ctx);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let C={};
+function readColors(){C={land:css("--land"),edge:css("--land-edge"),subj:css("--subject"),subjEdge:css("--subject-edge"),ink:css("--ink"),halo:css("--label-halo"),n:NCOL.map(css)}}
+
+let cur=null, anim=null;
+// view = [cx, cy, w] in unit projection space (center + visible width)
+function applyView(v){const s=W/v[2];proj.scale(s).translate([W/2-s*v[0],H/2-s*v[1]]);return s}
+
+function unitBounds(idList){
+  proj.scale(1).translate([0,0]);
+  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  for(const i of idList){const b=d3.geoPath(proj).bounds(polys[i].geom); if(!isFinite(b[0][0]))continue;
+    x0=Math.min(x0,b[0][0]);y0=Math.min(y0,b[0][1]);x1=Math.max(x1,b[1][0]);y1=Math.max(y1,b[1][1])}
+  return [[x0,y0],[x1,y1]];
+}
+function fitView(b,pad){
+  const bw=Math.max(b[1][0]-b[0][0],1e-6), bh=Math.max(b[1][1]-b[0][1],1e-6);
+  const s=Math.min((W-2*pad)/bw,(H-2*pad)/bh);
+  return [(b[0][0]+b[1][0])/2,(b[0][1]+b[1][1])/2,W/s];
+}
+function computeViews(){
+  if(!cur||!W) return;
+  proj.rotate([-cur.center[0],-cur.center[1]]);
+  const pad=Math.max(22,Math.min(W,H)*.1);
+  cur.front=fitView(unitBounds(cur.main),pad);
+  const s0=W/cur.front[2];
+  const parts=cur.parts.filter(x=>x!=null);
+  let v1;
+  if(!parts.length){ v1=[cur.front[0],cur.front[1],cur.front[2]*2.6]; }
+  else{
+    // Neighbours count only within a box around the asked area, so Russia doesn't swallow the view
+    const B=unitBounds(cur.main), g=Math.max(B[1][0]-B[0][0],B[1][1]-B[0][1])*1.2;
+    const E=[[B[0][0]-g,B[0][1]-g],[B[1][0]+g,B[1][1]+g]];
+    let U=[[B[0][0],B[0][1]],[B[1][0],B[1][1]]];
+    for(const i of parts){const b=unitBounds([i]); if(!isFinite(b[0][0]))continue;
+      const x0=Math.max(b[0][0],E[0][0]),y0=Math.max(b[0][1],E[0][1]),x1=Math.min(b[1][0],E[1][0]),y1=Math.min(b[1][1],E[1][1]);
+      if(x0>x1||y0>y1) continue;
+      U=[[Math.min(U[0][0],x0),Math.min(U[0][1],y0)],[Math.max(U[1][0],x1),Math.max(U[1][1],y1)]];}
+    v1=fitView(U,pad*.8);
+    let s1=W/v1[2];
+    const radScale=(Math.min(W,H)/2)/(MODES[cur.mode].minDeg/R2D);   // show some context around tiny areas
+    if(s1>radScale){s1=radScale;v1=[v1[0],v1[1],W/s1];}
+    if(s1>s0/1.5){s1=s0/1.5;v1=[v1[0],v1[1],W/s1];}
+  }
+  cur.reveal=v1;
+}
+
+function draw(){
+  if(!W||!cur) return;
+  ctx.setTransform(DPR,0,0,DPR,0,0); ctx.clearRect(0,0,W,H);
+  const v=cur.view, s=applyView(v), t=cur.t, M=MODES[cur.mode];
+  const center=proj.invert([W/2,H/2]); const viewDeg=(Math.hypot(W,H)/2)/s*R2D;
+  const vis=p=>center&&(d3.geoDistance(center,p.cen)*R2D-p.rad<viewDeg*1.15+1);
+  const G=p=>anim?(viewDeg>20?p.lo2:p.lo):p.geom;     // lighter shapes while moving
+  const tiny=p=>p.rad/R2D*s<0.8;                       // under a pixel: skip
+  const subj=new Set(byCode[cur.id]||[]);
+  // all other land fades in during the zoom
+  if(t.world>0){
+    ctx.globalAlpha=t.world; ctx.lineWidth=.6; ctx.strokeStyle=C.edge; ctx.fillStyle=C.land;
+    for(let i=0;i<polys.length;i++){const p=polys[i];
+      if(subj.has(i)||!M.layers.includes(p.layer)||p.code===M.hide||!vis(p)||tiny(p))continue;
+      ctx.beginPath();path(G(p));ctx.fill();ctx.stroke();}
+  }
+  // neighbours fill in one by one
+  cur.neighbors.forEach((code,k)=>{const a=t.n[k]||0; if(a<=0)return;
+    ctx.globalAlpha=a; ctx.fillStyle=C.n[k%C.n.length]; ctx.strokeStyle=C.edge; ctx.lineWidth=.8;
+    for(const i of (byCode[geoCode(code)]||[])){if(!vis(polys[i]))continue;ctx.beginPath();path(G(polys[i]));ctx.fill();ctx.stroke();}
+  });
+  ctx.globalAlpha=1;
+  // the asked area
+  ctx.fillStyle=C.subj; ctx.strokeStyle=C.subjEdge; ctx.lineWidth=1.2;
+  for(const i of subj){if(!vis(polys[i]))continue;ctx.beginPath();path(polys[i].geom);ctx.fill();ctx.stroke();}
+  // labels
+  cur.neighbors.forEach((code,k)=>{const a=t.n[k]||0; if(a<=0.05)return; const pt=labelPoint(k); if(!pt)return;
+    ctx.globalAlpha=a; label(cur.labels[k],pt[0],pt[1]);});
+  ctx.globalAlpha=1;
+}
+function labelPoint(k){
+  const i=cur.parts[k]; if(i==null) return null;
+  const p=polys[i]; let pt=proj(p.cen); const m=28;
+  const inView=pt&&pt[0]>m&&pt[0]<W-m&&pt[1]>m&&pt[1]<H-m;
+  if(inView) return pt;
+  const b=d3.geoPath(proj).bounds(p.geom); if(!isFinite(b[0][0])) return null;
+  const x0=Math.max(b[0][0],m),x1=Math.min(b[1][0],W-m),y0=Math.max(b[0][1],m),y1=Math.min(b[1][1],H-m);
+  if(x0>x1||y0>y1) return null;
+  return [(x0+x1)/2,(y0+y1)/2];
+}
+function label(txt,x,y){
+  ctx.font="600 12.5px "+getComputedStyle(document.body).fontFamily;
+  ctx.textAlign="center";ctx.textBaseline="middle";ctx.lineJoin="round";
+  ctx.lineWidth=3.5;ctx.strokeStyle=C.halo;ctx.strokeText(txt,x,y);ctx.fillStyle=C.ink;ctx.fillText(txt,x,y);
+}
+
+function resize(){
+  const r=wrap.getBoundingClientRect(); W=Math.round(r.width);H=Math.round(r.height);DPR=Math.min(2,window.devicePixelRatio||1);
+  canvas.width=W*DPR;canvas.height=H*DPR;
+  if(cur){const was=cur.revealed;computeViews();cur.view=was?cur.reveal:cur.front;draw();}
+}
+new ResizeObserver(resize).observe(wrap);
+
+// ---------- Spelflöde ----------
+const $=id=>document.getElementById(id);
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let choice="Alla", order=[], pos=-1, score={r:0,n:0}, ready=false, busy=false;
+
+function shuffleDeck(){ order=buildDeck(choice).sort(()=>Math.random()-.5); pos=-1; }
+function setupCard(c){
+  const main=mainGroup(c.id);
+  const center=main.length?d3.geoCentroid({type:"MultiPolygon",coordinates:main.map(i=>polys[i].geom.coordinates)}):[0,0];
+  cur={...c,main,center,revealed:false,t:{world:0,n:c.neighbors.map(()=>0)},
+       parts:c.neighbors.map(n=>nearestPart(n,center))};
+  computeViews(); cur.view=cur.front;
+}
+function renderText(){
+  const c=cur, M=MODES[c.mode];
+  $("cname").textContent=c.title;
+  $("ask").textContent=M.ask;
+  $("deckpos").textContent=`Kort ${pos+1} av ${order.length}`;
+  $("regionlbl").textContent=c.tag;
+  $("answer").hidden=true;
+  const chips=$("chips"); chips.innerHTML="";
+  if(!c.neighbors.length){const p=document.createElement("p");p.className="none";p.textContent=M.none;chips.appendChild(p);}
+  c.labels.forEach((n,k)=>{const el=document.createElement("span");el.className="chip";el.style.setProperty("--c",`var(${NCOL[k%NCOL.length]})`);
+    const i=document.createElement("i");el.appendChild(i);el.appendChild(document.createTextNode(n));chips.appendChild(el)});
+  $("note").hidden=!c.note; $("note").textContent=c.note||"";
+  $("count").textContent="0"; $("countlbl").textContent=c.neighbors.length===1?"granne":"grannar";
+  setBar("ask");
+}
+function setBar(mode){
+  const bar=$("bar");
+  if(mode==="ask"){bar.innerHTML='<button class="primary" id="reveal">Visa svaret</button>';$("reveal").onclick=reveal;}
+  else{bar.innerHTML='<button class="good" id="ok">Rätt</button><button class="bad" id="wrong">Fel</button><button class="skip" id="skip">Nästa utan poäng</button>';
+    $("ok").onclick=()=>next(true);$("wrong").onclick=()=>next(false);$("skip").onclick=()=>next(null);}
+}
+function nextCard(){
+  if(pos>=order.length-1) shuffleDeck();
+  pos++; setupCard(order[pos]); renderText(); draw();
+}
+function next(res){
+  if(res!==null){score.n++;if(res)score.r++;updScore();}
+  if(anim){anim.stop();anim=null}
+  const card=$("card");
+  if(reduce){nextCard();return}
+  card.classList.add("swap-out");
+  setTimeout(()=>{card.classList.remove("swap-out");nextCard();card.classList.add("swap-in");setTimeout(()=>card.classList.remove("swap-in"),320)},220);
+}
+function updScore(){$("sc-r").textContent=score.r;$("sc-n").textContent=score.n}
+$("score").onclick=()=>{score={r:0,n:0};updScore()};
+
+function reveal(){
+  if(!cur||cur.revealed) return; cur.revealed=true;
+  $("answer").hidden=false; setBar("answer");
+  const n=cur.neighbors.length, chips=[...document.querySelectorAll(".chip")];
+  const zoomMs=reduce?0:1100, step=reduce?0:260;
+  const interp=d3.interpolateZoom(cur.front,cur.reveal);
+  const total=zoomMs+n*step+400;
+  const t0=performance.now();
+  if(anim) anim.stop();
+  anim=d3.timer(()=>{
+    const e=performance.now()-t0;
+    const z=zoomMs?Math.min(1,e/zoomMs):1;
+    cur.view=interp(d3.easeCubicInOut(z));
+    cur.t.world=Math.min(1,z*1.6);
+    let shown=0;
+    for(let k=0;k<n;k++){const a=step?Math.max(0,Math.min(1,(e-zoomMs*.85-k*step)/300)):1;cur.t.n[k]=a;
+      if(a>0){shown=k+1;chips[k]&&chips[k].classList.add("on")}}
+    $("count").textContent=shown;
+    draw();
+    if(e>=total){cur.view=cur.reveal;cur.t.world=1;cur.t.n=cur.t.n.map(()=>1);$("count").textContent=n;anim.stop();anim=null;draw()}
+  });
+}
+
+function layersFor(ch){return ch==="se"?["w","se"]:ch==="us"?["w","us"]:["w"]}
+const CHOICE_NAME={Alla:"Hela världen",Europa:"Europa",Asien:"Asien",Afrika:"Afrika",Amerika:"Amerika",Oceanien:"Oceanien",se:"Sveriges län",us:"USA:s delstater"};
+function showGame(on){
+  $("menu").hidden=on; $("card").hidden=!on; $("bar").hidden=!on; $("back").hidden=!on; $("score").hidden=!on;
+}
+async function start(ch){
+  if(busy) return; busy=true; choice=ch;
+  if(anim){anim.stop();anim=null}
+  cur=null; score={r:0,n:0}; updScore();
+  ["cname","deckpos","regionlbl"].forEach(id=>$(id).textContent="");
+  $("answer").hidden=true; $("bar").innerHTML="";
+  showGame(true);
+  const ctx2=canvas.getContext("2d"); ctx2.setTransform(1,0,0,1,0,0); ctx2.clearRect(0,0,canvas.width,canvas.height);
+  $("status").hidden=false; $("status").textContent="Laddar kartan …";
+  try{
+    await Promise.all(layersFor(ch).map(loadLayer));
+    if(choice!==ch||$("card").hidden){busy=false;return}
+    $("status").hidden=true; ready=true; resize(); shuffleDeck(); nextCard();
+  }catch(e){
+    $("status").textContent="Kartan gick inte att ladda. Kontrollera nätet och försök igen.";
+  }
+  busy=false;
+}
+function backToMenu(){
+  if(anim){anim.stop();anim=null}
+  busy=false; cur=null;
+  const last=$("last");
+  if(score.n>0){last.hidden=false;last.textContent=`Förra omgången (${CHOICE_NAME[choice]}): ${score.r} rätt av ${score.n}.`;}
+  else last.hidden=true;
+  showGame(false);
+}
+document.querySelectorAll(".pick").forEach(b=>b.onclick=()=>start(b.dataset.choice));
+$("back").onclick=backToMenu;
+
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{readColors();draw()});
+new MutationObserver(()=>{readColors();draw()}).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+
+readColors();
+loadLayer("w").catch(()=>{}); // förladda världskartan medan man väljer
+</script>
+
+<script>if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{})</script>
+</body>
+</html>

@@ -4,6 +4,11 @@ Peters appar – https://peter.ekvardt.se
 
 ## Versioner
 
+### I gränslandet (`granslandet/`)
+- **1.0** – 3 november 2026. Första versionen: kortlek med konturen av ett land, län eller en delstat. Vänd kortet så zoomar kartan ut och grannarna fylls i ett i taget med namn och antal. Lägen: hela världen (102 länder), en världsdel, Sveriges 21 län och USA:s 50 delstater. Bara landgränser räknas, med förklarande noter för specialfall. Startmeny med Byt spel och rätt/fel-räkning per omgång.
+
+Vid ny version: ändra versionsraden i `index.html` (kortet), `granslandet/index.html` (startmenyn) och cachenamnet i `granslandet/sw.js`, och lägg till en rad här.
+
 ### Närmast vinner (`narmast/`)
 - **2.8** – 3 november 2026. Antal frågor 3, 5 eller 10 (5 förvalt). Röd börjar alltid varje fråga när man delar en telefon.
 - **2.7** – 2 november 2026. Sverigekartan utökad från 51 till 160 platser (alla residensstäder, mellanstora orter, Gotland, Öland, fjäll, skärgård och kända platser). Bildläget för Sverige har nu 65 platser.

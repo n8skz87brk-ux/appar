@@ -101,6 +101,18 @@ footer a{color:inherit}
       </div>
     </div>
   </article>
+  <article class="app">
+    <img src="granslandet/icon-192.png" alt="">
+    <div>
+      <h2>I gränslandet</h2>
+      <p>Kortspel om gränser. Du ser konturen av ett land och gissar hur många grannar det har, och vilka. Vänd kortet så fylls grannarna i på kartan. Välj hela världen, en världsdel, Sveriges län eller USA:s delstater. Spela själv eller fråga en kompis.</p>
+      <p class="ver"><b>Version 1.0</b> · 3 november 2026 · Ny, under provspelning</p>
+      <div class="btns">
+        <a class="btn primary" href="granslandet/">Öppna spelet</a>
+        <a class="btn" href="#installera" data-install="granslandet">Lägg på hemskärmen</a>
+      </div>
+    </div>
+  </article>
   </div>
 
   <p class="more">Fler appar kommer.</p>
@@ -160,7 +172,8 @@ footer a{color:inherit}
   d.querySelectorAll('[data-tab]').forEach(function(b){b.onclick=function(){show(b.dataset.tab)}});
   var APPS={
     americano:{name:'Americano',icon:'americano/icon-r-192.png',href:'americano/',done:'Appen fungerar sedan även utan internet på banan.'},
-    narmast:{name:'Närmast vinner',icon:'narmast/icon-192.png',href:'narmast/',done:'Spelet startar sedan direkt från hemskärmen. Kartan behöver internet första gången.'}
+    narmast:{name:'Närmast vinner',icon:'narmast/icon-192.png',href:'narmast/',done:'Spelet startar sedan direkt från hemskärmen. Kartan behöver internet första gången.'},
+    granslandet:{name:'I gränslandet',icon:'granslandet/icon-192.png',href:'granslandet/',done:'Spelet startar sedan direkt från hemskärmen. Kartan behöver internet första gången.'}
   };
   function pick(k){
     var a=APPS[k]||APPS.americano;
