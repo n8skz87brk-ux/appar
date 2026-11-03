@@ -56,16 +56,9 @@
       "kort": "Hur många grannar har landet – och vilka?",
       "text": "Kortspel om gränser. Du ser konturen av ett land och gissar hur många grannar det har, och vilka. Vänd kortet så fylls grannarna i på kartan. Välj hela världen, en världsdel, Sveriges län eller USA:s delstater. Spela själv eller fråga en kompis.",
       "version": "1.0",
-      "status": "Ny, under provspelning",
+      "status": "Under provspelning",
       "efterHemskarm": "Spelet startar sedan direkt från hemskärmen. Kartan behöver internet första gången.",
-      "andringar": [
-        {
-          "datum": "2026-11-03",
-          "typ": "ny",
-          "version": "1.0",
-          "text": "gissa grannländer per världsdel, Sveriges län och USA:s delstater"
-        }
-      ]
+      "andringar": []
     },
     {
       "id": "narmast",
@@ -77,16 +70,9 @@
       "kort": "Kartduell för två lag, som i På spåret.",
       "text": "Kartspel för två lag, som tävlingen i På spåret. Båda sätter ut en pil där de tror att platsen ligger, och den som hamnar närmast tar poängen. Europa, Sverige eller hela världen. Spela på en telefon eller på varsin.",
       "version": "2.8",
-      "status": "Ny, under provspelning",
+      "status": "Under provspelning",
       "efterHemskarm": "Spelet startar sedan direkt från hemskärmen. Kartan behöver internet första gången.",
-      "andringar": [
-        {
-          "datum": "2026-11-03",
-          "typ": "uppdaterad",
-          "version": "2.8",
-          "text": "senaste versionen, under provspelning"
-        }
-      ]
+      "andringar": []
     }
   ]
 }

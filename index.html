@@ -383,7 +383,7 @@ footer.site a{color:#fff}
       var typ = n.c.typ === 'ny' ? 'ny' : 'uppdaterad';
       return '<li><a href="#app-'+n.a.id+'"><div class="meta"><span class="pill '+typ+'">'+(typ==='ny'?'Ny app':'Uppdaterad')+'</span>' +
         '<span class="date">'+esc(datum(n.c.datum))+'</span></div>' +
-        '<span class="txt"><strong>'+esc(n.a.namn)+(n.c.version ? ' '+esc(n.c.version) : '')+'</strong> – '+esc(n.c.text)+'</span></a></li>';
+        '<span class="txt"><strong>'+esc(n.a.namn)+'</strong> – '+esc(n.c.text)+'</span></a></li>';
     }).join('') || '<li class="empty">Inget nytt just nu.</li>';
 
     // Tyck till: spelen i listan
