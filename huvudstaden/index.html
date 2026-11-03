@@ -22,11 +22,12 @@
 /* Layout: one-screen card table (same family as I gränslandet) — header, tall map card, answer bar at the thumb. */
 :root{
   --table:#e9e8e2;      /* the table */
-  --card:#fcfbf7;       /* card face = sea */
+  --card:#fcfbf7;       /* card face */
+  --sea:#cfe1ef;        /* water on the map: pale blue */
   --ink:#1b2430;
   --muted:#5f6670;
-  --land:#dcdcd3;
-  --land-edge:#bdbdb1;
+  --land:#efede4;
+  --land-edge:#c4c2b6;
   --subject:#2f5d8a;    /* the asked country: atlas blue */
   --subject-edge:#1a3b5c;
   --star:#d4462b;       /* the real capital */
@@ -39,12 +40,12 @@
   --f-body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --table:#0f1317; --card:#171d23; --ink:#e8ebee; --muted:#9aa3ab;
+  --table:#0f1317; --card:#171d23; --sea:#13202c; --ink:#e8ebee; --muted:#9aa3ab;
   --land:#27303a; --land-edge:#37424d; --subject:#5d93c7; --subject-edge:#b5d3f0;
   --star:#f0694c; --pin:#f3f1ea; --line:#2c3640; --btn:#e8ebee; --btn-fg:#11161b;
   --good:#5fbf86; --bad:#ef7a6c; --label-halo:rgba(23,29,35,.92); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --table:#0f1317; --card:#171d23; --ink:#e8ebee; --muted:#9aa3ab;
+  --table:#0f1317; --card:#171d23; --sea:#13202c; --ink:#e8ebee; --muted:#9aa3ab;
   --land:#27303a; --land-edge:#37424d; --subject:#5d93c7; --subject-edge:#b5d3f0;
   --star:#f0694c; --pin:#f3f1ea; --line:#2c3640; --btn:#e8ebee; --btn-fg:#11161b;
   --good:#5fbf86; --bad:#ef7a6c; --label-halo:rgba(23,29,35,.92); color-scheme:dark}
@@ -87,7 +88,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
 @keyframes out{to{transform:translateX(-24px) rotate(-1.2deg);opacity:0}}
 @keyframes in{from{transform:translateX(24px) rotate(1.2deg);opacity:0}}
 .cardtop{display:flex;justify-content:space-between;align-items:center;padding:12px 14px 0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-variant-numeric:tabular-nums}
-.mapwrap{flex:1;min-height:140px;position:relative}
+.mapwrap{flex:1;min-height:140px;position:relative;background:var(--sea)}
 canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:crosshair;touch-action:manipulation}
 .status{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--muted);font-size:14px;pointer-events:none}
 .hint{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);font-size:13px;background:var(--label-halo);color:var(--ink);
@@ -161,7 +162,7 @@ button:focus-visible{outline:2px solid var(--subject);outline-offset:2px}
         <li><b>Upp till 50 poäng</b> för var du sätter nålen, räknat efter hur stort landet är.</li>
       </ul>
     </div>
-    <p class="ver"><a href="../">&larr; Alla Peters appar</a> · Version 1.1 · 3 november 2026</p>
+    <p class="ver"><a href="../">&larr; Alla Peters appar</a> · Version 1.2 · 3 november 2026</p>
   </section>
 
   <div class="card" id="card" hidden>

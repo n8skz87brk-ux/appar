@@ -34,14 +34,14 @@
       "knapp": "Öppna spelet",
       "kort": "Säg huvudstaden och sätt nålen där den ligger.",
       "text": "Kartspel om huvudstäder. Du ser ett land på kartan, säger eller skriver namnet på huvudstaden och trycker där du tror att den ligger. Poäng för rätt namn och för hur nära nålen hamnar. 165 länder, hela världen eller en världsdel i taget.",
-      "version": "1.1",
+      "version": "1.2",
       "status": "Ny, under provspelning",
       "efterHemskarm": "Spelet startar sedan direkt från hemskärmen. Kartan behöver internet första gången.",
       "andringar": [
         {
           "datum": "2026-11-03",
           "typ": "ny",
-          "version": "1.1",
+          "version": "1.2",
           "text": "kartspel om huvudstäder, nu under provspelning"
         }
       ]
