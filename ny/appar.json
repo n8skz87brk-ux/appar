@@ -1,5 +1,5 @@
 {
-  "uppdaterad": "2026-11-03",
+  "uppdaterad": "2026-11-04",
   "kategorier": [
     {
       "id": "idrott",
@@ -106,6 +106,27 @@
           "typ": "ny",
           "version": "1.0",
           "text": "historiespel om Sveriges regenter, nu under provspelning"
+        }
+      ]
+    },
+    {
+      "id": "flest",
+      "namn": "Vad är flest?",
+      "kategori": "spel",
+      "adress": "/flest/",
+      "ikon": "/flest/icon-192.png",
+      "knapp": "Öppna spelet",
+      "kort": "Dagar i ett sekel eller invånare i Norrköping – vilket är flest?",
+      "text": "Snabbt frågespel. Två tal som inte har med varandra att göra ställs mot varandra, till exempel tangenter på ett piano och hål på en golfbana, och du trycker på det som är flest. Sedan får du se båda talen och hur stor skillnaden är. Tio par per omgång, nivåerna Lagom och Klurigt.",
+      "version": "1.0",
+      "status": "Ny",
+      "efterHemskarm": "Spelet startar sedan direkt från hemskärmen och fungerar utan internet.",
+      "andringar": [
+        {
+          "datum": "2026-11-04",
+          "typ": "ny",
+          "version": "1.0",
+          "text": "frågespel där två tal ställs mot varandra"
         }
       ]
     },

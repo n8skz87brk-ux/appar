@@ -1,0 +1,16 @@
+{
+  "name": "Vad är flest?",
+  "short_name": "Vad är flest?",
+  "description": "Frågespel: två tal som inte har med varandra att göra – vilket är flest?",
+  "lang": "sv",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef3f1",
+  "theme_color": "#0f7b6c",
+  "icons": [
+    {"src": "icon-192.png","sizes": "192x192","type": "image/png"},
+    {"src": "icon-512.png","sizes": "512x512","type": "image/png","purpose": "any maskable"}
+  ]
+}
