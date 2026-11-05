@@ -1,5 +1,5 @@
 {
-  "uppdaterad": "2026-11-04",
+  "uppdaterad": "2026-11-05",
   "kategorier": [
     {
       "id": "idrott",
@@ -127,6 +127,27 @@
           "typ": "ny",
           "version": "1.0",
           "text": "frågespel där två tal ställs mot varandra"
+        }
+      ]
+    },
+    {
+      "id": "glenn",
+      "namn": "Glenn läser Göteborgsvitsar",
+      "kategori": "spel",
+      "adress": "/ny/glenn/",
+      "ikon": "/ny/glenn/icon-192.png",
+      "knapp": "Öppna appen",
+      "kort": "Vad sa göteborgaren när spårvagnen kom i tid?",
+      "text": "Göteborgsvitsar som läses upp: först frågan, en kort paus, sedan poängen. Betygsätt varje vits på stönmätaren, spara favoriterna och lägg till egna. 80 vitsar till att börja med, gamla klassiker och nya i samma anda.",
+      "version": "1.0 (prov)",
+      "status": "Ny, under provspelning",
+      "efterHemskarm": "Appen startar sedan direkt från hemskärmen och fungerar utan internet. Slå på ljudet för att höra vitsarna.",
+      "andringar": [
+        {
+          "datum": "2026-11-05",
+          "typ": "ny",
+          "version": "1.0",
+          "text": "göteborgsvitsar som läses upp, nu under provspelning"
         }
       ]
     },

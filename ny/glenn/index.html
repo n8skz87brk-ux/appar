@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="sv"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Göteborgsvitsar som läses upp – fråga, kort paus, poäng.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#14385c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Glenns vitsar">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>Glenn läser Göteborgsvitsar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Ett kort i mitten: frågan överst, poängen under. Stönmätaren under kortet. */
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --ink:#142233; --muted:#5d6b7a; --line:#d5dde5;
+  --sea:#14385c; --sea-ink:#ffffff; --shrimp:#e2574c; --sun:#f2b33d; --bubble:#fff6e8;
+  --display:"Fraunces", Georgia, serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1621; --surface:#15212f; --ink:#e6edf4; --muted:#96a6b7; --line:#283748;
+  --sea:#6aa6dc; --sea-ink:#08131e; --shrimp:#ff8a7e; --sun:#f5c25e; --bubble:#1d2b3b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1621; --surface:#15212f; --ink:#e6edf4; --muted:#96a6b7; --line:#283748;
+  --sea:#6aa6dc; --sea-ink:#08131e; --shrimp:#ff8a7e; --sun:#f5c25e; --bubble:#1d2b3b; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 40px}
+.devbar{background:#fff3b0;color:#4a3d00;border-radius:8px;padding:6px 10px;font-size:.82rem;text-align:center;margin:0 auto 12px;max-width:560px}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+h1{font-family:var(--display);font-weight:900;font-size:1.85rem;line-height:1.05;margin:0;letter-spacing:-.01em}
+h1 small{display:block;font-family:var(--body);font-weight:400;font-size:.9rem;color:var(--muted);letter-spacing:0;margin-bottom:4px}
+h1 span{color:var(--shrimp)}
+.iconbtn{font:inherit;font-size:1.3rem;width:46px;height:46px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;flex:none}
+.tabs{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;padding:3px;gap:2px;background:var(--surface);align-self:flex-start}
+.tabs button{font:inherit;font-size:.86rem;font-weight:700;border:0;border-radius:999px;padding:7px 11px;background:transparent;color:var(--muted);cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--sea);color:var(--sea-ink)}
+.card{background:var(--bubble);border-radius:22px;padding:26px 22px 24px;min-height:250px;display:flex;flex-direction:column;gap:18px;position:relative;
+  box-shadow:0 1px 0 var(--line)}
+.card::after{content:"";position:absolute;left:44px;bottom:-16px;border:16px solid transparent;border-top-color:var(--bubble);border-bottom:0;border-left-width:4px}
+.count{font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.setup{font-family:var(--display);font-weight:700;font-size:1.5rem;line-height:1.25;margin:0;text-wrap:balance}
+.punch{font-size:1.3rem;font-weight:700;color:var(--shrimp);margin:0;text-wrap:balance;min-height:1.3em}
+.dots{display:inline-flex;gap:6px;align-items:center;height:1.3em}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--muted);opacity:.35}
+@media (prefers-reduced-motion:no-preference){.dots i{animation:d 1.2s infinite}.dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
+@keyframes d{0%,100%{opacity:.25}40%{opacity:1}}.punch.pop{animation:pop .35s ease-out}@keyframes pop{from{transform:translateY(6px);opacity:0}to{transform:none;opacity:1}}}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.btn{font:inherit;font-weight:700;padding:13px 20px;border-radius:12px;border:none;background:var(--sea);color:var(--sea-ink);cursor:pointer;flex:1 1 auto}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1.5px solid var(--line);flex:0 1 auto}
+.btn:focus-visible,.tabs button:focus-visible,.iconbtn:focus-visible,.meter button:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.meter{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.meter button{font:inherit;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);border-radius:14px;padding:10px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.meter button b{font-size:1.6rem;line-height:1}
+.meter button span{font-size:.82rem;color:var(--muted)}
+.meter button[aria-pressed="true"]{border-color:var(--sea);background:color-mix(in srgb,var(--sea) 12%,var(--surface))}
+.meter-label{font-size:.85rem;color:var(--muted);margin:0 0 -8px}
+.small{font-size:.85rem;color:var(--muted);margin:0}
+.linkbtn{font:inherit;font-size:.85rem;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.panel h2{font-family:var(--display);font-size:1.25rem;margin:0}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.list li{border-top:1px solid var(--line);padding-top:10px;display:flex;gap:10px;align-items:flex-start}
+.list li:first-child{border-top:0;padding-top:0}
+.list .t{flex:1;min-width:0}
+.list .t b{display:block;font-weight:700}
+.list .t span{color:var(--shrimp)}
+.list button{font:inherit;font-size:.82rem;background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:4px 8px;cursor:pointer;flex:none}
+label{font-size:.88rem;font-weight:700;display:block;margin-bottom:4px}
+input[type=text],select{font:inherit;width:100%;padding:11px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+.check{display:flex;gap:10px;align-items:center;font-weight:400;font-size:.95rem}
+.check input{width:20px;height:20px}
+.row{display:flex;gap:8px}
+.row select{flex:1}
+.ver{color:var(--muted);font-size:.82rem;margin:8px 0 0;text-align:center}.ver a{color:inherit}
+</style>
+</head><body>
+<div class="devbar">Provversion – under test</div>
+<div class="wrap">
+  <header>
+    <h1><small>Glenn läser</small>Göteborgs<span>vitsar</span></h1>
+    <button class="iconbtn" id="speak" type="button" aria-pressed="true" aria-label="Uppläsning på">🔊</button>
+  </header>
+
+  <div class="tabs" role="group" aria-label="Visa">
+    <button type="button" data-view="vits" aria-pressed="true">Vitsar</button>
+    <button type="button" data-view="fav" aria-pressed="false">Favoriter</button>
+    <button type="button" data-view="egna" aria-pressed="false">Egna</button>
+    <button type="button" data-view="inst" aria-pressed="false">Inställningar</button>
+  </div>
+
+  <!-- Vitsar -->
+  <section id="v-vits">
+    <div class="card" aria-live="polite">
+      <div class="count" id="count"></div>
+      <p class="setup" id="setup">Tryck på knappen så läser Glenn en vits.</p>
+      <p class="punch" id="punch"></p>
+    </div>
+    <div class="controls" style="margin-top:26px">
+      <button class="btn" id="next" type="button">Ny vits</button>
+      <button class="btn ghost" id="reveal" type="button" hidden>Visa poängen</button>
+      <button class="btn ghost" id="again" type="button" hidden>Läs igen</button>
+    </div>
+    <div id="rateBox" hidden style="margin-top:18px;display:flex;flex-direction:column;gap:14px">
+      <p class="meter-label">Stönmätaren</p>
+      <div class="meter" role="group" aria-label="Betyg">
+        <button type="button" data-r="3"><b>😂</b><span>Haha</span></button>
+        <button type="button" data-r="2"><b>😏</b><span>Hmm</span></button>
+        <button type="button" data-r="1"><b>😩</b><span>Åh nej</span></button>
+      </div>
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <button class="linkbtn" id="fav" type="button">☆ Spara som favorit</button>
+        <button class="linkbtn" id="hide" type="button">Visa aldrig den här igen</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Favoriter -->
+  <section id="v-fav" class="panel" hidden>
+    <h2>Favoriter</h2>
+    <p class="small" id="favEmpty">Inga favoriter än. Tryck på ☆ under en vits för att spara den här.</p>
+    <ul class="list" id="favList"></ul>
+  </section>
+
+  <!-- Egna -->
+  <section id="v-egna" class="panel" hidden>
+    <h2>Egna vitsar</h2>
+    <p class="small">Lägg till dina egna. De sparas i den här telefonen och blandas in bland de andra.</p>
+    <div><label for="eF">Frågan</label><input type="text" id="eF" placeholder="Vad sa …?"></div>
+    <div><label for="eS">Poängen</label><input type="text" id="eS" placeholder="– …"></div>
+    <button class="btn" id="eAdd" type="button">Lägg till</button>
+    <ul class="list" id="egnaList"></ul>
+  </section>
+
+  <!-- Inställningar -->
+  <section id="v-inst" class="panel" hidden>
+    <h2>Inställningar</h2>
+    <label class="check"><input type="checkbox" id="auto" checked>Glenn läser poängen själv efter en kort paus</label>
+    <p class="small" style="margin-top:-6px">Stäng av för att gissa först och trycka fram poängen.</p>
+    <div><label for="voiceSel">Röst</label>
+      <div class="row"><select id="voiceSel"></select><button class="btn ghost" id="voiceTest" type="button">Testa</button></div>
+    </div>
+    <p class="small">Tills vidare läser telefonens svenska röst. Finns en röst märkt Förbättrad eller Premium låter den bäst – den kan laddas ner under Inställningar › Hjälpmedel › Uppläst innehåll › Röster på iPhone.</p>
+    <p class="small" id="stat"></p>
+    <button class="linkbtn" id="unhide" type="button">Visa gömda vitsar igen</button>
+  </section>
+
+  <p class="ver"><a href="../">&larr; Alla Peters appar</a> · Version 1.0 (prov) · 5 november 2026</p>
+</div>
+
+<script>
+/* [id, fråga, poäng] – id får aldrig ändras, betyg och favoriter sparas på id */
+const VITSAR=[
+["v01","Vad sa göteborgaren när spårvagnen kom i tid?","Oj, det här måste vara gårdagens."],
+["v02","Varför ser Kopparmärra så trött ut?","Hon har stått på Kungsportsplatsen sedan 1800-talet och väntat på spårvagnen."],
+["v03","Hur vet man att det är sommar i Göteborg?","Regnet är varmare."],
+["v04","Varför har Poseidon inga kläder på sig?","Det är ingen idé – det regnar ju ändå."],
+["v05","Har du vatten i källaren?","Nej, men jag har källare i vattnet."],
+["v06","Vad sa göteborgsparaplyet när det åkte till Stockholm?","Äntligen semester!"],
+["v07","Vart åker man när det har regnat i tre veckor?","Till Floda."],
+["v08","Var bor alla göteborgare när det regnar?","I Gråbo."],
+["v09","Vilken förort är bäst på keramik?","Lerum, förstås."],
+["v10","Var landar åskguden när han kommer till Göteborg?","I Torslanda."],
+["v11","Vilken är Göteborgs mest festliga förort?","Partille!"],
+["v12","Var bor kungen när han backar?","I Kungsbacka."],
+["v13","Var hittar man de hårdaste ungarna?","I Stenungsund."],
+["v14","Var hamnar all aska i Göteborg?","I Askim."],
+["v15","Var bor alla som har ångrat sig?","I Angered."],
+["v16","Vad är en kortedalare?","En långedalare som har krympt i tvätten."],
+["v17","Hur tar man sig snabbast till Hisingen?","Med hissen."],
+["v18","Varför har man så bra kondition i Masthugget?","Där är det uppförsbacke åt båda hållen."],
+["v19","Varför bor älgarna i Slottsskogen?","De har inte råd med en lägenhet på Linnégatan."],
+["v20","Varför går fiskarna aldrig i Feskekôrka?","Där blir man bara lagd på is."],
+["v21","Varför flyger måsarna över Liseberg?","De har inte råd med åkband."],
+["v22","Vad sa hagabullen till kanelbullen?","Du är en riktig liten pärla."],
+["v23","Varför blev räkmackan revisor?","Den hade alltid koll på räkenskaperna."],
+["v24","Vad sa göteborgaren när han vann på Lotto?","Nu blir det två räkmackor."],
+["v25","Vad sa sillen på midsommar?","Nu blir jag inlagd igen."],
+["v26","Vad sa Volvon när den såg en Saab?","Länge sen sist!"],
+["v27","Vad säger man till en sjöman från Majorna?","Ahoj, majoren!"],
+["v28","Vad sa göteborgaren när han kom till Stockholm?","Jaha – var har ni gjort av havet?"],
+["v29","Hur får man en stockholmare att skratta på måndag?","Berätta en vits för honom på fredag."],
+["v30","Vad är skillnaden mellan en stockholmare och en göteborgare?","Göteborgaren skrattar åt den här vitsen."],
+["v31","Varför har göteborgare så bra humor?","Det regnar så mycket att man måste ha något att skratta åt."],
+["v32","Hur många göteborgare behövs för att byta en glödlampa?","En – men han berättar om det i tre timmar."],
+["v33","Hur känner man igen en optimist i Göteborg?","Hen har solglasögon med sig i november."],
+["v34","Varför är molnen så förtjusta i Göteborg?","Där får de regna i fred."],
+["v35","Vad sa havet till stranden?","Ingenting – det vågade inte."],
+["v36","Vad sa sockerbiten när den hamnade i kaffet?","Nu löser sig allt."],
+["v37","Vad sa smöret till brödet?","Jag lägger mig inte i – jag lägger mig på."],
+["v38","Vad sa kaffekoppen till tekoppen?","Du är verkligen inte min kopp te."],
+["v39","Vad sa potatisen till kocken?","Skala ner det lite."],
+["v40","Vad sa löken till kocken?","Nu ska du inte gråta."],
+["v41","Vad säger osten när den ska fotograferas?","Säg människa!"],
+["v42","Vad sa korven när den lades på grillen?","Nu blir det hett om öronen."],
+["v43","Varför är vinet alltid så lugnt?","Det har fått tid att andas."],
+["v44","Vad sa nollan till åttan?","Snyggt bälte!"],
+["v45","Varför är matteboken alltid så ledsen?","Den har så många problem."],
+["v46","Vad kallar man en bumerang som inte kommer tillbaka?","En pinne."],
+["v47","Vad sa kalendern?","Mina dagar är räknade."],
+["v48","Vad sa trappan till hissen?","Du tar alltid den lätta vägen."],
+["v49","Vad sa göteborgaren när hissen gick sönder?","Nu får vi ta det steg för steg."],
+["v50","Vad sa dörren till nyckeln?","Utan dig är jag helt låst."],
+["v51","Vad sa strumpan när den kom ur tvättmaskinen?","Var är min andra hälft?"],
+["v52","Vad sa den ena stöveln till den andra?","Vi har gått igenom mycket tillsammans, du och jag."],
+["v53","Vad sa pianot när det blev stämt?","Nu är jag på riktigt bra stämning."],
+["v54","Vad sa trumpeten när den blev arg?","Nu blåser jag upp mig."],
+["v55","Vad sa dragspelet när det blev hoptryckt?","Nu blir det tryck i det här!"],
+["v56","Vad sa padelbollen till glasväggen?","Vi ses snart igen."],
+["v57","Varför har golfspelare alltid en extra strumpa med sig?","Ifall de gör hål-i-ett."],
+["v58","Varför spelar fiskar aldrig tennis?","De är rädda för nätet."],
+["v59","Vad sa hästen när den blev förkyld?","Jag är lite hes."],
+["v60","Vad sa kossan när hon vaknade?","Mu-orgon!"],
+["v61","Vad heter en hund utan ben?","Det spelar ingen roll – den kommer inte när man ropar ändå."],
+["v62","Varför kan inte elefanter använda datorer?","De är rädda för musen."],
+["v63","Hur vet man att en elefant har varit i kylskåpet?","Det är fotspår i smöret."],
+["v64","Vad sa biet till blomman?","Hej, honung!"],
+["v65","Vad sa myran när den lyfte en hel sockerbit?","Det här är ju ett rent myrakel."],
+["v66","Vad sa trädet till vinden?","Nu ska du inte blåsa upp dig."],
+["v67","Varför är snögubbar så lugna?","De har is i magen."],
+["v68","Vad sa den ena snögubben till den andra?","Känner du också lukten av morötter?"],
+["v69","Vad sa det ena spöket till det andra?","Tror du på människor?"],
+["v70","Varför tog göteborgaren med sig en stege till festen?","Han hade hört att det skulle vara högt i tak."],
+["v71","Två göteborgare målar taket. Den ena säger:","Håll i penseln nu, så tar jag bort stegen!"],
+["v72","Har ni något mot mjäll?","Nej, vi har inget emot mjäll."],
+["v73","Doktorn, doktorn, jag tror att jag är en gardin!","Ta dig samman."],
+["v74","Doktorn, doktorn, jag har tappat minnet!","Sedan när då? – Sedan när vad?"],
+["v75","Doktorn, doktorn, jag ser dubbelt!","Sätt dig på stolen. – Vilken av dem?"],
+["v76","Vilken bokstav tycker sjörövaren bäst om?","Man kan tro R – men hans första kärlek är H. Havet."],
+["v77","Vad sa göteborgaren till sin trädgård?","Du växer verkligen på mig."],
+["v78","Vad sa den ena väggen till den andra?","Vi ses i hörnet."],
+["v79","Varför är ankaret alltid så nere?","Det har fastnat i gamla mönster."],
+["v80","Vad sa göteborgaren som gick rakt in i en glasdörr?","Den där såg jag inte komma."]
+];
+
+/* Inspelningar: lägg filer i ljud/ som <id>-f.mp3 (frågan) och <id>-s.mp3 (poängen)
+   och skriv id:t här, t.ex. ["v01","v02"]. Då spelas inspelningen i stället för telefonens röst. */
+const INSPELADE=[];
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function load(k,d){try{const v=localStorage.getItem("glenn-"+k);return v==null?d:JSON.parse(v)}catch(e){return d}}
+function save(k,v){try{localStorage.setItem("glenn-"+k,JSON.stringify(v))}catch(e){}}
+
+let rating=load("betyg",{}), favs=load("fav",[]), hidden=load("gomda",[]), egna=load("egna",[]), seen=load("sedda",[]);
+let auto=load("auto",true), voiceOn=load("rost",true);
+let cur=null, timer=null, token=0;
+
+function all(){return VITSAR.concat(egna.map(e=>[e.id,e.f,e.s]))}
+function byId(id){return all().find(v=>v[0]===id)}
+
+/* Röst – väljer bästa svenska rösten automatiskt */
+let svVoice=null, svList=[];
+function voiceScore(v){const id=(v.name+" "+v.voiceURI).toLowerCase();
+  return (/premium/.test(id)?30:0)+(/enhanced|förbättrad|neural|natural|online/.test(id)?20:0)+(/oskar|mattias/.test(id)?3:0)+(/alva|klara|sofie/.test(id)?2:0)+(v.localService?0:1)}
+function pickVoice(){try{
+  svList=speechSynthesis.getVoices().filter(v=>/^sv/i.test(v.lang)).sort((a,b)=>voiceScore(b)-voiceScore(a));
+  const saved=load("rostnamn",null);
+  svVoice=svList.find(v=>v.voiceURI===saved)||svList[0]||null;
+  const sel=$("voiceSel");
+  sel.innerHTML=svList.length?svList.map(v=>`<option value="${esc(v.voiceURI)}">${esc(v.name)}</option>`).join(""):`<option value="">Standardröst</option>`;
+  if(svVoice)sel.value=svVoice.voiceURI;
+}catch(e){}}
+function speak(text,done){
+  if(!voiceOn||!("speechSynthesis" in window)){done&&setTimeout(done,Math.min(4000,600+text.length*55));return}
+  try{
+    const u=new SpeechSynthesisUtterance(text.replace(/–/g,","));
+    u.lang="sv-SE"; if(svVoice)u.voice=svVoice; u.rate=0.95;
+    let fired=false; const fin=()=>{if(!fired){fired=true;done&&done()}};
+    u.onend=fin; u.onerror=fin;
+    setTimeout(fin,1500+text.length*120); // säkerhet om onend aldrig kommer
+    speechSynthesis.speak(u);
+  }catch(e){done&&done()}
+}
+function play(id,part,text,done){
+  if(voiceOn&&INSPELADE.includes(id)){
+    const a=new Audio(`ljud/${id}-${part}.mp3`);let f=false;const fin=()=>{if(!f){f=true;done&&done()}};
+    a.onended=fin;a.onerror=()=>{f=true;speak(text,done)};a.play().catch(()=>{f=true;speak(text,done)});return;
+  }
+  speak(text,done);
+}
+function stopAll(){token++;clearTimeout(timer);try{speechSynthesis.cancel()}catch(e){}}
+
+/* Nästa vits: osedda först, gömda hoppas över */
+function nextId(){
+  const pool=all().filter(v=>!hidden.includes(v[0]));
+  if(!pool.length)return null;
+  let fresh=pool.filter(v=>!seen.includes(v[0]));
+  if(!fresh.length){seen=[];fresh=pool}
+  const pick=fresh[Math.floor(Math.random()*fresh.length)][0];
+  seen.push(pick);save("sedda",seen);
+  return pick;
+}
+function show(id,readIt){
+  stopAll();const my=token;cur=id;const v=byId(id);if(!v)return;
+  const left=all().filter(x=>!hidden.includes(x[0])&&!seen.includes(x[0])).length;
+  $("count").textContent=left?`${left} vitsar kvar att höra`:"Alla vitsar hörda – nu börjar det om";
+  $("setup").textContent=v[1];
+  $("punch").innerHTML='<span class="dots" aria-label="Paus"><i></i><i></i><i></i></span>';
+  $("rateBox").hidden=true;$("again").hidden=true;$("reveal").hidden=auto;
+  updateRate();
+  if(readIt===false){revealPunch(my,false);return}
+  play(id,"f",v[1],()=>{
+    if(my!==token)return;
+    if(auto)timer=setTimeout(()=>revealPunch(my,true),1600);
+  });
+}
+function revealPunch(my,readIt){
+  if(my!==token)return;
+  const v=byId(cur);
+  $("punch").textContent=v[2];$("punch").classList.remove("pop");void $("punch").offsetWidth;$("punch").classList.add("pop");
+  $("reveal").hidden=true;$("again").hidden=false;$("rateBox").hidden=false;
+  if(readIt)play(cur,"s",v[2]);
+}
+function updateRate(){
+  const r=rating[cur];
+  document.querySelectorAll(".meter button").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.r===r)));
+  $("fav").textContent=favs.includes(cur)?"★ Sparad som favorit":"☆ Spara som favorit";
+}
+
+$("next").onclick=()=>{const id=nextId();if(id){$("next").textContent="Ny vits";show(id)}else{$("setup").textContent="Alla vitsar är gömda. Visa dem igen under Inställningar.";$("punch").textContent=""}};
+$("reveal").onclick=()=>revealPunch(token,true);
+$("again").onclick=()=>show(cur);
+document.querySelectorAll(".meter button").forEach(b=>b.onclick=()=>{rating[cur]=+b.dataset.r;save("betyg",rating);
+  if(+b.dataset.r===3&&!favs.includes(cur)){favs.push(cur);save("fav",favs)}updateRate()});
+$("fav").onclick=()=>{favs=favs.includes(cur)?favs.filter(x=>x!==cur):favs.concat(cur);save("fav",favs);updateRate()};
+$("hide").onclick=()=>{if(!hidden.includes(cur)){hidden.push(cur);save("gomda",hidden)}favs=favs.filter(x=>x!==cur);save("fav",favs);$("next").click()};
+
+/* Flikar */
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+  ["vits","fav","egna","inst"].forEach(n=>$("v-"+n).hidden=n!==b.dataset.view);
+  if(b.dataset.view!=="vits")stopAll();
+  if(b.dataset.view==="fav")renderFav();
+  if(b.dataset.view==="egna")renderEgna();
+  if(b.dataset.view==="inst")renderStat();
+});
+function renderFav(){
+  const list=favs.map(byId).filter(Boolean);
+  $("favEmpty").hidden=list.length>0;
+  $("favList").innerHTML=list.map(v=>`<li><div class="t"><b>${esc(v[1])}</b><span>${esc(v[2])}</span></div><button data-play="${v[0]}">Läs</button></li>`).join("");
+  $("favList").querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>{document.querySelector('.tabs [data-view="vits"]').click();show(b.dataset.play)});
+}
+function renderEgna(){
+  $("egnaList").innerHTML=egna.map(e=>`<li><div class="t"><b>${esc(e.f)}</b><span>${esc(e.s)}</span></div><button data-del="${e.id}">Ta bort</button></li>`).join("");
+  $("egnaList").querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{egna=egna.filter(e=>e.id!==b.dataset.del);save("egna",egna);renderEgna()});
+}
+$("eAdd").onclick=()=>{
+  const f=$("eF").value.trim(), s=$("eS").value.trim().replace(/^[–-]\s*/,"");
+  if(!f||!s){(f?$("eS"):$("eF")).focus();return}
+  egna.unshift({id:"e"+Date.now().toString(36),f,s});save("egna",egna);
+  $("eF").value="";$("eS").value="";renderEgna();
+};
+function renderStat(){
+  const n=Object.values(rating), c=k=>n.filter(x=>x===k).length;
+  $("stat").textContent=n.length?`Du har betygsatt ${n.length} vitsar: ${c(3)} haha, ${c(2)} hmm, ${c(1)} åh nej.`+(hidden.length?` ${hidden.length} är gömda.`:""):"";
+  $("unhide").hidden=!hidden.length;
+}
+$("unhide").onclick=()=>{hidden=[];save("gomda",hidden);renderStat()};
+
+/* Inställningar */
+$("auto").checked=auto;
+$("auto").onchange=()=>{auto=$("auto").checked;save("auto",auto)};
+$("voiceSel").onchange=()=>{svVoice=svList.find(v=>v.voiceURI===$("voiceSel").value)||null;save("rostnamn",$("voiceSel").value)};
+$("voiceTest").onclick=()=>{stopAll();speak("Vad sa göteborgaren när spårvagnen kom i tid? Oj, det här måste vara gårdagens.")};
+function setVoice(on){voiceOn=on;save("rost",on);const b=$("speak");b.textContent=on?"🔊":"🔇";b.setAttribute("aria-pressed",String(on));b.setAttribute("aria-label",on?"Uppläsning på":"Uppläsning av");if(!on)try{speechSynthesis.cancel()}catch(e){}}
+setVoice(voiceOn);
+$("speak").onclick=()=>setVoice(!voiceOn);
+if("speechSynthesis" in window){pickVoice();try{speechSynthesis.addEventListener("voiceschanged",pickVoice)}catch(e){}setTimeout(pickVoice,800)}
+
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body></html>
