@@ -345,7 +345,7 @@ footer.site a{color:#fff}
             '<a class="btn btn-soft" href="#installera" data-install="'+a.id+'">Lägg på hemskärmen</a></div>' +
             '</article>';
         }).join('') + '</div></section>';
-    }).join('');
+    }).join('') || '<p class="empty">Inget att provspela just nu. Allt färdigt finns på <a href="/">peter.ekvardt.se</a>.</p>';
 
     // Senaste nytt: de tre senaste ändringarna, nyast först
     var nytt = [];

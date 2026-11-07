@@ -1,5 +1,5 @@
 {
-  "uppdaterad": "2026-11-04",
+  "uppdaterad": "2026-11-07",
   "kategorier": [
     {
       "id": "idrott",
@@ -127,6 +127,27 @@
           "typ": "ny",
           "version": "1.0",
           "text": "frågespel där två tal ställs mot varandra"
+        }
+      ]
+    },
+    {
+      "id": "fragesport",
+      "namn": "Familjefrågesporten",
+      "kategori": "spel",
+      "adress": "/fragesport/",
+      "ikon": "/fragesport/icon-192.png",
+      "knapp": "Öppna spelet",
+      "kort": "20 frågor, tre svar att välja på – kategorin lottas.",
+      "text": "Frågesport att spela tillsammans. Inför varje fråga lottas en kategori: sport, historia, musik, underhållning eller blandat. Tre svarsalternativ, 20 frågor per omgång och resultatet per kategori på slutet. Välj mellan lätt, medel och svår, med 90 frågor på varje nivå.",
+      "version": "1.1",
+      "status": "Ny",
+      "efterHemskarm": "Spelet startar sedan direkt från hemskärmen och fungerar utan internet.",
+      "andringar": [
+        {
+          "datum": "2026-11-07",
+          "typ": "ny",
+          "version": "1.1",
+          "text": "frågesport för familjen med 90 frågor på varje nivå"
         }
       ]
     },
