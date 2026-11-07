@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="sv"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Frågesport för familjen: 20 frågor, tre svarsalternativ, tre svårighetsgrader.">
+<meta name="theme-color" content="#3b5bdb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Frågesporten">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}
+.ver{color:var(--muted);font-size:.82rem;margin:0;text-align:center}.ver a{color:inherit}</style>
+<title>Familjefrågesporten</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+</head><body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rubik:wght@400;500;600&display=swap">
+<style>
+/* Layout: ett kort i mitten — kategorilotteri överst, fråga, tre stora svarsknappar */
+:root{
+  --bg:#eef1f6; --card:#ffffff; --fg:#1f2433; --muted:#6b7187; --line:#d9deea;
+  --accent:#3b5bdb; --ok:#2f9e44; --bad:#e03131;
+  --sport:#2f9e44; --historia:#b5651d; --musik:#c2255c; --underhallning:#7048e8; --blandat:#1c7ed6;
+  --display:"Lilita One","Arial Rounded MT Bold",sans-serif;
+  --body:"Rubik",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#151925; --card:#1f2535; --fg:#eef1f8; --muted:#9aa1b8; --line:#30384d;
+  --accent:#748ffc; --ok:#51cf66; --bad:#ff6b6b;
+  --sport:#51cf66; --historia:#e0954f; --musik:#f06595; --underhallning:#9775fa; --blandat:#4dabf7; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#151925; --card:#1f2535; --fg:#eef1f8; --muted:#9aa1b8; --line:#30384d;
+  --accent:#748ffc; --ok:#51cf66; --bad:#ff6b6b;
+  --sport:#51cf66; --historia:#e0954f; --musik:#f06595; --underhallning:#9775fa; --blandat:#4dabf7; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.45}
+.wrap{max-width:560px;margin:0 auto;padding-block:20px 40px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:16px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+h1{font-family:var(--display);font-weight:400;font-size:1.9rem;margin:0;line-height:1}
+.stat{text-align:right;font-variant-numeric:tabular-nums}
+.stat b{font-family:var(--display);font-weight:400;font-size:1.6rem;display:block;line-height:1}
+.stat small{color:var(--muted);font-size:.8rem}
+.progress{display:grid;grid-template-columns:repeat(20,1fr);gap:3px}
+.progress i{height:8px;border-radius:3px;background:var(--line)}
+.progress i.ok{background:var(--ok)} .progress i.bad{background:var(--bad)} .progress i.now{background:var(--accent)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.cat{display:inline-flex;align-self:flex-start;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;
+  font-weight:600;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--c,var(--accent))}
+.cat.spin{animation:pulse .12s linear infinite alternate}
+@keyframes pulse{to{transform:scale(1.06)}}
+.qnum{color:var(--muted);font-size:.85rem}
+.q{font-size:1.3rem;font-weight:600;margin:0;text-wrap:balance}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opts button{font:inherit;text-align:left;padding:14px 16px;border-radius:12px;border:2px solid var(--line);
+  background:var(--bg);color:var(--fg);cursor:pointer;display:flex;gap:12px;align-items:center}
+.opts button span.l{font-family:var(--display);font-size:1.1rem;color:var(--muted);width:1.2em}
+.opts button:hover:not(:disabled){border-color:var(--accent)}
+.opts button:disabled{cursor:default}
+.opts button.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 15%,var(--card))}
+.opts button.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,var(--card))}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.feedback{font-weight:600;min-height:1.4em;margin:0}
+.feedback.ok{color:var(--ok)} .feedback.bad{color:var(--bad)}
+.primary{font:inherit;font-weight:600;background:var(--accent);color:#fff;border:0;border-radius:12px;padding:14px;cursor:pointer;width:100%}
+.lvl{color:var(--muted);font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;margin-top:4px;min-height:1.2em}
+.ghost{font:inherit;font-weight:600;background:none;color:var(--accent);border:2px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;width:100%}
+.big{font-family:var(--display);font-size:4rem;line-height:1;text-align:center;margin:0}
+.center{text-align:center;color:var(--muted);margin:0}
+.breakdown{display:flex;flex-direction:column;gap:8px}
+.br{display:grid;grid-template-columns:8.5em 1fr 3em;align-items:center;gap:10px;font-size:.95rem}
+.bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--c)}
+.br .n{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.cat.spin{animation:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div><h1>Familjefrågesporten</h1><div class="lvl" id="lvl"></div></div>
+    <div class="stat"><b id="score">0</b><small>rätt</small></div>
+  </header>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+  <main class="card" id="card"></main>
+  <p class="ver"><a href="../">&larr; Alla Peters appar</a> · Version 1.0 · 7 november 2026</p>
+</div>
+
+<script>
+const CATS={
+  sport:{name:'Sport',c:'var(--sport)'},
+  historia:{name:'Historia',c:'var(--historia)'},
+  musik:{name:'Musik',c:'var(--musik)'},
+  underhallning:{name:'Underhållning',c:'var(--underhallning)'},
+  blandat:{name:'Blandat',c:'var(--blandat)'}
+};
+// Första svaret är alltid det rätta; ordningen blandas i spelet.
+const LEVELS={latt:'Lätt',medel:'Medel',svar:'Svår'};
+const BANK={
+latt:{
+ sport:[
+  ['Vilket land vann fotbolls-VM 1958, som spelades i Sverige?','Brasilien','Västtyskland','Sverige'],
+  ['Hur många hål spelas på en vanlig golfrunda?','18','16','20'],
+  ['I vilken gren tävlade Ingemar Stenmark?','Alpint','Längdskidor','Backhoppning'],
+  ['Vilken stad arrangerade sommar-OS 1912?','Stockholm','London','Paris'],
+  ['Hur många spelare har ett fotbollslag på plan samtidigt?','11','10','12'],
+  ['Vem vann Wimbledon fem år i rad, 1976–1980?','Björn Borg','John McEnroe','Jimmy Connors'],
+  ['Hur många poäng ger en touchdown i amerikansk fotboll?','6','7','3'],
+  ['Vad heter skidloppet mellan Sälen och Mora?','Vasaloppet','Engelbrektsloppet','Siljansloppet'],
+  ['Vilket år tog Tre Kronor sitt första OS-guld i ishockey?','1994','1980','2006']
+ ],
+ historia:[
+  ['Vilket år föll Berlinmuren?','1989','1991','1987'],
+  ['Vilken svensk kung stupade vid Lützen 1632?','Gustav II Adolf','Karl XII','Gustav Vasa'],
+  ['Vilket år landade människan för första gången på månen?','1969','1967','1972'],
+  ['Vilket skepp sjönk i Stockholm på sin jungfrufärd 1628?','Vasa','Kronan','Svärdet'],
+  ['Vem var USA:s förste president?','George Washington','Abraham Lincoln','Thomas Jefferson'],
+  ['Vilket år gick Sverige med i EU?','1995','1994','1999'],
+  ['Visby var på medeltiden en viktig del av vilket handelsförbund?','Hansan','Ostindiska kompaniet','Kalmarunionen'],
+  ['Vilket år gick Sverige över till högertrafik?','1967','1963','1971'],
+  ['Vem var Sovjetunionens sista ledare?','Michail Gorbatjov','Leonid Brezjnev','Boris Jeltsin']
+ ],
+ musik:[
+  ['Med vilken låt vann ABBA Eurovision 1974?','Waterloo','Dancing Queen','Mamma Mia'],
+  ['Vilket band bestod av John, Paul, George och Ringo?','The Beatles','The Rolling Stones','The Who'],
+  ['Vem kallades "The King of Pop"?','Michael Jackson','Elvis Presley','Prince'],
+  ['Vilken svensk duo låg bakom "The Look" och "Joyride"?','Roxette','Ace of Base','Secret Service'],
+  ['Vem vann Eurovision 2015 med "Heroes"?','Måns Zelmerlöw','Danny Saucedo','Eric Saade'],
+  ['Hur många tangenter har ett vanligt piano?','88','76','92'],
+  ['Vem komponerade "De fyra årstiderna"?','Antonio Vivaldi','Johann Sebastian Bach','Wolfgang Amadeus Mozart'],
+  ['Från vilket land kommer hårdrocksbandet AC/DC?','Australien','England','USA'],
+  ['Vilket instrument är Jimi Hendrix mest känd för?','Elgitarr','Trummor','Elbas']
+ ],
+ underhallning:[
+  ['Vad heter Astrid Lindgrens flicka som bor i Villa Villekulla?','Pippi Långstrump','Ronja Rövardotter','Madicken'],
+  ['Vad visar SVT klockan 15 på julafton?','Kalle Anka och hans vänner önskar god jul','Karl-Bertil Jonssons julafton','Sagan om Karl-Bertil'],
+  ['Vem regisserade "Det sjunde inseglet"?','Ingmar Bergman','Bo Widerberg','Lasse Hallström'],
+  ['I vilken stad utspelar sig TV-serien "Vänner"?','New York','Los Angeles','Chicago'],
+  ['I vilket brädspel köper man gator och bygger hus?','Monopol','Fia med knuff','Trivial Pursuit'],
+  ['Vad heter Agatha Christies belgiske detektiv?','Hercule Poirot','Sherlock Holmes','Jules Maigret'],
+  ['Vilken film från 1997 handlar om ett fartyg som kolliderar med ett isberg?','Titanic','Poseidon','Das Boot'],
+  ['Vem skrev böckerna om Harry Potter?','J.K. Rowling','J.R.R. Tolkien','Roald Dahl'],
+  ['Vem spelade Stig-Helmer i "Sällskapsresan"?','Lasse Åberg','Jon Skolmen','Magnus Härenstam']
+ ],
+ blandat:[
+  ['Vilken planet ligger närmast solen?','Merkurius','Venus','Mars'],
+  ['Vad heter Australiens huvudstad?','Canberra','Sydney','Melbourne'],
+  ['Hur många ben har en spindel?','8','6','10'],
+  ['Vilket grundämne har den kemiska beteckningen Fe?','Järn','Fluor','Fosfor'],
+  ['Vilket är Sveriges största landskap till ytan?','Lappland','Jämtland','Hälsingland'],
+  ['Vilken är Sveriges största ö?','Gotland','Öland','Orust'],
+  ['Vad heter havsviken mellan Sverige och Finland längst i norr?','Bottenviken','Skagerrak','Kattegatt'],
+  ['Hur många minuter är det på ett dygn?','1440','1240','1640'],
+  ['Vilket land har flest invånare i världen?','Indien','Kina','USA']
+ ]
+},
+medel:{
+ sport:[
+  ['Vem har vunnit Vasaloppet flest gånger?','Nils "Mora-Nisse" Karlsson','Sixten Jernberg','Jörgen Brink'],
+  ['I vilken stad hölls sommar-OS 1952?','Helsingfors','Oslo','Melbourne'],
+  ['Hur många vunna set krävs för att vinna en damsingel i grand slam?','2','3','4'],
+  ['Vilken svensk golfare vann The Open 2016?','Henrik Stenson','Jesper Parnevik','Robert Karlsson'],
+  ['Vad heter banan där golfens The Masters spelas?','Augusta National','Pebble Beach','St Andrews'],
+  ['Vilket år tog Sverige OS-guld i fotboll för herrar?','1948','1952','1936'],
+  ['Vilken svensk höjdhoppare tog OS-guld i Aten 2004?','Stefan Holm','Patrik Sjöberg','Linus Thörnblad'],
+  ['Hur många spelare per lag är på planen samtidigt i handboll?','7','6','8'],
+  ['I vilket land ligger golfbanan St Andrews?','Skottland','England','Irland']
+ ],
+ historia:[
+  ['Vilket år inträffade Stockholms blodbad?','1520','1523','1497'],
+  ['Vem var Sveriges förste socialdemokratiske statsminister?','Hjalmar Branting','Per Albin Hansson','Rickard Sandler'],
+  ['Vilken svensk kung dödades vid Fredriksten i Norge 1718?','Karl XII','Karl XI','Fredrik I'],
+  ['Vilket år sköts Gustav III på maskeradbalen på Operan?','1792','1789','1809'],
+  ['Vilket år ersattes ståndsriksdagen av en tvåkammarriksdag?','1866','1809','1921'],
+  ['Vem var Englands drottning när spanska armadan besegrades 1588?','Elisabet I','Maria I','Viktoria'],
+  ['Vilken romersk kejsare lät bygga en mur tvärs över norra England?','Hadrianus','Augustus','Trajanus'],
+  ['Vilken stad drabbades av atombomben den 9 augusti 1945?','Nagasaki','Hiroshima','Kokura'],
+  ['Vad hette den första konstgjorda satelliten, uppskjuten 1957?','Sputnik 1','Vostok 1','Explorer 1']
+ ],
+ musik:[
+  ['Vilka vann Melodifestivalen 1984 med "Diggi-Loo Diggi-Ley"?','Herreys','Lasse Berghagen och Lill-Babs','Chips'],
+  ['Vilket år splittrades Beatles?','1970','1968','1972'],
+  ['Vad heter Benny Anderssons och Björn Ulvaeus musikal om schack och kalla kriget?','Chess','Kristina från Duvemåla','Mamma Mia!'],
+  ['Vilket band spelade in "Hotel California"?','Eagles','Fleetwood Mac','The Doobie Brothers'],
+  ['Vem komponerade "Midsommarvaka"?','Hugo Alfvén','Wilhelm Stenhammar','Wilhelm Peterson-Berger'],
+  ['Vilket år dog Elvis Presley?','1977','1975','1980'],
+  ['Vem var sångare i Led Zeppelin?','Robert Plant','Ozzy Osbourne','Ian Gillan'],
+  ['Vem släppte "Dancing On My Own" 2010?','Robyn','Lykke Li','Zara Larsson'],
+  ['Vilken Beatles-medlem skrev låten "Something"?','George Harrison','John Lennon','Paul McCartney']
+ ],
+ underhallning:[
+  ['Vem skrev romanen "Doktor Glas"?','Hjalmar Söderberg','August Strindberg','Hjalmar Bergman'],
+  ['Vem spelade Sickan i Jönssonligan-filmerna från 1981?','Gösta Ekman','Ulf Brunnberg','Björn Gustafson'],
+  ['Vilken film vann den allra första Oscarn för bästa film?','Wings','Casablanca','Ben-Hur'],
+  ['Vem regisserade filmen "Hajen" från 1975?','Steven Spielberg','George Lucas','Francis Ford Coppola'],
+  ['Vad heter Pippi Långstrumps häst?','Lilla Gubben','Herr Nilsson','Gammelgubben'],
+  ['Vem skrev romanen "Mästaren och Margarita"?','Michail Bulgakov','Lev Tolstoj','Fjodor Dostojevskij'],
+  ['Vem spelade Hannibal Lecter i "När lammen tystnar"?','Anthony Hopkins','Jack Nicholson','Robert De Niro'],
+  ['Vem var programledare för "På spåret" när programmet startade 1987?','Ingvar Oldsberg','Kristian Luuk','Lasse Kronér'],
+  ['Vem skrev "Hundraåringen som klev ut genom fönstret och försvann"?','Jonas Jonasson','Fredrik Backman','Jan Guillou']
+ ],
+ blandat:[
+  ['Vilken är Europas längsta flod?','Volga','Donau','Rhen'],
+  ['Vad heter Turkiets huvudstad?','Ankara','Istanbul','Izmir'],
+  ['Vilket grundämne har den kemiska beteckningen K?','Kalium','Kalcium','Kol'],
+  ['Ungefär hur stor del av jordens yta täcks av hav?','71 procent','61 procent','81 procent'],
+  ['Vilket är Sydamerikas till ytan största land?','Brasilien','Argentina','Peru'],
+  ['Vilket är människokroppens längsta ben?','Lårbenet','Skenbenet','Överarmsbenet'],
+  ['Vilken druva dominerar i röda viner från Bordeaux vänstra strand, som Médoc?','Cabernet Sauvignon','Pinot noir','Syrah'],
+  ['Ungefär hur lång är jordens omkrets vid ekvatorn?','40 000 km','30 000 km','50 000 km'],
+  ['Vilket år invigdes Ölandsbron?','1972','1965','1980']
+ ]
+},
+svar:{
+ sport:[
+  ['Vem var förbundskapten när Sverige tog VM-brons i fotboll 1994?','Tommy Svensson','Lars Lagerbäck','Olle Nordin'],
+  ['I vilken stad gick boxningsmatchen "The Rumble in the Jungle" 1974?','Kinshasa','Manila','Lagos'],
+  ['Hur långt är ett maratonlopp?','42 195 meter','42 000 meter','41 195 meter'],
+  ['Vem har vunnit flest majortitlar i golf på herrsidan?','Jack Nicklaus','Tiger Woods','Arnold Palmer'],
+  ['Vilken svensk klubb vann UEFA-cupen både 1982 och 1987?','IFK Göteborg','Malmö FF','AIK'],
+  ['Vad kallas det i golf att gå ett hål på tre slag under par?','Albatross','Eagle','Condor'],
+  ['Vem blev 1957 förste svensk att vinna en grand slam-titel i singel?','Sven Davidson','Lennart Bergelin','Ulf Schmidt'],
+  ['Vilket år tog Sverige sitt första VM-guld i ishockey?','1953','1957','1962'],
+  ['I vilket land uppfanns padel?','Mexiko','Spanien','Argentina']
+ ],
+ historia:[
+  ['Vilket år delades Nobelpriset ut för första gången?','1901','1896','1910'],
+  ['Genom vilken fred förlorade Sverige Finland 1809?','Freden i Fredrikshamn','Freden i Nystad','Freden i Roskilde'],
+  ['Vem var Sveriges statsminister under större delen av andra världskriget?','Per Albin Hansson','Tage Erlander','Rickard Sandler'],
+  ['Genom vilken fred blev Gotland svenskt 1645?','Freden i Brömsebro','Freden i Roskilde','Freden i Stettin'],
+  ['Vilket år brann slottet Tre Kronor i Stockholm?','1697','1718','1625'],
+  ['Vad hette Östromerska rikets huvudstad?','Konstantinopel','Alexandria','Antiokia'],
+  ['Vem ledde Sovjetunionen under Kubakrisen 1962?','Nikita Chrusjtjov','Josef Stalin','Leonid Brezjnev'],
+  ['Vilket år fick kvinnor för första gången rösta i ett svenskt riksdagsval?','1921','1919','1909'],
+  ['I vilket nuvarande land ligger Waterloo, där Napoleon besegrades 1815?','Belgien','Frankrike','Nederländerna']
+ ],
+ musik:[
+  ['Vem skrev musiken till "Gabriellas sång" i filmen "Så som i himmelen"?','Stefan Nilsson','Benny Andersson','Lars Winnerbäck'],
+  ['Vilket var det sista albumet som Beatles spelade in tillsammans?','Abbey Road','Let It Be','The White Album'],
+  ['Vem spelade in originalet av "I Will Always Love You"?','Dolly Parton','Whitney Houston','Tina Turner'],
+  ['Vilket år vann Carola Eurovision med "Fångad av en stormvind"?','1991','1983','1986'],
+  ['Vilket svenskt band slog igenom internationellt 1996 med "Lovefool"?','The Cardigans','The Hives','Kent'],
+  ['Vilken tonsättare var helt döv när han skrev sin nionde symfoni?','Ludwig van Beethoven','Johannes Brahms','Joseph Haydn'],
+  ['Vem skrev "Fritiof Anderssons paradmarsch"?','Evert Taube','Cornelis Vreeswijk','Fred Åkerström'],
+  ['Vilket band släppte albumet "The Dark Side of the Moon" 1973?','Pink Floyd','Led Zeppelin','Genesis'],
+  ['Vilken av Queens medlemmar var född på Zanzibar?','Freddie Mercury','Brian May','John Deacon']
+ ],
+ underhallning:[
+  ['Vem skrev romanen "Röda rummet"?','August Strindberg','Hjalmar Söderberg','Selma Lagerlöf'],
+  ['Vem var den förste skådespelaren som spelade James Bond i de officiella filmerna?','Sean Connery','Roger Moore','David Niven'],
+  ['Vem ledde TV-programmet "Här är ditt liv"?','Lasse Holmqvist','Lennart Hyland','Arne Weise'],
+  ['Vilken författare skapade kommissarie Martin Beck?','Sjöwall och Wahlöö','Henning Mankell','Håkan Nesser'],
+  ['Vilket år började "Allsång på Skansen" sändas i TV?','1979','1935','1963'],
+  ['För vilken film Oscarsnominerades Lasse Hallström för bästa regi första gången?','Mitt liv som hund','Chocolat','Gilbert Grape'],
+  ['Vilken Ingmar Bergman-film vann en Oscar för bästa utländska film vid galan 1984?','Fanny och Alexander','Viskningar och rop','Smultronstället'],
+  ['Vem tecknade serierna om Tintin?','Hergé','René Goscinny','Morris'],
+  ['Vilken svensk film från 1980 utspelar sig delvis på Kanarieöarna?','Sällskapsresan','Jönssonligan','Picassos äventyr']
+ ],
+ blandat:[
+  ['Hur många ben har en vuxen människa?','206','212','198'],
+  ['Vilken är Sveriges näst största sjö?','Vättern','Mälaren','Hjälmaren'],
+  ['Vad heter Kanadas huvudstad?','Ottawa','Toronto','Montréal'],
+  ['Vilken gas utgör den största delen av jordens atmosfär?','Kväve','Syre','Argon'],
+  ['Vilken druva görs vitt vin från Chablis på?','Chardonnay','Sauvignon blanc','Riesling'],
+  ['Vilket år invigdes Öresundsbron?','2000','1998','2002'],
+  ['Hur många hjärtan har en bläckfisk?','3','2','1'],
+  ['Vilket grundämne har den kemiska beteckningen Ag?','Silver','Guld','Aluminium'],
+  ['Vilket är världens minsta land till ytan?','Vatikanstaten','Monaco','San Marino']
+ ]
+}
+};
+const N=20;
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const card=document.getElementById('card');
+let pool,i,score,results,catStats,level,Q;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function menu(){
+  document.getElementById('progress').innerHTML='';
+  document.getElementById('score').textContent=0;
+  document.getElementById('lvl').textContent='';
+  card.innerHTML=`<p class="q">Välj svårighetsgrad</p><p class="center" style="text-align:left">20 frågor, tre svarsalternativ. Kategorin lottas inför varje fråga.</p>
+    <div class="opts">${Object.keys(LEVELS).map((k,n)=>`<button data-l="${k}"><span class="l">${n+1}</span><span>${LEVELS[k]}</span></button>`).join('')}</div>`;
+  card.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{level=b.dataset.l;Q=BANK[level];start()});
+}
+function start(){
+  document.getElementById('lvl').textContent=LEVELS[level];
+  pool={};for(const k in Q)pool[k]=shuffle(Q[k]);
+  i=0;score=0;results=[];catStats={};for(const k in Q)catStats[k]=[0,0];
+  document.getElementById('score').textContent=0;
+  next();
+}
+function drawProgress(){
+  const p=document.getElementById('progress');p.innerHTML='';
+  for(let k=0;k<N;k++){const e=document.createElement('i');
+    if(k<results.length)e.className=results[k]?'ok':'bad';else if(k===i)e.className='now';p.appendChild(e)}
+}
+function pickCat(){const keys=Object.keys(pool).filter(k=>pool[k].length);return keys[Math.floor(Math.random()*keys.length)]}
+function next(){
+  if(i>=N)return end();
+  drawProgress();
+  const cat=pickCat(), q=pool[cat].pop();
+  card.innerHTML=`<span class="cat spin" id="cat">Lottar kategori…</span><div class="qnum">Fråga ${i+1} av ${N}</div>`;
+  const pill=document.getElementById('cat');const keys=Object.keys(CATS);let t=0;
+  const spin=setInterval(()=>{const k=keys[t++%keys.length];pill.textContent=CATS[k].name;pill.style.setProperty('--c',CATS[k].c)},110);
+  setTimeout(()=>{clearInterval(spin);show(cat,q)},reduce?0:1100);
+}
+function show(cat,q){
+  const opts=shuffle(q.slice(1));
+  card.innerHTML=`<span class="cat" style="--c:${CATS[cat].c}">${CATS[cat].name}</span>
+    <div class="qnum">Fråga ${i+1} av ${N}</div>
+    <p class="q"></p>
+    <div class="opts">${opts.map((o,k)=>`<button data-k="${k}"><span class="l">${'ABC'[k]}</span><span class="t"></span></button>`).join('')}</div>
+    <p class="feedback" id="fb" aria-live="polite"></p>
+    <button class="primary" id="nx" hidden>${i+1<N?'Nästa fråga':'Se resultatet'}</button>`;
+  card.querySelector('.q').textContent=q[0];
+  const btns=[...card.querySelectorAll('.opts button')];
+  btns.forEach((b,k)=>b.querySelector('.t').textContent=opts[k]);
+  btns.forEach((b,k)=>b.onclick=()=>{
+    const ok=opts[k]===q[1];
+    btns.forEach((x,j)=>{x.disabled=true;if(opts[j]===q[1])x.classList.add('right')});
+    if(!ok)b.classList.add('wrong');
+    const fb=document.getElementById('fb');
+    fb.className='feedback '+(ok?'ok':'bad');fb.textContent=ok?'Rätt!':'Fel – rätt svar är '+q[1]+'.';
+    if(ok){score++;document.getElementById('score').textContent=score}
+    results.push(ok);catStats[cat][1]++;if(ok)catStats[cat][0]++;
+    i++;drawProgress();
+    const nx=document.getElementById('nx');nx.hidden=false;nx.focus();nx.onclick=next;
+  });
+}
+function end(){
+  drawProgress();
+  const verdict=score>=17?'Mästarklass!':score>=13?'Riktigt bra jobbat.':score>=9?'Godkänt, men det finns mer att hämta.':'Bättre lycka nästa runda!';
+  card.innerHTML=`<p class="center">Ni fick</p><p class="big">${score} / ${N}</p><p class="center">${verdict}</p>
+    <div class="breakdown">${Object.keys(CATS).filter(k=>catStats[k][1]).map(k=>{const [r,t]=catStats[k];
+      return `<div class="br"><span>${CATS[k].name}</span><span class="bar" style="--c:${CATS[k].c}"><i style="width:${r/t*100}%"></i></span><span class="n">${r}/${t}</span></div>`}).join('')}</div>
+    <button class="primary" id="again">Spela igen på ${LEVELS[level].toLowerCase()}</button>
+    <button class="ghost" id="other">Byt svårighetsgrad</button>`;
+  document.getElementById('again').onclick=start;document.getElementById('other').onclick=menu;
+}
+menu();
+</script>
+
+<script>if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{})</script>
+</body></html>
