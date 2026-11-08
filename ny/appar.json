@@ -1,5 +1,5 @@
 {
-  "uppdaterad": "2026-11-07",
+  "uppdaterad": "2026-11-08",
   "kategorier": [
     {
       "id": "idrott",
@@ -11,6 +11,27 @@
     }
   ],
   "appar": [
+    {
+      "id": "musikquiz",
+      "namn": "Musikquiz 70–90",
+      "kategori": "spel",
+      "adress": "/ny/musikquiz/",
+      "ikon": "/ny/musikquiz/icon-192.png",
+      "knapp": "Öppna spelet",
+      "kort": "Alla mot musiken – känner ni igen artisten och låten?",
+      "text": "Musikquiz att spela tillsammans. Spotify spelar en låt från 70-, 80- eller 90-talet på telefonen, som ligger med skärmen nedåt, och ni styr musiken med Siri, Google-högtalaren eller högtalarens knappar. Gissa artist och titel och bocka av på paddan. Poängen räknas gemensamt.",
+      "version": "1.0 (prov)",
+      "status": "Ny, under provspelning",
+      "efterHemskarm": "Spelet startar sedan direkt från hemskärmen. Musiken kräver Spotify på telefonen.",
+      "andringar": [
+        {
+          "datum": "2026-11-08",
+          "typ": "ny",
+          "version": "1.0",
+          "text": "musikquiz där alla gissar tillsammans, nu under provspelning"
+        }
+      ]
+    },
     {
       "id": "americano",
       "namn": "Americano",

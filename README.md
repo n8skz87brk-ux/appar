@@ -30,6 +30,9 @@ För ett spel görs en provkopia, t.ex. `/ny/huvudstaden/`, som provspelas innan
 
 ## Versioner
 
+### Musikquiz 70–90 (`ny/musikquiz/`, provkopia)
+- **1.0 (prov)** – 8 november 2026. Första versionen: alla spelar tillsammans. Spotify spelar spellistan "Musikquiz 70-90 Talets Hits" på telefonen som ligger med skärmen nedåt; musiken styrs med Siri, "Hey Google" på en Google-högtalare eller högtalarens knappar. På paddan bockar man av Rätt artist och Rätt titel, poängen räknas gemensamt ("14 av 20") och varje låt visas som en ruta. Facit: vänd på telefonen. Förberett för inbyggt facit via listan `TRACKS` i spelordning.
+
 ### Sant eller falskt (`sant/`)
 - **1.0** – 8 november 2026. Första versionen, direkt i drift efter provspelning hemma: dragkamp för två lag på en skärm. Vänster lag låser sitt svar dolt, sedan svarar höger lag. Repet flyttas ett steg mot laget som hade rätt när det andra hade fel; tre steg vinner. 87 påståenden (40 sanna, 47 falska) med förklaring, varav 17 vanliga myter.
 
