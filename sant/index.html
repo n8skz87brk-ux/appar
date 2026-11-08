@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="sv"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Dragkamp i sant eller falskt: två lag svarar, och repet dras mot laget som har rätt.">
+<meta name="theme-color" content="#2c5bd0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sant eller falskt">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}
+.ver{color:var(--muted);font-size:.82rem;margin:0;text-align:center}.ver a{color:inherit}</style>
+<title>Sant eller falskt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+</head><body>
+<style>
+/* Layout: rope band on top, then three columns — left team | question | right team. Stacks on phones. */
+:root{
+  --bg:#eef2ec; --surface:#ffffff; --fg:#1b221d; --muted:#5d6b61; --line:#cfd8cf;
+  --left:#2c5bd0; --left-soft:#dfe7fb; --right:#d2452a; --right-soft:#fbe3dd;
+  --rope:#b8935a; --rope-dark:#8a6a3a; --knot:#e2b007; --ok:#2e8b4e; --bad:#c43a3a;
+  --display:"Archivo Black","Arial Black",Impact,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121814; --surface:#1c241f; --fg:#e9efe9; --muted:#9aa89e; --line:#2f3a33;
+  --left:#6f95f0; --left-soft:#1f2b48; --right:#f07a5f; --right-soft:#46241d;
+  --rope:#c9a56b; --rope-dark:#9b7b48; --knot:#f0c430; --ok:#5cc47f; --bad:#ef6b6b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121814; --surface:#1c241f; --fg:#e9efe9; --muted:#9aa89e; --line:#2f3a33;
+  --left:#6f95f0; --left-soft:#1f2b48; --right:#f07a5f; --right-soft:#46241d;
+  --rope:#c9a56b; --rope-dark:#9b7b48; --knot:#f0c430; --ok:#5cc47f; --bad:#ef6b6b; color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px;
+  box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box}
+.wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(26px,4vw,38px);margin:0;letter-spacing:.01em;text-wrap:balance}
+h1 .s{color:var(--left)} h1 .f{color:var(--right)}
+.meta{color:var(--muted);font-size:14px;display:flex;gap:14px;align-items:center}
+.ghost{background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
+.ghost:hover{color:var(--fg);border-color:var(--muted)}
+
+/* Rope */
+.field{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 0 12px;position:relative;overflow:hidden}
+.names{display:flex;justify-content:space-between;padding:0 18px;gap:10px}
+.names input{font-family:var(--display);font-size:clamp(15px,2.2vw,20px);border:none;background:transparent;width:100%;min-width:0;padding:2px 0;border-bottom:2px dashed transparent}
+.names input:focus{outline:none;border-bottom-color:var(--line)}
+#nameL{color:var(--left)} #nameR{color:var(--right);text-align:right}
+.track{position:relative;height:96px;margin-top:6px}
+.mark{position:absolute;top:10px;bottom:10px;width:0;border-left:2px dashed var(--line)}
+.mark.mid{border-left:2px solid var(--muted);opacity:.6}
+.mark.goalL{border-left:4px solid var(--left)} .mark.goalR{border-left:4px solid var(--right)}
+.tick{position:absolute;bottom:-4px;transform:translateX(-50%);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.rope{position:absolute;top:50%;left:-40%;width:180%;height:14px;margin-top:-7px;border-radius:7px;
+  background:repeating-linear-gradient(115deg,var(--rope) 0 8px,var(--rope-dark) 8px 11px);
+  transition:transform .7s cubic-bezier(.3,1.4,.5,1)}
+.knot{position:absolute;left:50%;top:50%;width:26px;height:44px;margin:-22px 0 0 -13px;background:var(--knot);border-radius:5px;
+  box-shadow:0 0 0 3px var(--surface)}
+.pull{position:absolute;top:50%;transform:translateY(-50%);font-family:var(--display);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.rope.shake{animation:shake .45s}
+@keyframes shake{25%{translate:4px 0}50%{translate:-4px 0}75%{translate:3px 0}}
+
+/* Arena */
+.arena{display:grid;grid-template-columns:1fr minmax(0,1.6fr) 1fr;gap:16px;align-items:stretch}
+.team{border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px;border:2px solid transparent;min-width:0}
+.team.L{background:var(--left-soft)} .team.R{background:var(--right-soft)}
+.team.active.L{border-color:var(--left)} .team.active.R{border-color:var(--right)}
+.team h2{margin:0;font-family:var(--display);font-weight:400;font-size:18px;overflow-wrap:anywhere}
+.team.L h2{color:var(--left)} .team.R h2{color:var(--right)}
+.status{font-size:15px;color:var(--muted);min-height:1.4em}
+.btns{display:flex;flex-direction:column;gap:10px;margin-top:auto}
+.btn{font-family:var(--display);font-size:20px;letter-spacing:.03em;padding:18px 10px;border-radius:12px;border:2px solid var(--fg);background:var(--surface);color:var(--fg);cursor:pointer;transition:transform .08s}
+.btn:active{transform:scale(.97)}
+.btn:focus-visible,.ghost:focus-visible,.go:focus-visible{outline:3px solid var(--knot);outline-offset:2px}
+.btn:disabled{opacity:.35;cursor:default}
+.team.L .btn{border-color:var(--left);color:var(--left)} .team.R .btn{border-color:var(--right);color:var(--right)}
+.locked{display:flex;align-items:center;justify-content:center;gap:8px;padding:30px 10px;border-radius:12px;border:2px dashed currentColor;font-weight:700;margin-top:auto}
+.team.L .locked{color:var(--left)} .team.R .locked{color:var(--right)}
+.verdict{font-family:var(--display);font-size:22px;padding:16px 10px;border-radius:12px;text-align:center;margin-top:auto;color:#fff}
+.verdict.ok{background:var(--ok)} .verdict.bad{background:var(--bad)}
+.verdict small{display:block;font-family:var(--body);font-size:14px;font-weight:700;opacity:.9}
+
+.q{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.qlabel{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
+.qtext{font-size:clamp(21px,2.6vw,28px);font-weight:700;line-height:1.3;margin:0;text-wrap:balance}
+.answer{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+.answer b{font-family:var(--display);font-weight:400;font-size:22px}
+.answer b.t{color:var(--ok)} .answer b.f{color:var(--bad)}
+.answer p{margin:0;color:var(--muted);max-width:60ch}
+.result{font-weight:700}
+.go{margin-top:auto;align-self:flex-start;font-family:var(--display);font-size:18px;padding:14px 22px;border-radius:12px;border:none;background:var(--fg);color:var(--bg);cursor:pointer}
+.hint{color:var(--muted);font-size:15px;margin:0}
+
+.win{text-align:center;padding:30px 20px;border-radius:14px;color:#fff;display:flex;flex-direction:column;gap:14px;align-items:center}
+.win.L{background:var(--left)} .win.R{background:var(--right)}
+.win h2{font-family:var(--display);font-weight:400;font-size:clamp(28px,5vw,44px);margin:0;text-wrap:balance}
+.win p{margin:0}
+.win .go{background:#fff;color:#1b221d;align-self:center}
+
+.answer .result{color:var(--fg);font-weight:700}
+@media (max-width:760px){
+  body{padding-block:10px;font-size:16px}
+  .wrap{gap:12px}
+  header{flex-wrap:nowrap;align-items:center}
+  h1{font-size:24px}
+  .field{padding:10px 0 6px}
+  .track{height:64px;margin-top:2px}
+  .knot{width:22px;height:34px;margin:-17px 0 0 -11px}
+  .arena{grid-template-columns:1fr 1fr;gap:10px}
+  .q{grid-column:1/-1;order:-1;padding:16px;gap:10px}
+  .arena.phase-reveal .q{order:1}
+  .team{padding:12px;gap:8px}
+  .team h2{font-size:16px}
+  .status{font-size:14px}
+  .btn{font-size:17px;padding:14px 8px}
+  .locked{padding:20px 8px}
+  .verdict{font-size:18px;padding:10px 8px}
+  .qtext{font-size:20px}
+  .go{padding:12px 20px;font-size:17px}
+}
+@media (prefers-reduced-motion:reduce){.rope{transition:none}.rope.shake{animation:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1><span class="s">Sant</span> eller <span class="f">falskt</span></h1>
+    <div class="meta"><span id="roundInfo">Runda 1</span><button class="ghost" id="restart">Ny match</button></div>
+  </header>
+
+  <section class="field" aria-label="Repet">
+    <div class="names">
+      <input id="nameL" value="Vänster lag" aria-label="Namn på vänster lag" maxlength="24">
+      <input id="nameR" value="Höger lag" aria-label="Namn på höger lag" maxlength="24">
+    </div>
+    <div class="track" id="track">
+      <div class="mark goalL" style="left:14%"></div>
+      <div class="mark" style="left:26%"></div>
+      <div class="mark" style="left:38%"></div>
+      <div class="mark mid" style="left:50%"></div>
+      <div class="mark" style="left:62%"></div>
+      <div class="mark" style="left:74%"></div>
+      <div class="mark goalR" style="left:86%"></div>
+      <span class="tick" style="left:14%">3</span><span class="tick" style="left:26%">2</span><span class="tick" style="left:38%">1</span>
+      <span class="tick" style="left:62%">1</span><span class="tick" style="left:74%">2</span><span class="tick" style="left:86%">3</span>
+      <div class="rope" id="rope"><div class="knot"></div></div>
+    </div>
+  </section>
+
+  <main id="main"></main>
+  <p class="ver"><a href="../">&larr; Alla Peters appar</a> · Version 1.0 · 8 november 2026</p>
+</div>
+
+<script>
+const Q = [
+ ["Mount Everest är det berg vars topp ligger längst från jordens mittpunkt.",false,"Det är Chimborazo i Ecuador. Jorden buktar ut vid ekvatorn, så toppen ligger ungefär 2 km längre ut än Everests."],
+ ["Blixten slår aldrig ner två gånger på samma ställe.",false,"Höga byggnader träffas gång på gång. Empire State Building träffas runt 20–25 gånger om året."],
+ ["Australien är bredare än månens diameter.",true,"Australien är omkring 4 000 km brett från öst till väst. Månens diameter är ungefär 3 475 km."],
+ ["Kleopatra levde närmare i tid månlandningen än byggandet av Cheopspyramiden.",true,"Pyramiden byggdes runt 2560 f.Kr. Kleopatra dog 30 f.Kr., alltså cirka 2 500 år senare. Till månlandningen var det knappt 2 000 år."],
+ ["Bananer räknas botaniskt som bär.",true,"Botaniskt är ett bär en frukt som utvecklats ur en enda fruktknut och har frön inne i fruktköttet. Bananen uppfyller det."],
+ ["Jordgubbar räknas botaniskt som bär.",false,"Jordgubben är en skenfrukt. De små nötterna på utsidan är de egentliga frukterna."],
+ ["Sverige har fler öar än något annat land i världen.",true,"Enligt SCB har Sverige drygt 267 000 öar, vilket brukar anges som flest i världen."],
+ ["Guldfiskar har bara några sekunders minne.",false,"Försök visar att guldfiskar kan minnas saker i flera månader och kan tränas att reagera på ljud och färger."],
+ ["Kinesiska muren syns med blotta ögat från månen.",false,"Muren är för smal. Den är svår att se även från låg omloppsbana, cirka 400 km upp. Månen ligger omkring 384 000 km bort."],
+ ["Ett dygn på Venus är längre än ett år på Venus.",true,"Venus roterar ett varv på cirka 243 jorddygn men går runt solen på cirka 225."],
+ ["Napoleon var ovanligt kort för sin tid.",false,"Han var runt 168–169 cm, ungefär genomsnittet för franska män då. Myten kommer delvis av att franska och engelska tum var olika långa."],
+ ["Helt rent, destillerat vatten leder elektricitet dåligt.",true,"Det är de lösta salterna och mineralerna i vanligt vatten som gör att det leder ström."],
+ ["Människan använder bara 10 procent av hjärnan.",false,"Hjärnavbildningar visar att praktiskt taget hela hjärnan är aktiv under ett dygn."],
+ ["Vikingarna hade horn på sina hjälmar.",false,"Inga vikingahjälmar med horn har hittats. Bilden kommer främst från 1800-talets romantik och Wagners operor."],
+ ["Hajar fanns på jorden före träden.",true,"De första hajarna dök upp för omkring 450 miljoner år sedan. De första träden kom för cirka 385 miljoner år sedan."],
+ ["Universitetet i Oxford är äldre än aztekernas huvudstad Tenochtitlán.",true,"Undervisning pågick i Oxford redan 1096. Tenochtitlán grundades omkring 1325."],
+ ["Tomaten är botaniskt en frukt.",true,"Den utvecklas ur blomman och innehåller frön, så botaniskt är den en frukt, närmare bestämt ett bär."],
+ ["Stockholms stad är byggd på 14 öar.",true,"Det är den siffra som brukar anges, med bland annat Gamla stan, Södermalm, Kungsholmen och Djurgården."],
+ ["Vänern är Europas största sjö.",false,"Ladoga i Ryssland är störst. Vänern är däremot EU:s största sjö."],
+ ["Kiwifrukten har fått sitt namn efter fågeln kiwi.",true,"Nyzeeländska exportörer döpte om det kinesiska krusbäret till kiwifrukt på 1950-talet, efter landets nationalfågel."],
+ ["Solljuset tar ungefär 8 minuter på sig att nå jorden.",true,"Det tar omkring 8 minuter och 20 sekunder med ljusets hastighet."],
+ ["Pingviner lever vid Nordpolen.",false,"Vilda pingviner lever nästan bara på södra halvklotet. Isbjörnar och pingviner möts aldrig i naturen."],
+ ["Nobelpriset i ekonomi instiftades av Alfred Nobel i hans testamente.",false,"Det instiftades av Sveriges riksbank 1968 och heter officiellt Sveriges riksbanks pris i ekonomisk vetenskap till Alfred Nobels minne."],
+ ["Det finns fler träd på jorden än stjärnor i Vintergatan.",true,"Uppskattningen är cirka 3 biljoner träd, mot 100–400 miljarder stjärnor i Vintergatan."],
+ ["Honung kan hålla i tusentals år om den förvaras rätt.",true,"Ätbar honung har hittats i egyptiska gravar. Låg vattenhalt och surt pH gör att bakterier inte trivs."],
+ ["Fladdermöss är blinda.",false,"Alla fladdermöss kan se, och flyghundar har till och med mycket god syn. Många arter använder dessutom ekolokalisering."],
+ ["Strutsar gömmer huvudet i sanden när de blir rädda.",false,"De lägger sig ibland platt mot marken eller vänder ägg i boet med näbben, vilket kan se ut så på avstånd."],
+ ["Titanic sjönk år 1912.",true,"Hon sjönk natten mellan den 14 och 15 april 1912 på sin jungfruresa."],
+ ["Berlinmuren föll år 1991.",false,"Den föll den 9 november 1989. Tyskland återförenades 1990, och Sovjetunionen upplöstes 1991."],
+ ["Ingvar Kamprad grundade IKEA i Småland.",true,"Han grundade företaget 1943, 17 år gammal. Namnet kommer från Ingvar Kamprad, Elmtaryd och Agunnaryd."],
+ ["Vattnet i ett handfat snurrar åt olika håll på norra och södra halvklotet på grund av jordens rotation.",false,"Corioliseffekten är alldeles för svag i så små mängder. Riktningen styrs av handfatets form och hur vattnet rörde sig."],
+ ["Huden är kroppens största organ.",true,"Hos en vuxen väger den ungefär 4–5 kg och har en yta på knappt 2 kvadratmeter."],
+ ["En vuxen människa har fler ben i kroppen än ett nyfött barn.",false,"Tvärtom. Ett nyfött barn har runt 270–300 ben som växer ihop till 206 hos vuxna."],
+ ["Planeten Neptunus förutsades med matematik innan den sågs i teleskop.",true,"Avvikelser i Uranus bana ledde till beräkningar, och Neptunus hittades 1846 nära den förutsagda platsen."],
+ ["Marie Curie fick Nobelpris i två olika vetenskaper.",true,"Fysik 1903 och kemi 1911. Hon är fortfarande den enda som vunnit i två olika naturvetenskaper."],
+ ["Leonardo da Vinci målade taket i Sixtinska kapellet.",false,"Det var Michelangelo, åren 1508–1512."],
+ ["Antarktis är världens största öken.",true,"En öken definieras av lite nederbörd, inte av värme. Antarktis är större än Sahara."],
+ ["Jorden roterar ett varv kring sin axel på exakt 24 timmar.",false,"Ett varv tar cirka 23 timmar och 56 minuter. Dygnets 24 timmar räknas från sol till sol, och jorden har då hunnit flytta sig en bit i banan."],
+ ["Hummer betraktades förr som fattigmansmat i Nordamerika.",true,"På 1700- och 1800-talet var hummer så vanlig att den gavs till fångar och tjänstefolk."],
+ ["Ugglor kan vrida huvudet ett helt varv, 360 grader.",false,"De klarar ungefär 270 grader tack vare extra halskotor och speciella blodkärl."],
+ ["Selma Lagerlöf var den första kvinnan som fick Nobelpriset i litteratur.",true,"Hon fick priset 1909."],
+ ["Gustav Vasa valdes till kung av Sverige år 1523.",true,"Han valdes i Strängnäs den 6 juni 1523. Därför är 6 juni nationaldag."],
+ ["Svalbard tillhör Sverige.",false,"Svalbard tillhör Norge enligt Svalbardtraktaten från 1920."],
+ ["Kamelens puckel är fylld med vatten.",false,"Puckeln är fettväv som fungerar som energireserv."],
+ ["Ljud färdas snabbare i vatten än i luft.",true,"I vatten omkring 1 480 m/s, i luft omkring 340 m/s."],
+ ["En blixt är varmare än solens yta.",true,"En blixtkanal kan nå runt 30 000 °C. Solens yta är cirka 5 500 °C."],
+ ["Tjurar blir arga av färgen röd.",false,"Nötkreatur ser rött dåligt. Det är rörelsen hos tygstycket som provocerar."],
+ ["Floden Rhen rinner genom Wien.",false,"Det är Donau som rinner genom Wien."],
+ ["Island har ingen egen armé.",true,"Island är Nato-medlem men har ingen stående armé. Kustbevakningen sköter försvarsuppgifter."],
+ ["Shakespeare och Cervantes dog samma år.",true,"Båda dog 1616, med bara några dagars mellanrum enligt de datum som brukar anges."],
+ ["Finland var en del av Sverige fram till 1809.",true,"Efter kriget mot Ryssland 1808–1809 blev Finland ett ryskt storfurstendöme."],
+ ["Helium är det vanligaste grundämnet i universum.",false,"Väte är vanligast, cirka tre fjärdedelar av den vanliga materien. Helium kommer på andra plats."],
+ ["Själva hjärnvävnaden saknar smärtreceptorer.",true,"Därför kan vissa hjärnoperationer göras medan patienten är vaken. Huvudvärk kommer från hinnor och kärl runt hjärnan."],
+ ["Vatikanstaten är världens minsta självständiga stat.",true,"Den är omkring 0,44 kvadratkilometer stor."],
+ ["ABBA vann Eurovision Song Contest 1974 med låten Waterloo.",true,"Tävlingen hölls i Brighton i England."],
+ ["Pi är exakt 3,14.",false,"Pi är ett irrationellt tal, 3,14159…, med oändligt många decimaler utan upprepning."],
+ ["Venus är den hetaste planeten i solsystemet.",true,"Trots att Merkurius ligger närmare solen är Venus hetast, omkring 460 °C, på grund av den täta koldioxidatmosfären."],
+ ["Kiruna är till ytan Sveriges största kommun.",true,"Kiruna kommun är omkring 20 000 km² stor, nästan lika stor som Småland."],
+ ["Eiffeltornet byggdes till världsutställningen i Paris 1889.",true,"Det var tänkt att stå i 20 år men fick vara kvar, bland annat som radiomast."],
+ ["Diamant och grafit består båda av kol.",true,"Skillnaden ligger i hur kolatomerna är ordnade."],
+ ["Den svenska flaggan är äldre än den danska.",false,"Dannebrogen anses vara världens äldsta nationsflagga som fortfarande används."],
+ ["Människor och dinosaurier levde samtidigt.",false,"De sista icke-flygande dinosaurierna dog ut för cirka 66 miljoner år sedan. Människan har funnits i några hundra tusen år."],
+ ["Mount Everest växer fortfarande på höjden.",true,"Indiska plattan trycker mot den eurasiska, och berget höjs några millimeter per år."],
+ ["Saturnus skulle kunna flyta i vatten.",true,"Saturnus medeldensitet är lägre än vattnets, ungefär 0,69 g/cm³."],
+ ["Sjöstjärnor har hjärta och hjärna.",false,"Sjöstjärnor saknar både hjärta och hjärna. De har ett nervnät och pumpar havsvatten genom kroppen."],
+ ["Gamla kyrkfönster är tjockare nertill eftersom glaset har runnit nedåt under århundradena.",false,"Glas rinner inte märkbart vid rumstemperatur. Beräkningar visar att det skulle ta längre tid än universums ålder. Förr blev rutorna ojämnt tjocka vid tillverkningen, och glasmästaren satte oftast den tjocka kanten nedåt. I en del gamla fönster sitter den uppåt."],
+ ["Sverige var neutralt under andra världskriget.",true,"Sverige deltog inte i kriget, även om neutraliteten var omstridd, till exempel genom permittenttrafiken."],
+ ["Ett år på Merkurius är kortare än tre jordmånader.",true,"Merkurius går runt solen på 88 jorddygn."],
+ ["Bläckfiskar har tre hjärtan.",true,"Två hjärtan pumpar blod genom gälarna och ett genom resten av kroppen."],
+ ["Ett rött vin får sin färg från druvsaften.",false,"Saften i de flesta blå druvor är nästan färglös. Färgen kommer från skalen som får ligga med under jäsningen."],
+ ["Tungan har olika zoner för sött, salt, surt och beskt.",false,"Tungkartan kommer från en feltolkning av en tysk avhandling från 1901. Alla smaker känns över hela tungan."],
+ ["Under medeltiden trodde de flesta lärda att jorden var platt.",false,"Att jorden är rund visste lärda redan under antiken. Myten om den platta medeltida jorden spreds på 1800-talet."],
+ ["Columbus ville bevisa att jorden var rund.",false,"Det visste alla redan. Striden gällde jordens storlek, och kritikerna hade rätt: Columbus räknade med en alldeles för liten jord."],
+ ["Blodet i våra vener är blått.",false,"Blod är alltid rött, mörkare när det är syrefattigt. Venerna ser blå ut på grund av hur ljus tränger in i och reflekteras av huden."],
+ ["Vi förlorar det mesta av kroppsvärmen genom huvudet.",false,"Huvudet förlorar ungefär lika mycket värme per yta som resten av kroppen. Myten kommer från ett gammalt arméförsök där bara huvudet var oklätt."],
+ ["Socker gör barn hyperaktiva.",false,"Dubbelblinda studier hittar ingen skillnad. Däremot tolkar föräldrar som tror att barnet fått socker beteendet som mer uppvarvat."],
+ ["Det är vinter i Sverige för att jorden då är längre från solen.",false,"Jorden är som närmast solen i början av januari. Årstiderna beror på jordaxelns lutning."],
+ ["Månen har en baksida som alltid ligger i mörker.",false,"Baksidan får lika mycket solljus som framsidan. Den syns bara aldrig från jorden, eftersom månen alltid vänder samma sida mot oss."],
+ ["Hår och naglar fortsätter att växa efter döden.",false,"Huden torkar och drar ihop sig, så hår och naglar ser längre ut. Ingen ny tillväxt sker."],
+ ["Om man rakar sig växer håret ut tjockare och mörkare.",false,"Stubben känns grövre för att den är avskuren rakt och inte har blekts av solen. Antalet hårstrån och tjockleken ändras inte."],
+ ["Albert Einstein var dålig i matematik i skolan.",false,"Han var mycket duktig och behärskade differential- och integralkalkyl innan han fyllde 15."],
+ ["Isaac Newton fick ett äpple i huvudet och kom på gravitationen.",false,"Newton berättade själv att han såg ett äpple falla i trädgården och började fundera. Att det träffade hans huvud är en senare utsmyckning."],
+ ["Marie Antoinette sa ”Låt dem äta kaka” om det svältande folket.",false,"Det finns inga belägg för det. Uttrycket finns hos Rousseau, skrivet när Marie Antoinette var ett barn i Österrike."],
+ ["Lämlar kastar sig i havet i massor.",false,"De vandrar ibland i stora mängder och en del drunknar. Bilden av massjälvmord kommer från en Disneyfilm från 1958 där scenen var arrangerad."],
+ ["Man ska vänta en timme efter maten innan man badar.",false,"Det finns inga belägg för att en full mage ökar risken att drunkna."],
+ ["Att knäcka knogarna ger artros.",false,"Studier har inte hittat något samband. En läkare knäckte knogarna på bara ena handen i 60 år och fick ingen skillnad mellan händerna."],
+ ["Kameleonter byter färg främst för att smälta in i omgivningen.",false,"Färgbytet styrs främst av humör, kommunikation och temperatur. Kamouflaget kommer mest från deras grundfärg."],
+];
+
+const $=s=>document.querySelector(s);
+const main=$('#main'), rope=$('#rope');
+let deck=[], qi=0, pos=0, round=1, phase='left', ansL=null, ansR=null, wins={L:0,R:0};
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a}
+function names(){return {L:$('#nameL').value.trim()||'Vänster lag',R:$('#nameR').value.trim()||'Höger lag'}}
+function cur(){return deck[qi]}
+function word(b){return b?'Sant':'Falskt'}
+
+function newMatch(){deck=shuffle(Q.map((_,i)=>i));qi=0;pos=0;round=1;phase='left';ansL=ansR=null;drawRope();render()}
+function drawRope(){rope.style.transform=`translateX(${pos*(12/1.8)}%)`}
+// rope is 180% of track; 12% of track per step = 12/1.8 % of rope width
+
+function teamPanel(side){
+  const n=names()[side], q=Q[cur()], active=(phase==='left'&&side==='L')||(phase==='right'&&side==='R');
+  let body='';
+  if(phase==='reveal'){
+    const a=side==='L'?ansL:ansR, ok=a===q[1];
+    body=`<div class="status">Svarade ${word(a).toLowerCase()}</div><div class="verdict ${ok?'ok':'bad'}">${ok?'Rätt!':'Fel'}<small>${word(a)}</small></div>`;
+  } else if(side==='L'){
+    body = phase==='left'
+      ? `<div class="status">Er tur att svara</div><div class="btns"><button class="btn" data-a="1">Sant</button><button class="btn" data-a="0">Falskt</button></div>`
+      : `<div class="status">Svaret är hemligt</div><div class="locked">Svar låst</div>`;
+  } else {
+    body = phase==='right'
+      ? `<div class="status">Er tur att svara</div><div class="btns"><button class="btn" data-a="1">Sant</button><button class="btn" data-a="0">Falskt</button></div>`
+      : `<div class="status">Väntar på ${esc(names().L)}</div><div class="btns"><button class="btn" disabled>Sant</button><button class="btn" disabled>Falskt</button></div>`;
+  }
+  return `<section class="team ${side}${active?' active':''}" data-side="${side}"><h2>${esc(n)}</h2>${body}</section>`;
+}
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+function render(){
+  $('#roundInfo').textContent=`Runda ${round}`;
+  if(phase==='win'){
+    const side=pos<=-3?'L':'R', n=names()[side];
+    main.innerHTML=`<div class="win ${side}"><h2>${esc(n)} vinner!</h2><p>Repet drogs över linjen efter ${round} rundor.</p><button class="go" id="again">Spela igen</button></div>`;
+    $('#again').onclick=newMatch; $('#again').focus(); return;
+  }
+  const q=Q[cur()];
+  let center=`<div class="qlabel">Fråga ${round}</div><p class="qtext">${q[0]}</p>`;
+  if(phase==='left') center+=`<p class="hint">${esc(names().L)} svarar först. ${esc(names().R)} tittar bort.</p>`;
+  if(phase==='right') center+=`<p class="hint">${esc(names().L)} har låst sitt svar. Nu svarar ${esc(names().R)}.</p>`;
+  if(phase==='reveal'){
+    const okL=ansL===q[1], okR=ansR===q[1], n=names();
+    let res = okL===okR ? (okL?'Båda hade rätt. Repet står still.':'Båda hade fel. Repet står still.')
+      : `${okL?n.L:n.R} drar repet ett steg.`;
+    center+=`<div class="answer"><b class="${q[1]?'t':'f'}">${word(q[1])}</b><p class="result">${esc(res)}</p><p>${q[2]}</p></div><button class="go" id="next">Nästa fråga</button>`;
+  }
+  main.innerHTML=`<div class="arena phase-${phase}">${teamPanel('L')}<section class="q">${center}</section>${teamPanel('R')}</div>`;
+  main.querySelectorAll('.btn[data-a]').forEach(b=>b.onclick=()=>answer(b.closest('.team').dataset.side,b.dataset.a==='1'));
+  const nx=$('#next'); if(nx){nx.onclick=next; nx.focus();}
+}
+
+function answer(side,val){
+  if(side==='L'&&phase==='left'){ansL=val;phase='right';render();return}
+  if(side==='R'&&phase==='right'){
+    ansR=val;phase='reveal';
+    const t=Q[cur()][1], okL=ansL===t, okR=ansR===t;
+    if(okL&&!okR)pos--; else if(okR&&!okL)pos++;
+    else{rope.classList.remove('shake');void rope.offsetWidth;rope.classList.add('shake')}
+    drawRope();render();
+  }
+}
+function next(){
+  if(Math.abs(pos)>=3){phase='win';render();return}
+  qi++; if(qi>=deck.length){deck=shuffle(deck);qi=0}
+  round++;ansL=ansR=null;phase='left';render();
+}
+
+$('#restart').onclick=newMatch;
+['#nameL','#nameR'].forEach(s=>$(s).addEventListener('input',()=>{if(phase!=='win')render()}));
+newMatch();
+</script>
+
+<script>if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{})</script>
+</body></html>

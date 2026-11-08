@@ -1,5 +1,5 @@
 {
-  "uppdaterad": "2026-11-07",
+  "uppdaterad": "2026-11-08",
   "kategorier": [
     {
       "id": "idrott",
@@ -148,6 +148,27 @@
           "typ": "ny",
           "version": "1.1",
           "text": "frågesport för familjen med 90 frågor på varje nivå"
+        }
+      ]
+    },
+    {
+      "id": "sant",
+      "namn": "Sant eller falskt",
+      "kategori": "spel",
+      "adress": "/sant/",
+      "ikon": "/sant/icon-192.png",
+      "knapp": "Öppna spelet",
+      "kort": "Dragkamp för två lag – svara sant eller falskt och dra repet.",
+      "text": "Frågespel för två lag som en dragkamp. Ett påstående visas och vänster lag låser sitt svar i hemlighet innan höger lag svarar. Har ena laget rätt och det andra fel dras repet ett steg mot laget som hade rätt. Först att dra repet tre steg vinner. 87 påståenden om allmänbildning och vanliga myter, med en förklaring efter varje svar.",
+      "version": "1.0",
+      "status": "Ny",
+      "efterHemskarm": "Spelet startar sedan direkt från hemskärmen och fungerar utan internet.",
+      "andringar": [
+        {
+          "datum": "2026-11-08",
+          "typ": "ny",
+          "version": "1.0",
+          "text": "dragkamp i sant eller falskt för två lag"
         }
       ]
     },

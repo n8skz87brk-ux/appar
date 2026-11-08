@@ -30,6 +30,9 @@ För ett spel görs en provkopia, t.ex. `/ny/huvudstaden/`, som provspelas innan
 
 ## Versioner
 
+### Sant eller falskt (`sant/`)
+- **1.0** – 8 november 2026. Första versionen, direkt i drift efter provspelning hemma: dragkamp för två lag på en skärm. Vänster lag låser sitt svar dolt, sedan svarar höger lag. Repet flyttas ett steg mot laget som hade rätt när det andra hade fel; tre steg vinner. 87 påståenden (40 sanna, 47 falska) med förklaring, varav 17 vanliga myter.
+
 ### Glenn läser Göteborgsvitsar (`ny/glenn/`, provkopia)
 - **1.0 (prov)** – 5 november 2026. Första versionen: en vits i taget läses upp med telefonens svenska röst – frågan, kort paus, poängen (eller gissa först och tryck fram poängen). Stönmätare (Haha/Hmm/Åh nej), favoriter, egna vitsar och möjlighet att gömma vitsar, allt sparat i telefonen. 80 vitsar. Förberedd för inspelningar: lägg `ljud/<id>-f.mp3` och `ljud/<id>-s.mp3` och skriv id:t i `INSPELADE`.
 
