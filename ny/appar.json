@@ -180,11 +180,17 @@
       "ikon": "/fragesport/icon-192.png",
       "knapp": "Öppna spelet",
       "kort": "20 frågor, tre svar att välja på – kategorin lottas.",
-      "text": "Frågesport att spela tillsammans. Inför varje fråga lottas en kategori: sport, historia, musik, underhållning eller blandat. Tre svarsalternativ, 20 frågor per omgång och resultatet per kategori på slutet. Välj mellan lätt, medel och svår, med 90 frågor på varje nivå.",
-      "version": "1.1",
+      "text": "Frågesport att spela tillsammans. Inför varje fråga lottas en kategori: sport, historia, musik, underhållning eller blandat. Tre svarsalternativ, 20 frågor per omgång och resultatet per kategori på slutet. Välj mellan lätt (90 frågor), medel (216) och svår (138). Spelet minns vilka frågor du redan fått, så du går igenom hela nivån innan något kommer tillbaka.",
+      "version": "1.2",
       "status": "Ny",
       "efterHemskarm": "Spelet startar sedan direkt från hemskärmen och fungerar utan internet.",
       "andringar": [
+        {
+          "datum": "2026-11-09",
+          "typ": "uppdaterad",
+          "version": "1.2",
+          "text": "126 nya frågor på medel och 48 på svår, och spelet minns vilka frågor du redan fått"
+        },
         {
           "datum": "2026-11-07",
           "typ": "ny",
