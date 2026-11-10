@@ -189,30 +189,38 @@ footer.site a{color:#fff}
 .paper{position:relative;max-width:560px;background:var(--paper);color:#15201E;padding:30px 30px 26px;border-radius:3px;transform:rotate(-1.2deg);
   box-shadow:0 1px 1px rgba(0,0,0,.15),0 12px 26px -10px rgba(40,20,0,.55)}
 .paper::before{content:"";position:absolute;top:-14px;left:50%;width:112px;height:28px;transform:translateX(-50%) rotate(2deg);background:rgba(240,218,150,.78);box-shadow:0 1px 2px rgba(40,20,0,.2)}
-.paper .eyebrow{color:#1D5A84}
-.paper h1{font-size:clamp(32px,5.6vw,52px);line-height:1.05;letter-spacing:-0.02em;max-width:13ch}
+.paper h1{font-size:clamp(25px,3.7vw,33px);line-height:1.2;letter-spacing:-0.01em;max-width:20ch}
 .paper .lead{color:#3C4A47;font-size:17px;margin:18px 0 0}
 .paper .hint{margin:14px 0 0;font-size:15px;font-weight:600;color:#1D5A84}
 .decor{position:absolute;pointer-events:none;display:none;filter:drop-shadow(0 4px 3px rgba(40,20,0,.3)) drop-shadow(0 12px 14px rgba(40,20,0,.25))}
-.decor.cup{top:6px;right:22px;width:clamp(120px,17vw,170px)}
-.decor.pen{top:196px;right:150px;width:230px;transform:rotate(-24deg)}
-@media (min-width:760px){.decor.cup{display:block}}
-@media (min-width:1000px){.decor.pen{display:block}}
+.decor.cup{top:4px;right:max(22px,calc(50% - 548px));width:150px}
+.decor.pen{top:188px;right:max(40px,calc(50% - 530px));width:210px;transform:rotate(-24deg)}
+@media (min-width:1060px){.decor{display:block}}
+.top-row{display:flex;flex-wrap:wrap;align-items:center;gap:26px 40px}
+.top-row .paper{flex:1 1 380px}
+.tape,.thing .lbl{background:var(--tape-lbl);color:#15201E;font-size:13px;font-weight:600;line-height:1.25;padding:4px 10px;text-align:center;border-radius:2px;box-shadow:0 1px 2px rgba(40,20,0,.4)}
+/* Lådan: appar som inte är spel. Visas bara om det finns någon. */
+.tray{position:relative;flex:0 0 auto;min-width:176px;padding:24px 8px 4px;border:7px solid #8A5A2B;border-radius:10px;background:rgba(55,30,8,.24);transform:rotate(1.4deg);
+  box-shadow:inset 0 7px 12px rgba(30,15,0,.45),0 8px 12px -6px rgba(30,15,0,.5)}
+.tray > .tape{position:absolute;top:-15px;left:14px;transform:rotate(-3deg)}
+.tray .things{margin:0;flex-wrap:nowrap}
+.tray .things li{flex:0 0 160px;padding-bottom:10px}
+@media (min-width:700px){.tray .things{flex-direction:column}.tray .things li{flex-basis:auto}}
+@media (max-width:699px){.tray .things li{flex-basis:118px}.tray{min-width:0}}
 .things{list-style:none;margin:30px 0 0;padding:0;display:flex;flex-wrap:wrap;justify-content:center}
 .things li{flex:0 0 20%;min-width:0;display:flex;justify-content:center;padding:8px 4px 16px}
 @media (max-width:700px){.things li{flex-basis:33.333%}}
 @media (max-width:330px){.things li{flex-basis:50%}}
 .thing{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;max-width:176px;
   transform:translateY(var(--y,0px));-webkit-tap-highlight-color:transparent;animation:land .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*70ms)}
-.thing .obj{display:block;width:min(100%,136px);height:auto;aspect-ratio:1;transform:rotate(var(--r,0deg));transition:transform .25s cubic-bezier(.2,.8,.2,1.3),filter .25s;
+.thing .obj{display:block;overflow:visible;width:min(100%,136px);height:auto;aspect-ratio:1;transform:rotate(var(--r,0deg));transition:transform .25s cubic-bezier(.2,.8,.2,1.3),filter .25s;
   filter:drop-shadow(0 3px 2px rgba(40,20,0,.35)) drop-shadow(0 8px 9px rgba(40,20,0,.22))}
 .thing img.obj{border-radius:22%}
 .thing:hover .obj,.thing:focus-visible .obj{transform:rotate(0deg) translateY(-7px) scale(1.09);filter:drop-shadow(0 16px 12px rgba(40,20,0,.38))}
 .thing:active .obj{transform:rotate(0deg) scale(.97)}
 .thing:focus-visible{outline:none}
 .thing:focus-visible .lbl{outline:2px solid #15201E;outline-offset:2px}
-.thing .lbl{background:var(--tape-lbl);color:#15201E;font-size:13px;font-weight:600;line-height:1.25;padding:4px 10px;text-align:center;border-radius:2px;
-  box-shadow:0 1px 2px rgba(40,20,0,.4);transform:rotate(var(--t,0deg));max-width:100%;text-wrap:balance;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
+.thing .lbl{transform:rotate(var(--t,0deg));max-width:100%;text-wrap:balance;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
 @media (max-width:700px){.thing .lbl{font-size:12px;padding:3px 7px}.bench{padding-block:34px 18px}.paper{padding:24px 22px 22px}}
 @keyframes land{from{opacity:0;transform:translateY(calc(var(--y,0px) - 28px)) scale(1.12)}to{opacity:1;transform:translateY(var(--y,0px))}}
 @media (prefers-reduced-motion: reduce){.thing{animation:none}.thing .obj{transition:none}}
@@ -240,13 +248,18 @@ footer.site a{color:#fff}
     <svg class="decor cup" viewBox="0 0 140 140" aria-hidden="true"><circle cx="64" cy="70" r="58" fill="#E9E4DA" stroke="#C6BEAD" stroke-width="2"/><circle cx="64" cy="70" r="46" fill="none" stroke="#D6CFC0" stroke-width="2"/><rect x="92" y="60" width="40" height="20" rx="10" fill="#F7F4EE" stroke="#C6BEAD" stroke-width="2"/><circle cx="64" cy="70" r="36" fill="#F7F4EE" stroke="#C6BEAD" stroke-width="2"/><circle cx="64" cy="70" r="29" fill="#5B3A21"/><path d="M44 60a24 24 0 0 1 22-13" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="4" stroke-linecap="round"/></svg>
     <svg class="decor pen" viewBox="0 0 230 22" aria-hidden="true"><path d="M0 11l30-9v18z" fill="#E7C89A"/><path d="M0 11l10-3v6z" fill="#333"/><rect x="30" y="2" width="160" height="18" fill="#E8B321"/><rect x="30" y="8" width="160" height="6" fill="#F2C94C"/><rect x="190" y="2" width="16" height="18" fill="#B9BEC2"/><rect x="206" y="2" width="22" height="18" rx="5" fill="#E58F8F"/></svg>
     <div class="wrap">
-      <div class="paper">
-        <p class="eyebrow">Appar och spel</p>
-        <h1 id="bench-h">Jag hittar på. AI:n bygger.</h1>
-        <p class="lead">Appar och spel jag har byggt för mig själv och mina vänner. De är gratis, kräver inget konto och sparar allt i din egen telefon eller dator.</p>
-        <p class="hint">Plocka upp något från bänken.</p>
+      <div class="top-row">
+        <div class="paper">
+          <h1 id="bench-h">Appar och spel jag har byggt för mig själv och mina vänner.</h1>
+          <p class="lead">De är gratis, kräver inget konto och sparar allt i din egen telefon eller dator.</p>
+          <p class="hint">Plocka upp något från bänken.</p>
+        </div>
+        <div class="tray" id="lada" hidden>
+          <span class="tape">Appar</span>
+          <ul class="things" id="appsaker" aria-label="Apparna, i lådan"></ul>
+        </div>
       </div>
-      <ul class="things" id="saker" aria-label="Apparna som föremål på arbetsbänken"></ul>
+      <ul class="things" id="saker" aria-label="Spelen som föremål på arbetsbänken"></ul>
     </div>
   </section>
 
@@ -411,18 +424,24 @@ footer.site a{color:#fff}
     kung: S+'<g transform="rotate(9 60 60)"><rect x="29" y="12" width="62" height="96" rx="7" fill="#FFFDF7" stroke="#C4BCA8" stroke-width="2"/><text x="36" y="33" font-family="Georgia,serif" font-weight="700" font-size="17" fill="#B3261E">K</text><text x="84" y="87" font-family="Georgia,serif" font-weight="700" font-size="17" fill="#B3261E" transform="rotate(180 84 87)" text-anchor="start">K</text><path d="M41 72l3-24 10 11 6-16 6 16 10-11 3 24z" fill="#E3B23C" stroke="#9C7210" stroke-width="2" stroke-linejoin="round"/><rect x="40" y="71" width="40" height="8" rx="2" fill="#C8922A" stroke="#9C7210" stroke-width="1.5"/><circle cx="50" cy="75" r="2" fill="#B3261E"/><circle cx="60" cy="75" r="2" fill="#1D5A84"/><circle cx="70" cy="75" r="2" fill="#B3261E"/><circle cx="44" cy="47" r="3" fill="#E3B23C" stroke="#9C7210" stroke-width="1.5"/><circle cx="60" cy="42" r="3" fill="#E3B23C" stroke="#9C7210" stroke-width="1.5"/><circle cx="76" cy="47" r="3" fill="#E3B23C" stroke="#9C7210" stroke-width="1.5"/></g></svg>',
     flest: S+'<rect x="15" y="21" width="90" height="78" rx="7" fill="#F1E3C6" stroke="#7A4E2A" stroke-width="7"/><path d="M18 41h84M18 60h84M18 79h84" stroke="#555" stroke-width="2"/><g fill="#D8412F" stroke="#9C2A1C" stroke-width="1.5"><rect x="23" y="33" width="11" height="16" rx="5"/><rect x="35" y="33" width="11" height="16" rx="5"/><rect x="47" y="33" width="11" height="16" rx="5"/><rect x="74" y="33" width="11" height="16" rx="5"/><rect x="86" y="33" width="11" height="16" rx="5"/></g><g fill="#E8B321" stroke="#A87A12" stroke-width="1.5"><rect x="23" y="52" width="11" height="16" rx="5"/><rect x="50" y="52" width="11" height="16" rx="5"/><rect x="62" y="52" width="11" height="16" rx="5"/><rect x="74" y="52" width="11" height="16" rx="5"/><rect x="86" y="52" width="11" height="16" rx="5"/></g><g fill="#2F86C5" stroke="#1D5A84" stroke-width="1.5"><rect x="23" y="71" width="11" height="16" rx="5"/><rect x="35" y="71" width="11" height="16" rx="5"/><rect x="47" y="71" width="11" height="16" rx="5"/><rect x="59" y="71" width="11" height="16" rx="5"/><rect x="86" y="71" width="11" height="16" rx="5"/></g></svg>',
     fragesport: S+'<rect x="31" y="20" width="58" height="80" rx="7" fill="#F4EAD0" stroke="#C4B894" stroke-width="2" transform="rotate(-16 60 60)"/><rect x="31" y="20" width="58" height="80" rx="7" fill="#DCE9F1" stroke="#9DB7C8" stroke-width="2" transform="rotate(-4 60 60)"/><g transform="rotate(9 60 60)"><rect x="31" y="20" width="58" height="80" rx="7" fill="#E8873A" stroke="#B05A18" stroke-width="2"/><rect x="37" y="26" width="46" height="68" rx="4" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.5"/><text x="60" y="79" text-anchor="middle" font-family="Space Grotesk,Arial,sans-serif" font-weight="700" font-size="52" fill="#fff">?</text></g></svg>',
-    sant: S+'<path d="M8 80c18-26 32 8 52-20s34 6 52-22" fill="none" stroke="#6E4B20" stroke-width="13" stroke-linecap="round"/><path d="M8 80c18-26 32 8 52-20s34 6 52-22" fill="none" stroke="#C99A5B" stroke-width="9" stroke-linecap="round"/><path d="M8 80c18-26 32 8 52-20s34 6 52-22" fill="none" stroke="#8C6431" stroke-width="9" stroke-dasharray="2 7" stroke-opacity=".7"/><g transform="translate(60 60) rotate(-54)"><path d="M-4 8l-5 17 9-6 9 6-5-17z" fill="#B3261E"/><rect x="-5" y="-9" width="10" height="18" rx="2" fill="#D8412F" stroke="#9C2A1C" stroke-width="1.5"/></g><circle cx="26" cy="34" r="13" fill="#3E9B5F" stroke="#256B3E" stroke-width="2"/><path d="M20 34l4.5 4.5L33 29" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="94" cy="92" r="13" fill="#D8412F" stroke="#9C2A1C" stroke-width="2"/><path d="M89 87l10 10M99 87l-10 10" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/></svg>',
+    sant: '<svg class="obj" viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="30" cy="103" rx="16" ry="3.5" fill="#000" fill-opacity=".18"/><ellipse cx="90" cy="103" rx="16" ry="3.5" fill="#000" fill-opacity=".18"/><path d="M33 64h54" stroke="#6E4B20" stroke-width="7" stroke-linecap="round"/><path d="M33 64h54" stroke="#C99A5B" stroke-width="4.2" stroke-linecap="round"/><path d="M33 64h54" stroke="#8C6431" stroke-width="4.2" stroke-dasharray="2 5" stroke-opacity=".7"/><path d="M57 68l-3 15 6-5 6 5-3-15z" fill="#B3261E"/><rect x="56" y="58" width="8" height="12" rx="2" fill="#D8412F" stroke="#9C2A1C" stroke-width="1.5"/><g fill="#2A66B8" stroke="#2A66B8"><circle cx="13" cy="41" r="7"/><path d="M17 52l7 22M17 53l17 11M24 74l14 24M24 74l3 26" fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g><g fill="#D8412F" stroke="#D8412F" transform="translate(120 0) scale(-1 1)"><circle cx="13" cy="41" r="7"/><path d="M17 52l7 22M17 53l17 11M24 74l14 24M24 74l3 26" fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g><circle cx="46" cy="30" r="10" fill="#3E9B5F" stroke="#256B3E" stroke-width="2"/><path d="M41.5 30l3.2 3.2L51 26.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="74" cy="30" r="10" fill="#D8412F" stroke="#9C2A1C" stroke-width="2"/><path d="M70.5 26.5l7 7M77.5 26.5l-7 7" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>',
     granslandet: S+'<g transform="rotate(-12 38 62) translate(-5 2)"><g fill="#3F7A45" stroke="#3F7A45" stroke-width="5" stroke-linejoin="round"><rect x="16" y="40" width="42" height="42" rx="3"/><circle cx="62" cy="61" r="7.5"/></g><g fill="#74B56E"><rect x="16" y="40" width="42" height="42" rx="3"/><circle cx="62" cy="61" r="7.5"/></g><path d="M24 54c6-6 14 2 20-2s8 8 4 14-14 2-18 6-10-10-6-18z" fill="#fff" fill-opacity=".28"/></g><path d="M68 38h42v42H68V68a8 8 0 0 0 0-16z" fill="#EBC752" stroke="#A8851A" stroke-width="2.5" stroke-linejoin="round"/><path d="M82 48c8-4 18 2 18 10s-8 14-14 12-10-16-4-22z" fill="#fff" fill-opacity=".3"/></svg>',
-    narmast: S+'<circle cx="60" cy="24" r="15" fill="#fff" stroke="#1B1F1E" stroke-width="2"/><circle cx="60" cy="24" r="9" fill="none" stroke="#D8412F" stroke-width="3"/><circle cx="60" cy="24" r="3" fill="#D8412F"/><g transform="translate(52 28) rotate(58)"><path d="M0 0h20" stroke="#8D949A" stroke-width="2.5" stroke-linecap="round"/><rect x="18" y="-4" width="30" height="8" rx="3.5" fill="#C9A227" stroke="#8C6C10" stroke-width="1.2"/><path d="M26 -4v8M32 -4v8M38 -4v8" stroke="#8C6C10" stroke-width="1.2"/><rect x="48" y="-1.6" width="22" height="3.2" fill="#333"/><path d="M68 0l8-12h15l-6 12 6 12H76z" fill="#D8412F" stroke="#9C2A1C" stroke-width="1.5" stroke-linejoin="round"/></g><g transform="translate(74 34) rotate(118)"><path d="M0 0h20" stroke="#8D949A" stroke-width="2.5" stroke-linecap="round"/><rect x="18" y="-4" width="30" height="8" rx="3.5" fill="#C9A227" stroke="#8C6C10" stroke-width="1.2"/><path d="M26 -4v8M32 -4v8M38 -4v8" stroke="#8C6C10" stroke-width="1.2"/><rect x="48" y="-1.6" width="22" height="3.2" fill="#333"/><path d="M68 0l8-12h15l-6 12 6 12H76z" fill="#2F86C5" stroke="#1D5A84" stroke-width="1.5" stroke-linejoin="round"/></g></svg>'
+    narmast: '<svg class="obj" viewBox="0 0 120 120" aria-hidden="true"><circle cx="42" cy="50" r="35" fill="#fff" stroke="#1B1F1E" stroke-width="2.5"/><circle cx="42" cy="50" r="26" fill="none" stroke="#D8412F" stroke-width="6"/><circle cx="42" cy="50" r="14" fill="none" stroke="#D8412F" stroke-width="5"/><circle cx="42" cy="50" r="4.5" fill="#D8412F"/><g transform="translate(62 34) rotate(20) scale(.7)"><path d="M0 0h20" stroke="#8D949A" stroke-width="2.5" stroke-linecap="round"/><rect x="18" y="-4" width="30" height="8" rx="3.5" fill="#C9A227" stroke="#8C6C10" stroke-width="1.2"/><path d="M26 -4v8M32 -4v8M38 -4v8" stroke="#8C6C10" stroke-width="1.2"/><rect x="48" y="-1.6" width="22" height="3.2" fill="#333"/><path d="M68 0l8-12h15l-6 12 6 12H76z" fill="#2F86C5" stroke="#1D5A84" stroke-width="1.5" stroke-linejoin="round"/></g><g transform="translate(46 54) rotate(50) scale(.72)"><path d="M0 0h20" stroke="#8D949A" stroke-width="2.5" stroke-linecap="round"/><rect x="18" y="-4" width="30" height="8" rx="3.5" fill="#C9A227" stroke="#8C6C10" stroke-width="1.2"/><path d="M26 -4v8M32 -4v8M38 -4v8" stroke="#8C6C10" stroke-width="1.2"/><rect x="48" y="-1.6" width="22" height="3.2" fill="#333"/><path d="M68 0l8-12h15l-6 12 6 12H76z" fill="#D8412F" stroke="#9C2A1C" stroke-width="1.5" stroke-linejoin="round"/></g></svg>'
   };
   var LUTA = [-8,5,-4,7,-6,4,-7,6,-3,8], HOJD = [0,10,-4,8,2,-6,6,0,10,-2], TEJP = [-2,1.5,-1,2,-1.5,1,-2,1.5,-1,2];
+  function sak(a, i){
+    var n = i % 10;
+    var bild = SAKER[a.id] || '<img class="obj" src="'+esc(a.ikon)+'" alt="" width="136" height="136">';
+    return '<li><button class="thing" type="button" data-info="'+a.id+'" style="--i:'+i+';--r:'+LUTA[n]+'deg;--y:'+HOJD[n]+'px;--t:'+TEJP[n]+'deg" aria-label="'+esc(a.namn)+' – '+esc(a.kort||'')+'">' +
+      bild + '<span class="lbl">'+esc(a.namn)+'</span></button></li>';
+  }
+  // Spelen ligger på bänken, övriga appar i lådan bredvid lappen.
   function ritaBanken(data){
-    document.getElementById('saker').innerHTML = data.appar.map(function(a, i){
-      var n = i % 10;
-      var bild = SAKER[a.id] || '<img class="obj" src="'+esc(a.ikon)+'" alt="" width="136" height="136">';
-      return '<li><button class="thing" type="button" data-info="'+a.id+'" style="--i:'+i+';--r:'+LUTA[n]+'deg;--y:'+HOJD[n]+'px;--t:'+TEJP[n]+'deg" aria-label="'+esc(a.namn)+' – '+esc(a.kort||'')+'">' +
-        bild + '<span class="lbl">'+esc(a.namn)+'</span></button></li>';
-    }).join('');
+    var spel = data.appar.filter(function(a){ return a.kategori === 'spel'; });
+    var ovrigt = data.appar.filter(function(a){ return a.kategori !== 'spel'; });
+    document.getElementById('lada').hidden = !ovrigt.length;
+    document.getElementById('appsaker').innerHTML = ovrigt.map(function(a, i){ return sak(a, i).replace('--y:'+HOJD[i%10]+'px','--y:0px'); }).join('');
+    document.getElementById('saker').innerHTML = spel.map(function(a, i){ return sak(a, i + ovrigt.length); }).join('');
   }
 
   function visa(data){
