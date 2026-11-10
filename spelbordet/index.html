@@ -398,7 +398,7 @@ footer.site a{color:#fff}
 
   var APPAR = {};
   // Prov: appar och spel skiljs åt. Kategorin idrott visas som Appar tills appar.json ändras.
-  var RUBRIK = {idrott:'Appar'};
+  var RUBRIK = {idrott:'Appar', spel:'Spel'};
 
   fetch('/appar.json', {cache:'no-cache'}).then(function(r){ return r.json(); }).then(visa).catch(function(){
     document.getElementById('kategorier').innerHTML = '<p class="empty">Apparna kunde inte laddas. Ladda om sidan.</p>';
