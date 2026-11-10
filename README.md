@@ -8,7 +8,7 @@ Peters appar – https://peter.ekvardt.se
 
 **`/ny/` är utvecklingsversionen.** Den har egen `ny/index.html` och `ny/appar.json`, en gul rad överst och är dold för sökmotorer. När den är klar kopieras den till huvudsidan, utan den gula raden och utan `noindex`.
 
-**`/spelbordet/` är ett prov av ny förstasida ("verkstaden").** En kopia av startsidan där toppen är en arbetsbänk med ett föremål per spel, och övriga appar (allt som inte har kategorin `spel`) i en låda bredvid lappen; föremålen ritas i `SAKER` i sidans skript, namn och texter läses från `/appar.json`. En app utan eget föremål visas med sin ikon. Dold för sökmotorer. Tas bort eller flyttas till startsidan när Peter bestämt sig.
+**`/spelbordet/` är ett prov av ny förstasida ("verkstaden").** En kopia av startsidan där toppen är en arbetsbänk med ett föremål per spel (kategorin `spel`). Appar och spel skiljs åt: menyn har både Appar och Spel, och kategorin Idrott visas som Appar (`RUBRIK` i skriptet); föremålen ritas i `SAKER` i sidans skript, namn och texter läses från `/appar.json`. En app utan eget föremål visas med sin ikon. Dold för sökmotorer. Tas bort eller flyttas till startsidan när Peter bestämt sig.
 
 ### Småfix eller större ändring?
 

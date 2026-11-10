@@ -76,7 +76,7 @@ nav a:hover{color:var(--accent)}
 
 .apps{padding-block:60px}
 .apps > .wrap > .lead{margin:12px 0 8px}
-.cat{margin-top:36px}
+.cat{margin-top:36px;scroll-margin-top:16px}
 .cat-h{font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-family:var(--body);margin-bottom:14px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:22px}
 /* Kort på iPad/dator, kompakta rader på mobil */
@@ -195,18 +195,11 @@ footer.site a{color:#fff}
 .decor{position:absolute;pointer-events:none;display:none;filter:drop-shadow(0 4px 3px rgba(40,20,0,.3)) drop-shadow(0 12px 14px rgba(40,20,0,.25))}
 .decor.cup{top:4px;right:max(22px,calc(50% - 548px));width:150px}
 .decor.pen{top:188px;right:max(40px,calc(50% - 530px));width:210px;transform:rotate(-24deg)}
-@media (min-width:1060px){.decor{display:block}}
+@media (min-width:760px){.decor.cup{display:block}}
+@media (min-width:1060px){.decor.pen{display:block}}
 .top-row{display:flex;flex-wrap:wrap;align-items:center;gap:26px 40px}
 .top-row .paper{flex:1 1 380px}
 .tape,.thing .lbl{background:var(--tape-lbl);color:#15201E;font-size:13px;font-weight:600;line-height:1.25;padding:4px 10px;text-align:center;border-radius:2px;box-shadow:0 1px 2px rgba(40,20,0,.4)}
-/* Lådan: appar som inte är spel. Visas bara om det finns någon. */
-.tray{position:relative;flex:0 0 auto;min-width:176px;padding:24px 8px 4px;border:7px solid #8A5A2B;border-radius:10px;background:rgba(55,30,8,.24);transform:rotate(1.4deg);
-  box-shadow:inset 0 7px 12px rgba(30,15,0,.45),0 8px 12px -6px rgba(30,15,0,.5)}
-.tray > .tape{position:absolute;top:-15px;left:14px;transform:rotate(-3deg)}
-.tray .things{margin:0;flex-wrap:nowrap}
-.tray .things li{flex:0 0 160px;padding-bottom:10px}
-@media (min-width:700px){.tray .things{flex-direction:column}.tray .things li{flex-basis:auto}}
-@media (max-width:699px){.tray .things li{flex-basis:118px}.tray{min-width:0}}
 .things{list-style:none;margin:30px 0 0;padding:0;display:flex;flex-wrap:wrap;justify-content:center}
 .things li{flex:0 0 20%;min-width:0;display:flex;justify-content:center;padding:8px 4px 16px}
 @media (max-width:700px){.things li{flex-basis:33.333%}}
@@ -236,6 +229,7 @@ footer.site a{color:#fff}
     <a class="brand" href="#top">Peter Ekvardt</a>
     <nav aria-label="Huvudmeny">
       <a href="#appar">Appar</a>
+      <a href="#sek-spel">Spel</a>
       <a href="#tyck-till">Tyck till</a>
       <a href="#om">Om mig</a>
       <a href="#vanner">Vänner</a>
@@ -253,10 +247,6 @@ footer.site a{color:#fff}
           <h1 id="bench-h">Appar och spel jag har byggt för mig själv och mina vänner.</h1>
           <p class="lead">De är gratis, kräver inget konto och sparar allt i din egen telefon eller dator.</p>
           <p class="hint">Plocka upp något från bänken.</p>
-        </div>
-        <div class="tray" id="lada" hidden>
-          <span class="tape">Appar</span>
-          <ul class="things" id="appsaker" aria-label="Apparna, i lådan"></ul>
         </div>
       </div>
       <ul class="things" id="saker" aria-label="Spelen som föremål på arbetsbänken"></ul>
@@ -407,6 +397,8 @@ footer.site a{color:#fff}
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]}); }
 
   var APPAR = {};
+  // Prov: appar och spel skiljs åt. Kategorin idrott visas som Appar tills appar.json ändras.
+  var RUBRIK = {idrott:'Appar'};
 
   fetch('/appar.json', {cache:'no-cache'}).then(function(r){ return r.json(); }).then(visa).catch(function(){
     document.getElementById('kategorier').innerHTML = '<p class="empty">Apparna kunde inte laddas. Ladda om sidan.</p>';
@@ -435,13 +427,9 @@ footer.site a{color:#fff}
     return '<li><button class="thing" type="button" data-info="'+a.id+'" style="--i:'+i+';--r:'+LUTA[n]+'deg;--y:'+HOJD[n]+'px;--t:'+TEJP[n]+'deg" aria-label="'+esc(a.namn)+' – '+esc(a.kort||'')+'">' +
       bild + '<span class="lbl">'+esc(a.namn)+'</span></button></li>';
   }
-  // Spelen ligger på bänken, övriga appar i lådan bredvid lappen.
+  // Bara spelen ligger på bänken. Övriga appar finns längre ner under rubriken Appar.
   function ritaBanken(data){
-    var spel = data.appar.filter(function(a){ return a.kategori === 'spel'; });
-    var ovrigt = data.appar.filter(function(a){ return a.kategori !== 'spel'; });
-    document.getElementById('lada').hidden = !ovrigt.length;
-    document.getElementById('appsaker').innerHTML = ovrigt.map(function(a, i){ return sak(a, i).replace('--y:'+HOJD[i%10]+'px','--y:0px'); }).join('');
-    document.getElementById('saker').innerHTML = spel.map(function(a, i){ return sak(a, i + ovrigt.length); }).join('');
+    document.getElementById('saker').innerHTML = data.appar.filter(function(a){ return a.kategori === 'spel'; }).map(sak).join('');
   }
 
   function visa(data){
@@ -452,7 +440,7 @@ footer.site a{color:#fff}
     document.getElementById('kategorier').innerHTML = data.kategorier.map(function(k){
       var appar = data.appar.filter(function(a){ return a.kategori === k.id; });
       if(!appar.length) return '';
-      return '<section class="cat" aria-labelledby="cat-'+k.id+'"><h3 class="cat-h" id="cat-'+k.id+'">'+esc(k.namn)+'</h3><div class="grid">' +
+      return '<section class="cat" id="sek-'+k.id+'" aria-labelledby="cat-'+k.id+'"><h3 class="cat-h" id="cat-'+k.id+'">'+esc(RUBRIK[k.id]||k.namn)+'</h3><div class="grid">' +
         appar.map(function(a){
           var ver = a.version ? 'Version '+esc(a.version)+(a.status ? ' · '+esc(a.status) : '') : esc(a.status);
           var arNy = (a.status||'').indexOf('Ny') === 0;
