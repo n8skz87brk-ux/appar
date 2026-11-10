@@ -8,6 +8,8 @@ Peters appar – https://peter.ekvardt.se
 
 **`/ny/` är utvecklingsversionen.** Den har egen `ny/index.html` och `ny/appar.json`, en gul rad överst och är dold för sökmotorer. När den är klar kopieras den till huvudsidan, utan den gula raden och utan `noindex`.
 
+**`/spelbordet/` är ett prov av ny förstasida ("verkstaden").** En kopia av startsidan där toppen är en arbetsbänk med ett föremål per app; föremålen ritas i `SAKER` i sidans skript, namn och texter läses från `/appar.json`. En app utan eget föremål visas med sin ikon. Dold för sökmotorer. Tas bort eller flyttas till startsidan när Peter bestämt sig.
+
 ### Småfix eller större ändring?
 
 **Småfix – direkt i drift:**

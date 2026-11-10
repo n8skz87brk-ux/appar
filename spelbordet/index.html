@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Verkstaden (prov) – Peter Ekvardt</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/americano/icon-r-192.png">
+<link rel="apple-touch-icon" href="/americano/icon-r-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Prov av ny förstasida: verkstaden. Kopia av startsidan med arbetsbänken överst; läser /appar.json. */
+:root{
+  --bg:#F3F5F4; --surface:#FFFFFF; --surface2:#F8FAF9; --line:#D8DEDB; --line2:#E4E9E7;
+  --fg:#15201E; --muted:#3C4A47; --faint:#55625F;
+  --accent:#1D5A84; --accent-ink:#FFFFFF; --tint:#E3EDF4; --tint-fg:#123E5C;
+  --new-bg:#FCEBD0; --new-fg:#7A4500; --star:#E8A33A; --star-line:#C07A12;
+  --dark:#15201E; --dark-fg:#DCE3E0;
+  --display:'Space Grotesk','Helvetica Neue',Arial,sans-serif;
+  --body:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#111816; --surface:#18211F; --surface2:#1C2624; --line:#2C3836; --line2:#26312F;
+  --fg:#E8EEEC; --muted:#B4C0BD; --faint:#93A19D;
+  --accent:#6FA8D6; --accent-ink:#0D1A24; --tint:#1F3344; --tint-fg:#BFD9EE;
+  --new-bg:#3D2C12; --new-fg:#F5CE8E; --star:#E8A33A; --star-line:#E8A33A;
+  --dark:#0B100F; --dark-fg:#C9D3D0; color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+img{max-width:100%}
+[hidden]{display:none!important}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.band{background:var(--surface);border-block:1px solid var(--line)}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h2{font-size:clamp(28px,4vw,36px);letter-spacing:-0.01em}
+.eyebrow{margin:0 0 12px;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.lead{color:var(--muted);font-size:17px;line-height:1.65;max-width:62ch}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;border-radius:999px;font:inherit;font-weight:600;text-decoration:none;cursor:pointer;border:0}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{border:1.5px solid var(--fg);color:var(--fg);background:transparent}
+.btn-soft{background:var(--tint);color:var(--tint-fg)}
+
+.devbar{background:var(--new-bg);color:var(--new-fg);font-size:13px;font-weight:600;text-align:center;padding:8px 16px;padding-top:calc(8px + env(safe-area-inset-top,0px))}
+header.top{border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding-block:14px}
+.brand{font-family:var(--display);font-weight:700;font-size:20px;color:var(--fg);text-decoration:none}
+nav{display:flex;flex-wrap:wrap}
+nav a{padding:12px;font-weight:500;font-size:15px;color:var(--fg);text-decoration:none}
+nav a:hover{color:var(--accent)}
+
+.hero{padding-block:60px 40px}
+.hero h1{font-size:clamp(36px,6vw,56px);line-height:1.05;letter-spacing:-0.02em;max-width:18ch}
+.hero .lead{font-size:19px;margin:22px 0 0}
+
+.news{padding-bottom:48px}
+.news-box{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.news-head{display:flex;align-items:center;gap:10px;padding:14px 20px;background:var(--dark);color:#fff;flex:1 0 100%}
+@media (min-width:820px){.news-head{flex:0 0 auto}}
+.news-head h2{font-size:17px;font-weight:600;letter-spacing:0}
+.news ul{flex:1 1 520px;min-width:0;margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap}
+.news li{flex:1 1 230px;min-width:0;padding:14px 20px;border-left:1px solid var(--line2);border-top:1px solid var(--line2);margin:-1px 0 0 -1px;display:flex;flex-direction:column;gap:4px}
+.news a{color:inherit;text-decoration:none}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.pill{font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap;font-family:var(--body);letter-spacing:0}
+.pill.ny{background:var(--new-bg);color:var(--new-fg)}
+.pill.uppdaterad{background:var(--tint);color:var(--tint-fg)}
+.date{font-size:13px;color:var(--faint)}
+.news .txt{font-size:15px;line-height:1.45}
+
+.apps{padding-block:60px}
+.apps > .wrap > .lead{margin:12px 0 8px}
+.cat{margin-top:36px}
+.cat-h{font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-family:var(--body);margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:22px}
+/* Kort på iPad/dator, kompakta rader på mobil */
+.card{display:grid;grid-template-columns:56px minmax(0,1fr);column-gap:14px;row-gap:14px;align-items:center;padding:24px;border:1px solid var(--line);border-radius:16px;background:var(--surface2);scroll-margin-top:20px}
+.card > img{width:56px;height:56px;border-radius:14px}
+.info{all:unset;display:flex;flex-direction:column;gap:2px;min-width:0;cursor:pointer;border-radius:8px}
+.info:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.info .name{font-family:var(--display);font-weight:700;font-size:22px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--fg)}
+.ver{font-size:13px;color:var(--faint);font-variant-numeric:tabular-nums}
+.info .kort{display:none;font-size:14px;line-height:1.4;color:var(--muted)}
+.card .lang{grid-column:1 / -1;margin:0;font-size:15px;line-height:1.55;color:var(--muted);align-self:start}
+.card .btns{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:10px;align-self:end}
+.card .btns .btn{border-radius:10px;min-height:46px;flex:1 1 140px;padding:0 14px}
+@media (max-width:640px){
+  .cat .grid{gap:10px}
+  .card{grid-template-columns:48px minmax(0,1fr) auto;padding:12px 12px 12px 14px;row-gap:0;border-radius:14px}
+  .card > img{width:48px;height:48px;border-radius:12px}
+  .info .name{font-size:17px}
+  .info .kort{display:block}
+  .info .ver{font-size:12px}
+  .card .lang{display:none}
+  .card .btns{grid-column:auto}
+  .card .btns .btn{flex:none;min-height:40px;padding:0 16px;border-radius:999px;font-size:15px}
+  .card .btns .btn-soft{display:none}
+  .apps{padding-block:44px}
+}
+.btn-label-short{display:none}
+.ver-short{display:none}
+.tagline{font-style:italic;color:var(--fg)}
+.info .mer{display:none;align-items:center;gap:4px;margin-top:4px;font-size:14px;font-weight:600;color:var(--accent)}
+@media (max-width:640px){.info .mer{display:inline-flex}}
+@media (max-width:640px){.ver-long{display:none}.ver-short{display:block}}
+@media (max-width:640px){.btn-label-long{display:none}.btn-label-short{display:inline}}
+.info-sheet .lang{color:var(--muted);font-size:16px;line-height:1.6;margin:0 0 18px}
+.info-sheet .btns{display:flex;flex-direction:column;gap:10px}
+.info-sheet .btns .btn{border-radius:12px}
+.empty{color:var(--muted)}
+
+.feedback{padding-block:64px}
+.fb-row{display:flex;flex-wrap:wrap;gap:44px;align-items:flex-start}
+.fb-text{flex:1 1 320px;min-width:0}
+.fb-text .lead{margin:16px 0 0}
+form{flex:1 1 400px;min-width:0;display:flex;flex-direction:column;gap:18px;padding:26px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl{font-size:14px;font-weight:600}
+select,input[type=text],textarea{min-height:46px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:var(--surface);color:var(--fg);width:100%}
+textarea{resize:vertical;min-height:120px}
+.stars{display:flex;gap:6px;flex-wrap:wrap}
+.stars button{width:46px;height:46px;border:1px solid var(--line);border-radius:10px;background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.stars svg{fill:none;stroke:var(--star-line)}
+.stars button.on svg{fill:var(--star)}
+.check{display:flex;gap:10px;align-items:center;font-size:15px;color:var(--muted)}
+.check input{width:20px;height:20px;accent-color:var(--accent)}
+.msg{margin:0;font-size:14px;color:var(--muted)}
+.msg.ok{padding:12px 14px;border-radius:10px;background:var(--tint);color:var(--tint-fg)}
+
+.about .wrap{display:flex;flex-wrap:wrap;gap:40px;align-items:center;padding-block:60px}
+.photo{flex:0 1 420px;min-width:0;max-width:100%;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:16px;background:var(--tint);display:block}
+.about .txt{flex:1 1 400px;min-width:0}
+.about .lead{margin:16px 0 0}
+.ai{font-size:14px;color:var(--faint);margin:14px 0 0}
+
+.friends{padding-block:60px}
+.friends h2{margin-bottom:22px}
+.friend{display:flex;flex-direction:column;border-radius:14px;border:1px solid var(--line);background:var(--surface);text-decoration:none;color:var(--fg);overflow:hidden}
+.friend img{display:block;width:100%;height:auto;aspect-ratio:5/2;object-fit:cover;border-bottom:1px solid var(--line)}
+.friend .info{display:flex;flex-direction:column;gap:4px;padding:16px 20px 18px}
+.friend em{font-style:normal;font-size:14px;font-weight:600;color:var(--accent);margin-top:4px}
+.friend:hover{border-color:var(--accent)}
+.friend strong{font-family:var(--display);font-size:19px}
+.friend span{font-size:15px;color:var(--muted)}
+
+footer.site{background:var(--dark);color:var(--dark-fg)}
+footer.site .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding-block:32px;padding-bottom:calc(32px + env(safe-area-inset-bottom,0px));font-size:15px}
+footer.site a{color:#fff}
+
+/* Hemskärmsguiden, samma som på nuvarande sida */
+.sheet{border:0;padding:0;margin:auto auto 0;width:100%;max-width:520px;max-height:92dvh;background:var(--surface);color:var(--fg);border-radius:20px 20px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.18)}
+.sheet::backdrop{background:rgba(10,20,18,.45)}
+@media (min-width:600px){.sheet{margin:auto;border-radius:20px}}
+.sheet-in{padding:10px 20px calc(24px + env(safe-area-inset-bottom,0px))}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 14px}
+.sheet-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.sheet-head img{width:48px;height:48px;border-radius:12px}
+.sheet h3{font-size:1.25rem}
+.sheet-head p{margin:0;color:var(--muted);font-size:.9rem}
+.x{margin-left:auto;border:0;background:var(--bg);color:var(--fg);width:40px;height:40px;border-radius:50%;font-size:1.3rem;cursor:pointer;flex:none}
+.seg{display:flex;background:var(--bg);border-radius:10px;padding:3px;margin-bottom:18px}
+.seg button{flex:1;border:0;background:none;color:var(--muted);font:600 .9rem var(--body);padding:10px 8px;border-radius:8px;cursor:pointer}
+.seg button[aria-selected="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+.steps li{counter-increment:s;display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:start;margin-bottom:14px}
+.steps li::before{content:counter(s);width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-weight:600;display:grid;place-items:center}
+.steps b{display:block}
+.steps span{color:var(--muted);font-size:.95rem;line-height:1.35;display:block;margin-top:2px}
+.ico{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;color:var(--accent)}
+.note{background:var(--bg);border-radius:10px;padding:10px 12px;font-size:.92rem;color:var(--muted);margin:4px 0 0}
+.note b{color:var(--fg)}
+.go{margin-top:10px;border-radius:10px}
+.done{text-align:center;margin:6px 0 0;color:var(--muted);font-size:.92rem}
+
+/* ---- Verkstaden: arbetsbänken överst. Varje app är ett föremål (SAKER i skriptet), namnen kommer från appar.json. ---- */
+:root{--wood:#D2AC78;--wood-seam:rgba(88,56,24,.32);--grain-a:rgba(120,78,36,.10);--grain-b:rgba(255,240,205,.14);--paper:#FBF6E8;--tape-lbl:#F6EFD9}
+@media (prefers-color-scheme: dark){:root{--wood:#5A4330;--wood-seam:rgba(0,0,0,.42);--grain-a:rgba(0,0,0,.16);--grain-b:rgba(255,220,170,.05);--paper:#EFE7D2;--tape-lbl:#E9E0C6}}
+.bench{position:relative;overflow:hidden;background-color:var(--wood);
+  background-image:repeating-linear-gradient(180deg,transparent 0 138px,var(--wood-seam) 138px 140px),
+    repeating-linear-gradient(179.3deg,var(--grain-a) 0 2px,transparent 2px 11px,var(--grain-b) 11px 12px,transparent 12px 27px);
+  border-bottom:1px solid var(--line);box-shadow:inset 0 -14px 26px -14px rgba(30,15,0,.35);padding-block:46px 30px}
+.bench .wrap{position:relative}
+.paper{position:relative;max-width:560px;background:var(--paper);color:#15201E;padding:30px 30px 26px;border-radius:3px;transform:rotate(-1.2deg);
+  box-shadow:0 1px 1px rgba(0,0,0,.15),0 12px 26px -10px rgba(40,20,0,.55)}
+.paper::before{content:"";position:absolute;top:-14px;left:50%;width:112px;height:28px;transform:translateX(-50%) rotate(2deg);background:rgba(240,218,150,.78);box-shadow:0 1px 2px rgba(40,20,0,.2)}
+.paper .eyebrow{color:#1D5A84}
+.paper h1{font-size:clamp(32px,5.6vw,52px);line-height:1.05;letter-spacing:-0.02em;max-width:13ch}
+.paper .lead{color:#3C4A47;font-size:17px;margin:18px 0 0}
+.paper .hint{margin:14px 0 0;font-size:15px;font-weight:600;color:#1D5A84}
+.decor{position:absolute;pointer-events:none;display:none;filter:drop-shadow(0 4px 3px rgba(40,20,0,.3)) drop-shadow(0 12px 14px rgba(40,20,0,.25))}
+.decor.cup{top:6px;right:22px;width:clamp(120px,17vw,170px)}
+.decor.pen{top:196px;right:150px;width:230px;transform:rotate(-24deg)}
+@media (min-width:760px){.decor.cup{display:block}}
+@media (min-width:1000px){.decor.pen{display:block}}
+.things{list-style:none;margin:30px 0 0;padding:0;display:flex;flex-wrap:wrap;justify-content:center}
+.things li{flex:0 0 20%;min-width:0;display:flex;justify-content:center;padding:8px 4px 16px}
+@media (max-width:700px){.things li{flex-basis:33.333%}}
+@media (max-width:330px){.things li{flex-basis:50%}}
+.thing{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;max-width:176px;
+  transform:translateY(var(--y,0px));-webkit-tap-highlight-color:transparent;animation:land .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*70ms)}
+.thing .obj{display:block;width:min(100%,136px);height:auto;aspect-ratio:1;transform:rotate(var(--r,0deg));transition:transform .25s cubic-bezier(.2,.8,.2,1.3),filter .25s;
+  filter:drop-shadow(0 3px 2px rgba(40,20,0,.35)) drop-shadow(0 8px 9px rgba(40,20,0,.22))}
+.thing img.obj{border-radius:22%}
+.thing:hover .obj,.thing:focus-visible .obj{transform:rotate(0deg) translateY(-7px) scale(1.09);filter:drop-shadow(0 16px 12px rgba(40,20,0,.38))}
+.thing:active .obj{transform:rotate(0deg) scale(.97)}
+.thing:focus-visible{outline:none}
+.thing:focus-visible .lbl{outline:2px solid #15201E;outline-offset:2px}
+.thing .lbl{background:var(--tape-lbl);color:#15201E;font-size:13px;font-weight:600;line-height:1.25;padding:4px 10px;text-align:center;border-radius:2px;
+  box-shadow:0 1px 2px rgba(40,20,0,.4);transform:rotate(var(--t,0deg));max-width:100%;text-wrap:balance;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
+@media (max-width:700px){.thing .lbl{font-size:12px;padding:3px 7px}.bench{padding-block:34px 18px}.paper{padding:24px 22px 22px}}
+@keyframes land{from{opacity:0;transform:translateY(calc(var(--y,0px) - 28px)) scale(1.12)}to{opacity:1;transform:translateY(var(--y,0px))}}
+@media (prefers-reduced-motion: reduce){.thing{animation:none}.thing .obj{transition:none}}
+.news{padding-top:36px}
+</style>
+</head>
+<body>
+
+<div class="devbar">Prov: verkstaden som ny förstasida – den riktiga sidan finns på <a href="/" style="color:inherit">peter.ekvardt.se</a></div>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top">Peter Ekvardt</a>
+    <nav aria-label="Huvudmeny">
+      <a href="#appar">Appar</a>
+      <a href="#tyck-till">Tyck till</a>
+      <a href="#om">Om mig</a>
+      <a href="#vanner">Vänner</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="bench" aria-labelledby="bench-h">
+    <svg class="decor cup" viewBox="0 0 140 140" aria-hidden="true"><circle cx="64" cy="70" r="58" fill="#E9E4DA" stroke="#C6BEAD" stroke-width="2"/><circle cx="64" cy="70" r="46" fill="none" stroke="#D6CFC0" stroke-width="2"/><rect x="92" y="60" width="40" height="20" rx="10" fill="#F7F4EE" stroke="#C6BEAD" stroke-width="2"/><circle cx="64" cy="70" r="36" fill="#F7F4EE" stroke="#C6BEAD" stroke-width="2"/><circle cx="64" cy="70" r="29" fill="#5B3A21"/><path d="M44 60a24 24 0 0 1 22-13" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="4" stroke-linecap="round"/></svg>
+    <svg class="decor pen" viewBox="0 0 230 22" aria-hidden="true"><path d="M0 11l30-9v18z" fill="#E7C89A"/><path d="M0 11l10-3v6z" fill="#333"/><rect x="30" y="2" width="160" height="18" fill="#E8B321"/><rect x="30" y="8" width="160" height="6" fill="#F2C94C"/><rect x="190" y="2" width="16" height="18" fill="#B9BEC2"/><rect x="206" y="2" width="22" height="18" rx="5" fill="#E58F8F"/></svg>
+    <div class="wrap">
+      <div class="paper">
+        <p class="eyebrow">Appar och spel</p>
+        <h1 id="bench-h">Jag hittar på. AI:n bygger.</h1>
+        <p class="lead">Appar och spel jag har byggt för mig själv och mina vänner. De är gratis, kräver inget konto och sparar allt i din egen telefon eller dator.</p>
+        <p class="hint">Plocka upp något från bänken.</p>
+      </div>
+      <ul class="things" id="saker" aria-label="Apparna som föremål på arbetsbänken"></ul>
+    </div>
+  </section>
+
+  <section class="wrap news" aria-labelledby="nytt-rubrik">
+    <div class="news-box">
+      <div class="news-head">
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+        <h2 id="nytt-rubrik">Senaste nytt</h2>
+      </div>
+      <ul id="news"><li class="empty">Laddar …</li></ul>
+    </div>
+  </section>
+
+  <section id="appar" class="band apps">
+    <div class="wrap">
+      <h2>Appar och spel</h2>
+      <p class="lead">Öppna appen direkt, eller lägg den på hemskärmen så ligger den där som en vanlig app. Ingen App Store behövs.</p>
+      <div id="kategorier"><p class="empty">Laddar apparna …</p></div>
+    </div>
+  </section>
+
+  <section id="tyck-till" class="wrap feedback">
+    <div class="fb-row">
+      <div class="fb-text">
+        <p class="eyebrow">Tyck till</p>
+        <h2>Vad tycker du om spelen?</h2>
+        <p class="lead">Spelen blir bättre av att någon annan än jag spelar dem. Hittade du en bugg, blev något krångligt, eller har du en idé om en ny fråga eller ett nytt spel? Ros och ris uppskattas lika mycket.</p>
+        <p class="lead">Skriv gärna vilken version du spelade, den står på varje app.</p>
+      </div>
+      <form id="tyck-form" novalidate>
+        <div class="field">
+          <label for="tyck-app">Vilket spel?</label>
+          <select id="tyck-app" name="app"><option>Allmänt</option></select>
+        </div>
+        <div class="field">
+          <span class="lbl" id="betyg-lbl">Betyg (frivilligt)</span>
+          <div class="stars" id="stars" role="group" aria-labelledby="betyg-lbl"></div>
+        </div>
+        <div class="field">
+          <label for="tyck-text">Din kommentar</label>
+          <textarea id="tyck-text" name="kommentar" rows="5" placeholder="Vad var bra, vad var dåligt, vad saknas?"></textarea>
+        </div>
+        <div class="field">
+          <label for="tyck-namn">Namn (frivilligt)</label>
+          <input id="tyck-namn" name="namn" type="text" autocomplete="name">
+        </div>
+        <label class="check"><input id="tyck-visa" name="visa" type="checkbox"> Det är okej att visa min kommentar på sidan</label>
+        <button class="btn btn-primary" type="submit">Skicka</button>
+        <p class="msg" id="tyck-msg" role="status"></p>
+      </form>
+    </div>
+  </section>
+
+  <section id="om" class="band about">
+    <div class="wrap">
+      <img class="photo" src="/peter.jpg" alt="Peter vid köksbordet med en kaffekopp och en surfplatta" width="1200" height="900" loading="lazy">
+      <div class="txt">
+        <h2>Om mig</h2>
+        <p class="lead">Jag har jobbat hela livet med IT, mest med att sälja konsulter till andra. Numera är jag min egen uppdragsgivare – den mest krävande kund jag haft. Idéerna kommer från padelbanan, middagsbordet och kvällarna med Elisabeth. AI:n skriver koden, jag bestämmer hur det ska bli och provspelar tills det sitter.</p>
+        <p class="ai">Apparna är byggda tillsammans med Claude. Claude är AI och kan göra misstag. Det kan jag också.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="vanner" class="wrap friends">
+    <h2>Vänner &amp; verkstäder</h2>
+    <div class="grid">
+      <a class="friend" href="https://elisabethnorlanderkeramik.se"><img src="/van-elisabeth.jpg" alt="" width="800" height="320" loading="lazy"><div class="info"><strong>Elisabeth Norlander Keramik</strong><span>Handdrejad brukskeramik i stengods från ateljén i Ljugarn</span><em>elisabethnorlanderkeramik.se →</em></div></a>
+      <a class="friend" href="https://ateljesjodin.se"><img src="/van-sjodin.jpg" alt="" width="1000" height="381" loading="lazy"><div class="info"><strong>Ateljé Sjödin</strong><span>Brickor, kuddfodral och kökshanddukar med handmålade motiv</span><em>ateljesjodin.se →</em></div></a>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <span>peter.ekvardt.se</span>
+    <span id="uppdaterad"></span>
+  </div>
+</footer>
+
+<dialog class="sheet info-sheet" id="appinfo" aria-labelledby="appinfo-title">
+  <div class="sheet-in">
+    <div class="grab"></div>
+    <div class="sheet-head">
+      <img src="/americano/icon-r-192.png" alt="" data-i-icon>
+      <div><h3 id="appinfo-title" data-i-name></h3><p data-i-ver></p></div>
+      <button class="x" data-close aria-label="Stäng">×</button>
+    </div>
+    <p class="lang" data-i-text></p>
+    <div class="btns">
+      <a class="btn btn-primary" href="/" data-i-open>Öppna</a>
+      <a class="btn btn-soft" href="#installera" data-install="">Lägg på hemskärmen</a>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="sheet" id="installera" aria-labelledby="sheet-title">
+  <div class="sheet-in">
+    <div class="grab"></div>
+    <div class="sheet-head">
+      <img src="/americano/icon-r-192.png" alt="" data-icon>
+      <div><h3 id="sheet-title">Lägg <span data-name>appen</span> på hemskärmen</h3><p>Gratis, ingen App Store behövs</p></div>
+      <button class="x" data-close aria-label="Stäng">×</button>
+    </div>
+    <div class="seg" role="tablist">
+      <button role="tab" data-tab="ios">iPhone</button>
+      <button role="tab" data-tab="android">Android</button>
+      <button role="tab" data-tab="desktop">Dator</button>
+    </div>
+    <div data-pane="ios">
+      <p class="note" data-not-safari hidden><b>Öppna sidan i Safari först.</b> Hemskärmsknappen finns bara där. Kopiera adressen och klistra in den i Safari.</p>
+      <ol class="steps">
+        <li><div><b>Öppna <span data-name>appen</span></b><span>Resten gör du inne i appen, inte på den här sidan.</span><a class="btn btn-primary go" href="/" data-href>Öppna <span data-name>appen</span></a></div></li>
+        <li><div><b>Tryck på <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg> längst ner till höger</b><span>Ser du i stället <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg> längst ner i mitten trycker du direkt på den och hoppar över nästa steg.</span></div></li>
+        <li><div><b>Tryck på Dela <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg></b><span>Överst i menyn som kommer upp.</span></div></li>
+        <li><div><b>Välj Lägg till på hemskärmen <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg></b><span>Syns den inte direkt: scrolla ner eller tryck på <i>Visa fler</i>.</span></div></li>
+        <li><div><b>Tryck på Lägg till</b><span>Nu ligger <span data-name>appen</span> bland dina appar.</span></div></li>
+      </ol>
+    </div>
+    <div data-pane="android" hidden>
+      <ol class="steps">
+        <li><div><b>Öppna appen i Chrome</b><span>Tryck på <i>Öppna</i> på den här sidan.</span></div></li>
+        <li><div><b>Tryck på menyn ⋮</b><span>Uppe till höger i Chrome.</span></div></li>
+        <li><div><b>Välj Installera app</b><span>Eller <i>Lägg till på startskärmen</i>, beroende på telefon.</span></div></li>
+      </ol>
+    </div>
+    <div data-pane="desktop" hidden>
+      <ol class="steps">
+        <li><div><b>Öppna appen i Chrome eller Edge</b><span>Tryck på <i>Öppna</i>.</span></div></li>
+        <li><div><b>Klicka på installera-ikonen</b><span>Längst till höger i adressfältet, eller via menyn → <i>Installera</i>.</span></div></li>
+      </ol>
+      <p class="note">På Mac med Safari: Arkiv → <i>Lägg till i Dock</i>.</p>
+    </div>
+    <p class="done" data-done></p>
+  </div>
+</dialog>
+
+<script>
+(function(){
+  // Web3Forms-nyckel för Tyck till. Tom = formuläret visas men skickar inget ännu.
+  var WEB3FORMS_KEY = "050cd466-5249-493b-8f66-d8f07eefaa46";
+
+  var MANAD = ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
+  function datum(s){ var p = (s||'').split('-'); return p.length===3 ? (+p[2])+' '+MANAD[+p[1]-1]+' '+p[0] : s; }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]}); }
+
+  var APPAR = {};
+
+  fetch('/appar.json', {cache:'no-cache'}).then(function(r){ return r.json(); }).then(visa).catch(function(){
+    document.getElementById('kategorier').innerHTML = '<p class="empty">Apparna kunde inte laddas. Ladda om sidan.</p>';
+    document.getElementById('news').innerHTML = '';
+  });
+
+
+  // Verkstaden: ett föremål per app. En app som saknas här visas med sin vanliga ikon.
+  var S = '<svg class="obj" viewBox="0 0 120 120" aria-hidden="true">';
+  var SAKER = {
+    americano: S+'<g transform="rotate(38 60 60)"><rect x="54" y="74" width="12" height="40" rx="5" fill="#1B1F1E"/><path d="M54 86l12-3M54 94l12-3M54 102l12-3" stroke="#555" stroke-width="1.5"/><path d="M60 8c17 0 28 13 28 30 0 14-9 24-18 31l-4 9H54l-4-9c-9-7-18-17-18-31C32 21 43 8 60 8z" fill="#1D5A84" stroke="#123E5C" stroke-width="3" stroke-linejoin="round"/><g fill="#A9CBE4"><circle cx="52" cy="21" r="2.5"/><circle cx="60" cy="21" r="2.5"/><circle cx="68" cy="21" r="2.5"/><circle cx="44" cy="30" r="2.5"/><circle cx="52" cy="30" r="2.5"/><circle cx="60" cy="30" r="2.5"/><circle cx="68" cy="30" r="2.5"/><circle cx="76" cy="30" r="2.5"/><circle cx="44" cy="39" r="2.5"/><circle cx="52" cy="39" r="2.5"/><circle cx="60" cy="39" r="2.5"/><circle cx="68" cy="39" r="2.5"/><circle cx="76" cy="39" r="2.5"/><circle cx="52" cy="48" r="2.5"/><circle cx="60" cy="48" r="2.5"/><circle cx="68" cy="48" r="2.5"/><circle cx="60" cy="57" r="2.5"/></g></g><circle cx="96" cy="96" r="12" fill="#D4E24A" stroke="#9FAD22" stroke-width="2"/><path d="M86 91c7 2 12 8 13 16" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="2"/></svg>',
+    huvudstaden: S+'<circle cx="60" cy="62" r="47" fill="none" stroke="#B8892E" stroke-width="4"/><circle cx="60" cy="15" r="5" fill="#8C6520"/><circle cx="60" cy="109" r="5" fill="#8C6520"/><circle cx="60" cy="62" r="40" fill="#5FA8D3" stroke="#2F6F99" stroke-width="2.5"/><g fill="#7DB56A"><path d="M38 40c8-8 20-8 26-2 4 5-2 10-8 12-4 2-3 8-9 9-8 1-14-10-9-19z"/><path d="M70 62c8-3 18 2 18 10s-8 16-14 14c-6-2-2-9-6-13-3-4-3-9 2-11z"/><path d="M40 78c5-2 10 2 9 7-1 4-7 5-10 1-2-3-2-6 1-8z"/></g><path d="M32 46a32 32 0 0 1 26-18" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="5" stroke-linecap="round"/><ellipse cx="62" cy="50" rx="7" ry="3" fill="#000" fill-opacity=".25"/><circle cx="58" cy="44" r="8" fill="#D8412F" stroke="#9C2A1C" stroke-width="2"/><circle cx="55.5" cy="41.5" r="2.4" fill="#fff" fill-opacity=".75"/></svg>',
+    floder: S+'<g transform="rotate(-6 60 60)"><rect x="12" y="22" width="96" height="76" rx="3" fill="#F3EAD2" stroke="#C9BB95" stroke-width="2"/><path d="M12 62c14-10 22 6 34 2s14-18 30-14 20 16 32 10v38H12z" fill="#D5E3B8"/><path d="M44 22v76M76 22v76" stroke="#D5C9A6" stroke-width="1.5"/><path d="M20 32c14 2 16 14 28 16s14-8 24-4 10 18 30 22" fill="none" stroke="#2F86C5" stroke-width="4.5" stroke-linecap="round"/><path d="M50 49c-2 10-10 12-12 24" fill="none" stroke="#2F86C5" stroke-width="2.8" stroke-linecap="round"/><ellipse cx="38" cy="80" rx="12" ry="7" fill="#4FA3DD"/></g></svg>',
+    manniskokroppen: S+'<g transform="rotate(-35 60 60)"><g fill="#A99B7C" stroke="#A99B7C" stroke-width="5"><rect x="28" y="52" width="64" height="16" rx="8"/><circle cx="26" cy="50" r="11"/><circle cx="26" cy="70" r="11"/><circle cx="94" cy="50" r="11"/><circle cx="94" cy="70" r="11"/></g><g fill="#F3ECDB"><rect x="28" y="52" width="64" height="16" rx="8"/><circle cx="26" cy="50" r="11"/><circle cx="26" cy="70" r="11"/><circle cx="94" cy="50" r="11"/><circle cx="94" cy="70" r="11"/></g><path d="M36 57h48" stroke="#fff" stroke-width="3" stroke-linecap="round"/></g></svg>',
+    kung: S+'<g transform="rotate(9 60 60)"><rect x="29" y="12" width="62" height="96" rx="7" fill="#FFFDF7" stroke="#C4BCA8" stroke-width="2"/><text x="36" y="33" font-family="Georgia,serif" font-weight="700" font-size="17" fill="#B3261E">K</text><text x="84" y="87" font-family="Georgia,serif" font-weight="700" font-size="17" fill="#B3261E" transform="rotate(180 84 87)" text-anchor="start">K</text><path d="M41 72l3-24 10 11 6-16 6 16 10-11 3 24z" fill="#E3B23C" stroke="#9C7210" stroke-width="2" stroke-linejoin="round"/><rect x="40" y="71" width="40" height="8" rx="2" fill="#C8922A" stroke="#9C7210" stroke-width="1.5"/><circle cx="50" cy="75" r="2" fill="#B3261E"/><circle cx="60" cy="75" r="2" fill="#1D5A84"/><circle cx="70" cy="75" r="2" fill="#B3261E"/><circle cx="44" cy="47" r="3" fill="#E3B23C" stroke="#9C7210" stroke-width="1.5"/><circle cx="60" cy="42" r="3" fill="#E3B23C" stroke="#9C7210" stroke-width="1.5"/><circle cx="76" cy="47" r="3" fill="#E3B23C" stroke="#9C7210" stroke-width="1.5"/></g></svg>',
+    flest: S+'<rect x="15" y="21" width="90" height="78" rx="7" fill="#F1E3C6" stroke="#7A4E2A" stroke-width="7"/><path d="M18 41h84M18 60h84M18 79h84" stroke="#555" stroke-width="2"/><g fill="#D8412F" stroke="#9C2A1C" stroke-width="1.5"><rect x="23" y="33" width="11" height="16" rx="5"/><rect x="35" y="33" width="11" height="16" rx="5"/><rect x="47" y="33" width="11" height="16" rx="5"/><rect x="74" y="33" width="11" height="16" rx="5"/><rect x="86" y="33" width="11" height="16" rx="5"/></g><g fill="#E8B321" stroke="#A87A12" stroke-width="1.5"><rect x="23" y="52" width="11" height="16" rx="5"/><rect x="50" y="52" width="11" height="16" rx="5"/><rect x="62" y="52" width="11" height="16" rx="5"/><rect x="74" y="52" width="11" height="16" rx="5"/><rect x="86" y="52" width="11" height="16" rx="5"/></g><g fill="#2F86C5" stroke="#1D5A84" stroke-width="1.5"><rect x="23" y="71" width="11" height="16" rx="5"/><rect x="35" y="71" width="11" height="16" rx="5"/><rect x="47" y="71" width="11" height="16" rx="5"/><rect x="59" y="71" width="11" height="16" rx="5"/><rect x="86" y="71" width="11" height="16" rx="5"/></g></svg>',
+    fragesport: S+'<rect x="31" y="20" width="58" height="80" rx="7" fill="#F4EAD0" stroke="#C4B894" stroke-width="2" transform="rotate(-16 60 60)"/><rect x="31" y="20" width="58" height="80" rx="7" fill="#DCE9F1" stroke="#9DB7C8" stroke-width="2" transform="rotate(-4 60 60)"/><g transform="rotate(9 60 60)"><rect x="31" y="20" width="58" height="80" rx="7" fill="#E8873A" stroke="#B05A18" stroke-width="2"/><rect x="37" y="26" width="46" height="68" rx="4" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.5"/><text x="60" y="79" text-anchor="middle" font-family="Space Grotesk,Arial,sans-serif" font-weight="700" font-size="52" fill="#fff">?</text></g></svg>',
+    sant: S+'<path d="M8 80c18-26 32 8 52-20s34 6 52-22" fill="none" stroke="#6E4B20" stroke-width="13" stroke-linecap="round"/><path d="M8 80c18-26 32 8 52-20s34 6 52-22" fill="none" stroke="#C99A5B" stroke-width="9" stroke-linecap="round"/><path d="M8 80c18-26 32 8 52-20s34 6 52-22" fill="none" stroke="#8C6431" stroke-width="9" stroke-dasharray="2 7" stroke-opacity=".7"/><g transform="translate(60 60) rotate(-54)"><path d="M-4 8l-5 17 9-6 9 6-5-17z" fill="#B3261E"/><rect x="-5" y="-9" width="10" height="18" rx="2" fill="#D8412F" stroke="#9C2A1C" stroke-width="1.5"/></g><circle cx="26" cy="34" r="13" fill="#3E9B5F" stroke="#256B3E" stroke-width="2"/><path d="M20 34l4.5 4.5L33 29" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="94" cy="92" r="13" fill="#D8412F" stroke="#9C2A1C" stroke-width="2"/><path d="M89 87l10 10M99 87l-10 10" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/></svg>',
+    granslandet: S+'<g transform="rotate(-12 38 62) translate(-5 2)"><g fill="#3F7A45" stroke="#3F7A45" stroke-width="5" stroke-linejoin="round"><rect x="16" y="40" width="42" height="42" rx="3"/><circle cx="62" cy="61" r="7.5"/></g><g fill="#74B56E"><rect x="16" y="40" width="42" height="42" rx="3"/><circle cx="62" cy="61" r="7.5"/></g><path d="M24 54c6-6 14 2 20-2s8 8 4 14-14 2-18 6-10-10-6-18z" fill="#fff" fill-opacity=".28"/></g><path d="M68 38h42v42H68V68a8 8 0 0 0 0-16z" fill="#EBC752" stroke="#A8851A" stroke-width="2.5" stroke-linejoin="round"/><path d="M82 48c8-4 18 2 18 10s-8 14-14 12-10-16-4-22z" fill="#fff" fill-opacity=".3"/></svg>',
+    narmast: S+'<circle cx="60" cy="24" r="15" fill="#fff" stroke="#1B1F1E" stroke-width="2"/><circle cx="60" cy="24" r="9" fill="none" stroke="#D8412F" stroke-width="3"/><circle cx="60" cy="24" r="3" fill="#D8412F"/><g transform="translate(52 28) rotate(58)"><path d="M0 0h20" stroke="#8D949A" stroke-width="2.5" stroke-linecap="round"/><rect x="18" y="-4" width="30" height="8" rx="3.5" fill="#C9A227" stroke="#8C6C10" stroke-width="1.2"/><path d="M26 -4v8M32 -4v8M38 -4v8" stroke="#8C6C10" stroke-width="1.2"/><rect x="48" y="-1.6" width="22" height="3.2" fill="#333"/><path d="M68 0l8-12h15l-6 12 6 12H76z" fill="#D8412F" stroke="#9C2A1C" stroke-width="1.5" stroke-linejoin="round"/></g><g transform="translate(74 34) rotate(118)"><path d="M0 0h20" stroke="#8D949A" stroke-width="2.5" stroke-linecap="round"/><rect x="18" y="-4" width="30" height="8" rx="3.5" fill="#C9A227" stroke="#8C6C10" stroke-width="1.2"/><path d="M26 -4v8M32 -4v8M38 -4v8" stroke="#8C6C10" stroke-width="1.2"/><rect x="48" y="-1.6" width="22" height="3.2" fill="#333"/><path d="M68 0l8-12h15l-6 12 6 12H76z" fill="#2F86C5" stroke="#1D5A84" stroke-width="1.5" stroke-linejoin="round"/></g></svg>'
+  };
+  var LUTA = [-8,5,-4,7,-6,4,-7,6,-3,8], HOJD = [0,10,-4,8,2,-6,6,0,10,-2], TEJP = [-2,1.5,-1,2,-1.5,1,-2,1.5,-1,2];
+  function ritaBanken(data){
+    document.getElementById('saker').innerHTML = data.appar.map(function(a, i){
+      var n = i % 10;
+      var bild = SAKER[a.id] || '<img class="obj" src="'+esc(a.ikon)+'" alt="" width="136" height="136">';
+      return '<li><button class="thing" type="button" data-info="'+a.id+'" style="--i:'+i+';--r:'+LUTA[n]+'deg;--y:'+HOJD[n]+'px;--t:'+TEJP[n]+'deg" aria-label="'+esc(a.namn)+' – '+esc(a.kort||'')+'">' +
+        bild + '<span class="lbl">'+esc(a.namn)+'</span></button></li>';
+    }).join('');
+  }
+
+  function visa(data){
+    data.appar.forEach(function(a){ APPAR[a.id] = a; });
+    ritaBanken(data);
+
+    // Appkort per kategori
+    document.getElementById('kategorier').innerHTML = data.kategorier.map(function(k){
+      var appar = data.appar.filter(function(a){ return a.kategori === k.id; });
+      if(!appar.length) return '';
+      return '<section class="cat" aria-labelledby="cat-'+k.id+'"><h3 class="cat-h" id="cat-'+k.id+'">'+esc(k.namn)+'</h3><div class="grid">' +
+        appar.map(function(a){
+          var ver = a.version ? 'Version '+esc(a.version)+(a.status ? ' · '+esc(a.status) : '') : esc(a.status);
+          var arNy = (a.status||'').indexOf('Ny') === 0;
+          return '<article class="card" id="app-'+a.id+'">' +
+            '<img src="'+esc(a.ikon)+'" alt="" width="56" height="56">' +
+            '<button class="info" type="button" data-info="'+a.id+'" aria-label="Mer om '+esc(a.namn)+'">' +
+              '<span class="name">'+esc(a.namn)+(arNy ? ' <span class="pill ny">Ny</span>' : '')+'</span>' +
+              (ver ? '<span class="ver ver-long">'+ver+'</span>' : '') +
+              (a.version ? '<span class="ver ver-short">v '+esc(a.version)+'</span>' : '') +
+              '<span class="kort">'+esc(a.kort||'')+'</span>' +
+              '<span class="mer">Läs mer <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>' +
+            '</button>' +
+            '<p class="lang">'+esc(a.text)+(a.tagline ? ' <em class="tagline">'+esc(a.tagline)+'</em>' : '')+'</p>' +
+            '<div class="btns"><a class="btn btn-primary" href="'+esc(a.adress)+'"><span class="btn-label-long">'+esc(a.knapp||'Öppna')+'</span><span class="btn-label-short">Öppna</span></a>' +
+            '<a class="btn btn-soft" href="#installera" data-install="'+a.id+'">Lägg på hemskärmen</a></div>' +
+            '</article>';
+        }).join('') + '</div></section>';
+    }).join('');
+
+    // Senaste nytt: de tre senaste ändringarna, nyast först
+    var nytt = [];
+    data.appar.forEach(function(a){ (a.andringar||[]).forEach(function(c){ nytt.push({a:a, c:c}); }); });
+    nytt.sort(function(x,y){ return (y.c.datum||'').localeCompare(x.c.datum||''); });
+    document.getElementById('news').innerHTML = nytt.slice(0,3).map(function(n){
+      var typ = n.c.typ === 'ny' ? 'ny' : 'uppdaterad';
+      return '<li><a href="#app-'+n.a.id+'"><div class="meta"><span class="pill '+typ+'">'+(typ==='ny'?'Ny app':'Uppdaterad')+'</span>' +
+        '<span class="date">'+esc(datum(n.c.datum))+'</span></div>' +
+        '<span class="txt"><strong>'+esc(n.a.namn)+'</strong> – '+esc(n.c.text)+'</span></a></li>';
+    }).join('') || '<li class="empty">Inget nytt just nu.</li>';
+
+    // Tyck till: spelen i listan
+    var sel = document.getElementById('tyck-app');
+    sel.innerHTML = '<option>Allmänt</option>' + data.appar.map(function(a){ return '<option>'+esc(a.namn)+(a.version?' '+esc(a.version):'')+'</option>'; }).join('');
+
+    document.getElementById('uppdaterad').textContent = 'Uppdaterad ' + datum(data.uppdaterad);
+
+    kopplaHemskarm();
+  }
+
+  // Hemskärmsguiden
+  var d = document.getElementById('installera');
+  var ua = navigator.userAgent, ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  var flik = ios ? 'ios' : /Android/.test(ua) ? 'android' : 'desktop';
+  function visaFlik(t){
+    d.querySelectorAll('[data-tab]').forEach(function(b){ b.setAttribute('aria-selected', b.dataset.tab===t); });
+    d.querySelectorAll('[data-pane]').forEach(function(p){ p.hidden = p.dataset.pane!==t; });
+  }
+  if(ios && /CriOS|FxiOS|EdgiOS|GSA|FBAN|Instagram/.test(ua)) d.querySelector('[data-not-safari]').hidden = false;
+  visaFlik(flik);
+  d.querySelectorAll('[data-tab]').forEach(function(b){ b.onclick = function(){ visaFlik(b.dataset.tab); }; });
+  d.querySelector('[data-close]').onclick = function(){ d.close(); };
+  d.addEventListener('click', function(e){ if(e.target===d) d.close(); });
+  function kopplaHemskarm(){}
+  function oppnaHemskarm(a){
+    d.querySelectorAll('[data-name]').forEach(function(el){ el.textContent = a.namn; });
+    d.querySelector('[data-icon]').src = a.ikon;
+    d.querySelector('[data-href]').setAttribute('href', a.adress);
+    d.querySelector('[data-done]').textContent = a.efterHemskarm || '';
+    d.showModal();
+  }
+
+  // Mer om appen (öppnas när man trycker på en rad)
+  var info = document.getElementById('appinfo');
+  function oppnaInfo(a){
+    info.querySelector('[data-i-icon]').src = a.ikon;
+    info.querySelector('[data-i-name]').textContent = a.namn;
+    var ver = a.version ? 'Version '+a.version+(a.status ? ' · '+a.status : '') : (a.status||'');
+    info.querySelector('[data-i-ver]').textContent = ver;
+    var it = info.querySelector('[data-i-text]'); it.textContent = a.text;
+    if(a.tagline){ var em = document.createElement('em'); em.className = 'tagline'; em.textContent = ' ' + a.tagline; it.appendChild(em); }
+    var oppna = info.querySelector('[data-i-open]');
+    oppna.setAttribute('href', a.adress); oppna.textContent = a.knapp || 'Öppna';
+    info.querySelector('[data-install]').dataset.install = a.id;
+    info.showModal();
+  }
+  info.querySelector('[data-close]').onclick = function(){ info.close(); };
+  info.addEventListener('click', function(e){ if(e.target===info) info.close(); });
+
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('[data-install],[data-info]'); if(!t) return;
+    if(t.dataset.info){ var a1 = APPAR[t.dataset.info]; if(a1 && info.showModal){ e.preventDefault(); oppnaInfo(a1); } return; }
+    var a = APPAR[t.dataset.install]; if(!a || !d.showModal) return;
+    e.preventDefault();
+    if(info.open) info.close();
+    oppnaHemskarm(a);
+  });
+
+  // Stjärnbetyg
+  var betyg = 0, stars = document.getElementById('stars');
+  function ritaStjarnor(){
+    stars.innerHTML = [1,2,3,4,5].map(function(n){
+      return '<button type="button" data-n="'+n+'" class="'+(n<=betyg?'on':'')+'" aria-label="'+n+' av 5" aria-pressed="'+(n<=betyg)+'">' +
+        '<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z"/></svg></button>';
+    }).join('');
+  }
+  stars.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    var n = +b.dataset.n; betyg = (betyg===n) ? 0 : n; ritaStjarnor();
+    var f = stars.querySelector('[data-n="'+n+'"]'); if(f) f.focus();
+  });
+  ritaStjarnor();
+
+  // Tyck till
+  var f = document.getElementById('tyck-form'), msg = document.getElementById('tyck-msg'), btn = f.querySelector('button[type=submit]');
+  f.addEventListener('submit', function(e){
+    e.preventDefault();
+    msg.className = 'msg';
+    var text = f.kommentar.value.trim();
+    if(!text){ msg.textContent = 'Skriv en kommentar först.'; f.kommentar.focus(); return; }
+    if(!WEB3FORMS_KEY){ msg.className = 'msg ok'; msg.textContent = 'Formuläret är inte kopplat ännu, så inget skickades. (Utvecklingsversion.)'; return; }
+    btn.disabled = true; msg.textContent = 'Skickar …';
+    fetch('https://api.web3forms.com/submit', {
+      method:'POST', headers:{'Content-Type':'application/json', Accept:'application/json'},
+      body: JSON.stringify({ access_key:WEB3FORMS_KEY, subject:'Tyck till: '+f.app.value, from_name:'Peters appar',
+        App:f.app.value, Betyg: betyg ? betyg+' av 5' : '(inget betyg)', Namn:f.namn.value.trim()||'(inget namn)',
+        'Får visas på sidan': f.visa.checked ? 'Ja' : 'Nej', Kommentar:text })
+    }).then(function(r){ return r.json(); }).then(function(res){
+      if(res.success){ f.reset(); betyg = 0; ritaStjarnor(); msg.className = 'msg ok'; msg.textContent = 'Tack! Peter har fått din kommentar.'; }
+      else msg.textContent = 'Det gick inte att skicka. Försök igen om en stund.';
+    }).catch(function(){ msg.textContent = 'Det gick inte att skicka. Kontrollera internet och försök igen.'; })
+    .finally(function(){ btn.disabled = false; });
+  });
+})();
+</script>
+</body>
+</html>
