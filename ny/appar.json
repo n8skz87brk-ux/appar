@@ -1,5 +1,5 @@
 {
-  "uppdaterad": "2026-11-08",
+  "uppdaterad": "2026-11-12",
   "kategorier": [
     {
       "id": "idrott",
@@ -11,6 +11,27 @@
     }
   ],
   "appar": [
+    {
+      "id": "tjugo",
+      "namn": "Tjugo frågor",
+      "kategori": "spel",
+      "adress": "/ny/tjugo/",
+      "ikon": "/ny/tjugo/icon-192.png",
+      "knapp": "Öppna spelet",
+      "kort": "Jag tänker på en person eller en stad – du får 20 ja- eller nej-frågor.",
+      "text": "Klassikern tjugo frågor. Spelet tänker på en känd person eller en stad, och du väljer frågor som det svarar ja eller nej på: Är det en kvinna? Lever personen? Ligger staden vid havet? Gissa när du tror att du vet – en fel gissning kostar en fråga. 71 personer och 32 städer till att börja med.",
+      "version": "1.0 (prov)",
+      "status": "Ny, under provspelning",
+      "efterHemskarm": "Spelet startar sedan direkt från hemskärmen och fungerar utan internet.",
+      "andringar": [
+        {
+          "datum": "2026-11-12",
+          "typ": "ny",
+          "version": "1.0",
+          "text": "tjugo frågor om personer och städer, nu under provspelning"
+        }
+      ]
+    },
     {
       "id": "musikquiz",
       "namn": "Musikquiz 70–90",

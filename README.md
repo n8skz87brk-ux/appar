@@ -34,6 +34,9 @@ För ett spel görs en provkopia, t.ex. `/ny/huvudstaden/`, som provspelas innan
 
 ## Versioner
 
+### Tjugo frågor (`ny/tjugo/`, provkopia)
+- **1.0 (prov)** – 12 november 2026. Första versionen: spelet tänker på en person (71 st) eller en stad (32 st) och svarar ja eller nej på frågor som man väljer i en lista (33 frågor om personer, 23 om städer, i hopfällbara grupper). Gissa genom att skriva namnet – hela namnet, efternamn, förnamn eller ett annat namn räcker; finns flera med samma namn frågar spelet vilken. Fel gissning kostar en fråga, ett okänt namn gör det inte. Valbar räknare för hur många som är möjliga kvar. Personer och städer ligger i `SETS` i sidans skript; varje sak har egenskaper som avgör svaren. Kontrollera efter ändringar att alla par går att skilja åt med minst en fråga.
+
 ### Musikquiz 70–90 (`ny/musikquiz/`, provkopia)
 - **1.0 (prov)** – 8 november 2026. Första versionen: alla spelar tillsammans. Spotify spelar spellistan "Musikquiz 70-90 Talets Hits" på telefonen som ligger med skärmen nedåt; musiken styrs med Siri, "Hey Google" på en Google-högtalare eller högtalarens knappar. På paddan bockar man av Rätt artist och Rätt titel, poängen räknas gemensamt ("14 av 20") och varje låt visas som en ruta. Facit: vänd på telefonen. Förberett för inbyggt facit via listan `TRACKS` i spelordning.
 

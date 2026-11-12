@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="sv"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="description" content="Tjugo frågor: jag tänker på en person eller en stad – du får ställa 20 ja- eller nej-frågor.">
+<meta name="theme-color" content="#6b3a8c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tjugo frågor">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>Tjugo frågor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: one column. Top: title + 20 pips. Then the last answer, the guess field, the questions grouped in folds, and the log. */
+:root{
+  --bg:#f4f0f6; --surface:#ffffff; --ink:#24182c; --muted:#62566b; --line:#ddd3e3;
+  --accent:#6b3a8c; --accent-ink:#ffffff; --hl:#c9781a; --tint:#ece2f2;
+  --yes:#1e7a46; --yes-bg:#dcf1e4; --no:#b03a3a; --no-bg:#f7e1e1;
+  --display:"Bricolage Grotesque","Arial Rounded MT Bold",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#150f19; --surface:#211a27; --ink:#efe8f3; --muted:#ab9db5; --line:#3a2f43;
+  --accent:#c79be6; --accent-ink:#1d1026; --hl:#f2b44a; --tint:#2f2338;
+  --yes:#6fd69c; --yes-bg:#143627; --no:#f08f8f; --no-bg:#3b1c1d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#150f19; --surface:#211a27; --ink:#efe8f3; --muted:#ab9db5; --line:#3a2f43;
+  --accent:#c79be6; --accent-ink:#1d1026; --hl:#f2b44a; --tint:#2f2338;
+  --yes:#6fd69c; --yes-bg:#143627; --no:#f08f8f; --no-bg:#3b1c1d; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:calc(20px + env(safe-area-inset-top,0px));padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1{font-family:var(--display);font-weight:800;font-size:1.9rem;line-height:1.05;margin:0;letter-spacing:-.01em}
+h1 span{color:var(--accent)}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.stats{display:flex;gap:14px;font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
+.btn{font:inherit;font-weight:700;padding:12px 18px;border-radius:10px;border:none;background:var(--accent);color:var(--accent-ink);cursor:pointer;min-height:46px}
+.btn.ghost{background:transparent;color:var(--muted);border:1.5px solid var(--line)}
+.btn:focus-visible,.qbtn:focus-visible,input:focus-visible,summary:focus-visible,.choice:focus-visible{outline:3px solid var(--hl);outline-offset:2px}
+.ver{color:var(--muted);font-size:.82rem;margin:0;text-align:center}.ver a{color:inherit}
+.hint{font-size:.88rem;color:var(--muted);margin:0}
+
+/* Start */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice{font:inherit;text-align:left;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:16px;padding:18px 16px;cursor:pointer;display:flex;flex-direction:column;gap:4px}
+.choice:hover{border-color:var(--accent)}
+.choice b{font-family:var(--display);font-size:1.3rem}
+.choice span{font-size:.85rem;color:var(--muted)}
+.rules{margin:0;padding-left:20px;color:var(--muted);font-size:.92rem}
+.rules li{margin:3px 0}
+
+/* Game */
+.pips{display:grid;grid-template-columns:repeat(20,1fr);gap:3px}
+.pips i{height:6px;border-radius:3px;background:var(--line)}
+.pips i.y{background:var(--yes)} .pips i.n{background:var(--no)} .pips i.g{background:var(--hl)}
+.topline{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:.9rem;color:var(--muted)}
+.topline b{color:var(--ink);font-variant-numeric:tabular-nums}
+.answer{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;min-height:118px;justify-content:center}
+.answer .q{font-size:.95rem;color:var(--muted);text-wrap:balance}
+.answer .a{font-family:var(--display);font-weight:800;font-size:2.6rem;line-height:1}
+.answer .a.y{color:var(--yes)} .answer .a.n{color:var(--no)}
+.answer .lead{font-family:var(--display);font-weight:600;font-size:1.25rem;text-wrap:balance}
+@media (prefers-reduced-motion:no-preference){.answer .a{animation:pop .3s ease-out}@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}}
+.guess{display:flex;gap:8px}
+.guess input{flex:1;min-width:0;font:inherit;font-size:1rem;padding:11px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.count{font-size:.85rem;color:var(--muted);text-align:center;margin:0}
+.count b{color:var(--hl)}
+details.grp{background:var(--surface);border:1px solid var(--line);border-radius:14px}
+details.grp summary{cursor:pointer;padding:13px 16px;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px}
+details.grp summary::-webkit-details-marker{display:none}
+details.grp summary::after{content:"+";font-family:var(--display);font-size:1.3rem;color:var(--muted);line-height:1}
+details.grp[open] summary::after{content:"–"}
+details.grp summary small{font-weight:400;color:var(--muted);margin-left:auto}
+.qlist{display:flex;flex-direction:column;gap:6px;padding:0 10px 12px}
+.qbtn{font:inherit;text-align:left;background:var(--tint);color:var(--ink);border:1.5px solid transparent;border-radius:10px;padding:10px 12px;cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.qbtn:hover:not(:disabled){border-color:var(--accent)}
+.qbtn:disabled{cursor:default;background:transparent;border-color:var(--line);color:var(--muted)}
+.qbtn .tag{font-weight:700;font-size:.82rem;flex:none}
+.qbtn .tag.y{color:var(--yes)} .qbtn .tag.n{color:var(--no)}
+.log{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+.log li{display:grid;grid-template-columns:2em 1fr auto;gap:8px;align-items:baseline;padding:6px 2px;border-bottom:1px solid var(--line)}
+.log li:last-child{border-bottom:0}
+.log .nr{color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+.log .ans{font-weight:700}
+.log .ans.y{color:var(--yes)} .log .ans.n{color:var(--no)} .log .ans.g{color:var(--hl)}
+.secthead{font-family:var(--display);font-weight:600;font-size:1.05rem;margin:0 0 8px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.switch{display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--muted);cursor:pointer}
+.switch input{width:20px;height:20px;accent-color:var(--accent)}
+
+/* End */
+.final{text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.final .who{font-family:var(--display);font-weight:800;font-size:2rem;line-height:1.1;color:var(--accent);text-wrap:balance}
+.final .msg{font-size:1.05rem}
+</style>
+</head><body>
+<div class="wrap">
+  <header>
+    <h1>Tjugo <span>frågor</span></h1>
+    <div class="stats"><span>Lösta <b id="won">0</b>/<b id="played">0</b></span><span>Bästa <b id="best">–</b></span></div>
+  </header>
+  <div id="stage"></div>
+  <p class="ver"><a href="../">&larr; Alla Peters appar</a> · Version 1.0 (prov) · 12 november 2026</p>
+</div>
+
+<script>
+/* ---------- Frågor ----------
+   [id, fråga, grupp]. Svaret är Ja om id:t finns bland egenskaperna.
+   Två egenskaper räknas fram: "am" (namnet börjar på A–M) och "v19" (levde någon gång på 1900-talet). */
+const SETS={
+person:{
+  namn:"person", rubrik:"Jag tänker på en person", den:"personen",
+  intro:"Kända personer, svenska och utländska, från Gustav Vasa till i dag.",
+  grupper:["Var kommer personen ifrån?","Vem och när?","Vad är personen känd för?","Lite av varje"],
+  fragor:[
+    ["sv","Är personen svensk?",0],
+    ["nd","Kommer personen från ett annat nordiskt land?",0],
+    ["nor","Kommer personen från Norge?",0],
+    ["eu","Kommer personen från Europa?",0],
+    ["ty","Kommer personen från Tyskland?",0],
+    ["us","Kommer personen från USA?",0],
+    ["k","Är det en kvinna?",1],
+    ["l","Lever personen i dag?",1],
+    ["f18","Är personen född före år 1800?",1],
+    ["v19","Levde personen någon gång under 1900-talet?",1],
+    ["f19","Är personen född efter år 1900?",1],
+    ["f195","Är personen född efter år 1950?",1],
+    ["f198","Är personen född efter år 1980?",1],
+    ["am","Börjar förnamnet på någon av bokstäverna A–M?",1],
+    ["mu","Är personen främst känd för musik?",2],
+    ["sp","Är personen främst känd för idrott?",2],
+    ["po","Är personen främst känd för politik eller diplomati?",2],
+    ["ku","Är personen kunglig?",2],
+    ["fi","Är personen främst känd för film?",2],
+    ["fo","Är personen främst känd som författare?",2],
+    ["ve","Är personen främst känd för vetenskap eller uppfinningar?",2],
+    ["ko","Är personen främst känd som konstnär?",2],
+    ["af","Är personen främst känd för att ha byggt upp ett företag?",2],
+    ["re","Är personen känd för en upptäcktsresa eller en färd ut i rymden?",2],
+    ["ka","Är personen känd för att ha kämpat för en sak, som frihet eller miljön?",2],
+    ["lag","Har personen spelat en lagsport?",3],
+    ["vin","Är personen känd för vintersport?",3],
+    ["os","Har personen vunnit OS-guld?",3],
+    ["ba","Har personen varit med i ett band eller en grupp?",3],
+    ["mf","Har personen tävlat i Melodifestivalen eller Eurovision?",3],
+    ["nb","Har personen fått ett Nobelpris?",3],
+    ["se","Finns personen på någon av dagens svenska sedlar?",3],
+    ["son","Slutar efternamnet på -son?",3]
+  ],
+  // [visat namn, egenskaper, första bokstaven i förnamnet, andra namn man kan gissa på]
+  saker:[
+    ["Astrid Lindgren","sv eu k f19 fo se","A"],
+    ["Selma Lagerlöf","sv eu k v19 fo nb","S"],
+    ["Greta Garbo","sv eu k f19 fi se","G"],
+    ["Ingrid Bergman","sv eu k f19 fi","I"],
+    ["Ingmar Bergman","sv eu f19 fi se","I"],
+    ["Stellan Skarsgård","sv eu l f19 f195 fi","S","Skarsgård"],
+    ["Evert Taube","sv eu v19 mu se","E"],
+    ["Birgit Nilsson","sv eu k f19 mu se son","B"],
+    ["Jussi Björling","sv eu f19 mu","J"],
+    ["Jenny Lind","sv eu k mu","J","Näktergalen"],
+    ["Benny Andersson","sv eu l f19 mu ba mf son","B","Benny"],
+    ["Carola","sv eu k l f19 f195 mu mf","C","Carola Häggkvist"],
+    ["Loreen","sv eu k l f19 f195 f198 mu mf","L"],
+    ["Måns Zelmerlöw","sv eu l f19 f195 f198 mu mf","M","Måns","Zelmerlöw"],
+    ["Avicii","sv eu f19 f195 f198 mu","A","Tim Bergling"],
+    ["Dag Hammarskjöld","sv eu f19 po nb se","D"],
+    ["Olof Palme","sv eu f19 po","O","Palme"],
+    ["Hjalmar Branting","sv eu v19 po nb","H"],
+    ["Gustav Vasa","sv eu f18 ku","G","Gustav I","Gustav Eriksson"],
+    ["Drottning Kristina","sv eu k f18 ku","K","Kristina"],
+    ["Carl XVI Gustaf","sv eu l f19 ku","C","Kungen","Carl Gustaf","Kung Carl Gustaf","Carl XVI Gustav"],
+    ["Kronprinsessan Victoria","sv eu k l f19 f195 ku","V","Victoria","Kronprinsessan"],
+    ["Carl von Linné","sv eu f18 ve","C","Linné","Carl Linnaeus","Linnaeus"],
+    ["Alfred Nobel","sv eu ve","A","Nobel"],
+    ["Ingvar Kamprad","sv eu f19 af","I","Kamprad"],
+    ["August Strindberg","sv eu v19 fo","A","Strindberg"],
+    ["Carl Larsson","sv eu v19 ko son","C"],
+    ["Björn Borg","sv eu l f19 f195 sp","B"],
+    ["Ingemar Stenmark","sv eu l f19 f195 sp vin os","I","Stenmark"],
+    ["Anja Pärson","sv eu k l f19 f195 f198 sp vin os son","A"],
+    ["Sarah Sjöström","sv eu k l f19 f195 f198 sp os","S"],
+    ["Zlatan Ibrahimović","sv eu l f19 f195 f198 sp lag","Z","Zlatan","Ibrahimovic"],
+    ["Greta Thunberg","sv eu k l f19 f195 f198 ka","G"],
+    ["Henrik Ibsen","nd nor eu v19 fo","H"],
+    ["Edvard Munch","nd nor eu v19 ko","E"],
+    ["Roald Amundsen","nd nor eu v19 re","R"],
+    ["H.C. Andersen","nd eu fo","H","Hans Christian Andersen","HC Andersen","H C Andersen"],
+    ["Tove Jansson","nd eu k f19 fo son","T"],
+    ["Jean Sibelius","nd eu v19 mu","J"],
+    ["Wolfgang Amadeus Mozart","eu f18 mu","W","Mozart"],
+    ["Ludwig van Beethoven","eu ty f18 mu","L","Beethoven"],
+    ["Leonardo da Vinci","eu f18 ko","L","Leonardo"],
+    ["William Shakespeare","eu f18 fo","W"],
+    ["Christofer Columbus","eu f18 re","C","Columbus","Kristoffer Columbus","Christopher Columbus"],
+    ["Vincent van Gogh","eu ko","V","van Gogh"],
+    ["Pablo Picasso","eu v19 ko","P"],
+    ["Marie Curie","eu k v19 ve nb","M"],
+    ["Albert Einstein","eu ty v19 ve nb","A"],
+    ["Winston Churchill","eu v19 po nb","W"],
+    ["Charlie Chaplin","eu v19 fi","C","Chaplin"],
+    ["Drottning Elizabeth II","eu k f19 ku","E","Elizabeth","Elizabeth II","Drottning Elizabeth","Queen Elizabeth"],
+    ["John Lennon","eu f19 mu ba","J"],
+    ["Paul McCartney","eu l f19 mu ba","P"],
+    ["Elvis Presley","us f19 mu","E","Elvis"],
+    ["Michael Jackson","us f19 f195 mu ba son","M"],
+    ["Madonna","us k l f19 f195 mu","M"],
+    ["Taylor Swift","us k l f19 f195 f198 mu","T"],
+    ["Bob Dylan","us l f19 mu nb","B","Dylan"],
+    ["Marilyn Monroe","us k f19 fi","M"],
+    ["John F. Kennedy","us f19 po","J","Kennedy","JFK","John F Kennedy","John Kennedy"],
+    ["Barack Obama","us l f19 f195 po nb","B","Obama"],
+    ["Martin Luther King","us f19 ka nb","M","Martin Luther King Jr"],
+    ["Steve Jobs","us f19 f195 af","S"],
+    ["Bill Gates","us l f19 f195 af","B"],
+    ["Neil Armstrong","us f19 re","N"],
+    ["Muhammad Ali","us f19 sp os","M","Cassius Clay"],
+    ["Pelé","f19 sp lag","P","Pele"],
+    ["Lionel Messi","l f19 f195 f198 sp lag os","L","Messi"],
+    ["Usain Bolt","l f19 f195 f198 sp os","U","Bolt"],
+    ["Nelson Mandela","f19 po nb ka","N","Mandela"],
+    ["Mahatma Gandhi","v19 po ka","M","Gandhi"]
+  ]
+},
+stad:{
+  namn:"stad", rubrik:"Jag tänker på en stad", den:"staden",
+  intro:"Svenska städer och kända städer ute i världen.",
+  grupper:["Var ligger staden?","Hur är staden?","Lite av varje"],
+  fragor:[
+    ["sv","Ligger staden i Sverige?",0],
+    ["nd","Ligger staden i Norden?",0],
+    ["gr","Ligger staden i ett land som gränsar till Sverige?",0],
+    ["eu","Ligger staden i Europa?",0],
+    ["as","Ligger staden i Asien?",0],
+    ["am","Ligger staden i Nord- eller Sydamerika?",0],
+    ["af","Ligger staden i Afrika?",0],
+    ["oc","Ligger staden i Oceanien?",0],
+    ["syd","Ligger staden söder om ekvatorn?",0],
+    ["pol","Ligger staden norr om polcirkeln?",0],
+    ["hs","Är staden ett lands huvudstad?",1],
+    ["stor","Bor det mer än fem miljoner i storstadsområdet?",1],
+    ["kust","Ligger staden vid havet?",1],
+    ["flod","Ligger staden vid en känd flod eller älv?",1],
+    ["hog","Ligger staden högre än 1 000 meter över havet?",1],
+    ["tb","Har staden tunnelbana eller metro?",1],
+    ["kan","Är staden känd för sina kanaler?",1],
+    ["os","Har staden arrangerat olympiska spel?",2],
+    ["bro","Går det en bro från staden till ett annat land?",2],
+    ["en","Talar man främst engelska där?",2],
+    ["spa","Talar man främst spanska där?",2],
+    ["euro","Betalar man med euro där?",2],
+    ["abc","Börjar stadens svenska namn på någon av bokstäverna A–M?",2]
+  ],
+  saker:[
+    ["Stockholm","sv nd eu hs kust tb os","S"],
+    ["Göteborg","sv nd eu kust flod","G"],
+    ["Malmö","sv nd eu kust bro","M"],
+    ["Uppsala","sv nd eu","U"],
+    ["Visby","sv nd eu kust","V"],
+    ["Kiruna","sv nd eu pol","K"],
+    ["Oslo","nd gr eu hs kust tb os","O"],
+    ["Tromsø","nd gr eu kust pol","T","Tromsö","Tromso"],
+    ["Köpenhamn","nd eu hs kust tb bro","K","Copenhagen","København"],
+    ["Helsingfors","nd gr eu hs kust tb os euro","H","Helsinki"],
+    ["Reykjavik","nd eu hs kust","R","Reykjavík"],
+    ["London","eu hs stor flod tb os en","L"],
+    ["Paris","eu hs stor flod tb os euro","P"],
+    ["Rom","eu hs flod tb os euro","R","Roma","Rome"],
+    ["Venedig","eu kust kan euro","V","Venezia","Venice"],
+    ["Wien","eu hs flod tb euro","W","Vienna","Wienna"],
+    ["Prag","eu hs flod tb","P","Praha","Prague"],
+    ["Aten","eu hs kust tb os euro","A","Athen","Athens"],
+    ["Madrid","eu hs stor tb spa euro","M"],
+    ["Lissabon","eu hs kust flod tb euro","L","Lisboa","Lisbon"],
+    ["Moskva","eu hs stor flod tb os","M","Moskwa","Moscow"],
+    ["New York","am stor kust flod tb en","N","NY","New York City"],
+    ["Los Angeles","am stor kust tb os en","L","LA"],
+    ["Las Vegas","am en","L","Vegas"],
+    ["Mexico City","am hs stor hog tb os spa","M","Mexiko City","Ciudad de México","Mexico"],
+    ["Rio de Janeiro","am syd stor kust tb os","R","Rio"],
+    ["Tokyo","as hs stor kust tb os","T","Tokio"],
+    ["Peking","as hs stor tb os","P","Beijing"],
+    ["Bangkok","as hs stor flod tb","B"],
+    ["Kairo","af hs stor flod tb","K","Cairo"],
+    ["Dubai","as kust tb","D"],
+    ["Auckland","oc syd kust en","A"]
+  ]
+}};
+
+/* ---------- Hjälpfunktioner ---------- */
+const $=id=>document.getElementById(id);
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g," ").trim();
+function lev(a,b){const m=a.length,n=b.length;if(Math.abs(m-n)>2)return 9;let p=Array.from({length:n+1},(_,j)=>j);
+  for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[n]}
+// Bygg upp egenskaper (inkl. de framräknade) en gång
+for(const key in SETS){
+  const S=SETS[key];
+  S.items=S.saker.map(([n,a,first,...alias])=>{
+    const set=new Set(a.split(/\s+/));
+    const am="ABCDEFGHIJKLM".includes(first.toUpperCase());
+    if(key==="person"){if(am)set.add("am");if(set.has("f19"))set.add("v19")}
+    else if(am)set.add("abc");
+    const words=n.split(" ");
+    // Man kan gissa på hela namnet, ett av de andra namnen, efternamnet eller förnamnet
+    const fn=/^(Drottning|Kronprinsessan)$/.test(words[0])?null:words[0];
+    const names=[...new Set([n,...alias,words.length>1?words[words.length-1]:null,words.length>1?fn:null].filter(Boolean).map(norm))];
+    return{n,set,names};
+  });
+}
+function answerOf(item,qid){return item.set.has(qid)}
+
+/* ---------- Läge och statistik ---------- */
+let stats={played:0,won:0,best:null};
+try{stats=Object.assign(stats,JSON.parse(localStorage.getItem("tjugo-stats"))||{})}catch(e){}
+let showCount=false;try{showCount=localStorage.getItem("tjugo-count")==="1"}catch(e){}
+let recent={};try{recent=JSON.parse(localStorage.getItem("tjugo-recent"))||{}}catch(e){}
+let game=null;   // {key, item, log:[{text, ans:"y"|"n"|"g"}], asked:Set, used, over}
+const MAX=20;
+
+function saveStats(){try{localStorage.setItem("tjugo-stats",JSON.stringify(stats))}catch(e){}}
+function drawStats(){$("won").textContent=stats.won;$("played").textContent=stats.played;$("best").textContent=stats.best==null?"–":stats.best+" frågor"}
+
+/* ---------- Start ---------- */
+function start(){
+  game=null;drawStats();
+  $("stage").innerHTML=`<div style="display:flex;flex-direction:column;gap:14px">
+    <div class="card"><p style="margin:0 0 10px;font-weight:700">Jag tänker på något. Du har 20 frågor på dig att lista ut vad.</p>
+      <ul class="rules">
+        <li>Välj en fråga i listan, så svarar jag ja eller nej.</li>
+        <li>Skriv in din gissning när du tror att du vet. En fel gissning kostar en fråga.</li>
+        <li>Klarar du det på färre frågor blir det rekord.</li>
+      </ul></div>
+    <div class="choices">
+      <button class="choice" type="button" data-k="person"><b>En person</b><span>${SETS.person.items.length} kända personer</span></button>
+      <button class="choice" type="button" data-k="stad"><b>En stad</b><span>${SETS.stad.items.length} städer i Sverige och världen</span></button>
+    </div></div>`;
+  $("stage").querySelectorAll(".choice").forEach(b=>b.onclick=()=>newGame(b.dataset.k));
+}
+function pick(key){
+  // Undvik de senaste tio, så att samma inte kommer tillbaka direkt
+  const items=SETS[key].items, last=recent[key]||[];
+  let pool=items.map((_,i)=>i).filter(i=>!last.includes(i));if(!pool.length)pool=items.map((_,i)=>i);
+  const i=pool[Math.floor(Math.random()*pool.length)];
+  recent[key]=[...last,i].slice(-10);try{localStorage.setItem("tjugo-recent",JSON.stringify(recent))}catch(e){}
+  return items[i];
+}
+function newGame(key){
+  game={key,item:pick(key),log:[],asked:new Map(),over:false,open:new Set([0])};
+  renderGame({lead:SETS[key].rubrik+". Ställ din första fråga!"});
+}
+
+/* ---------- Spelet ---------- */
+function remaining(){
+  const S=SETS[game.key];
+  return S.items.filter(it=>{for(const [qid,a] of game.asked)if(answerOf(it,qid)!==a)return false;
+    for(const e of game.log)if(e.ans==="g"&&e.item===it)return false;return true}).length;
+}
+function renderGame(last){
+  const S=SETS[game.key], used=game.log.length, left=MAX-used;
+  const pips=Array.from({length:MAX},(_,i)=>`<i class="${game.log[i]?game.log[i].ans:""}"></i>`).join("");
+  let top;
+  if(last.lead)top=`<div class="lead">${last.lead}</div>`;
+  else top=`<div class="q">${last.q}</div><div class="a ${last.cls}">${last.a}</div>${last.extra?`<div class="hint">${last.extra}</div>`:""}`;
+  const groups=S.grupper.map((g,gi)=>{
+    const qs=S.fragor.filter(q=>q[2]===gi);
+    const free=qs.filter(q=>!game.asked.has(q[0])).length;
+    return `<details class="grp" data-g="${gi}" ${game.open.has(gi)?"open":""}><summary>${g}<small>${free} kvar</small></summary><div class="qlist">${qs.map(q=>{
+      if(game.asked.has(q[0])){const a=game.asked.get(q[0]);return `<button class="qbtn" type="button" disabled><span>${q[1]}</span><span class="tag ${a?"y":"n"}">${a?"Ja":"Nej"}</span></button>`}
+      return `<button class="qbtn" type="button" data-q="${q[0]}"><span>${q[1]}</span></button>`}).join("")}</div></details>`}).join("");
+  const log=game.log.length?`<div class="card"><p class="secthead">Hittills</p><ol class="log">${game.log.map((e,i)=>`<li><span class="nr">${i+1}.</span><span>${e.text}</span><span class="ans ${e.ans}">${e.ans==="y"?"Ja":e.ans==="n"?"Nej":"Fel"}</span></li>`).join("")}</ol></div>`:"";
+  const n=remaining();
+  $("stage").innerHTML=`<div style="display:flex;flex-direction:column;gap:14px">
+    <div class="topline"><span>${S.rubrik}</span><span>Fråga <b>${Math.min(used+1,MAX)}</b> av ${MAX}</span></div>
+    <div class="pips" aria-hidden="true">${pips}</div>
+    <div class="card answer" aria-live="polite">${top}</div>
+    <form class="guess" id="gform" autocomplete="off"><input id="gin" type="text" placeholder="Jag tror att det är …" aria-label="Din gissning" enterkeyhint="go" autocapitalize="words"><button class="btn" type="submit">Gissa</button></form>
+    <p class="count" ${showCount?"":"hidden"} id="cnt">${n===1?"Bara <b>en</b> möjlig kvar i min lista":`<b>${n}</b> möjliga kvar av ${S.items.length} i min lista`}</p>
+    ${groups}
+    ${log}
+    <div class="row"><label class="switch"><input type="checkbox" id="sw" ${showCount?"checked":""}> Visa hur många som är möjliga</label>
+      <button class="btn ghost" type="button" id="giveup">Ge upp</button></div>
+  </div>`;
+  $("stage").querySelectorAll(".qbtn[data-q]").forEach(b=>b.onclick=()=>ask(b.dataset.q));
+  $("stage").querySelectorAll("details.grp").forEach(d=>d.addEventListener("toggle",()=>{const g=+d.dataset.g;d.open?game.open.add(g):game.open.delete(g)}));
+  $("gform").onsubmit=e=>{e.preventDefault();guess($("gin").value)};
+  $("sw").onchange=e=>{showCount=e.target.checked;try{localStorage.setItem("tjugo-count",showCount?"1":"0")}catch(err){}$("cnt").hidden=!showCount};
+  $("giveup").onclick=()=>end(false,true);
+}
+function ask(qid){
+  if(game.over)return;
+  const S=SETS[game.key], q=S.fragor.find(x=>x[0]===qid), a=answerOf(game.item,qid);
+  game.asked.set(qid,a);game.log.push({text:q[1],ans:a?"y":"n"});
+  if(game.log.length>=MAX)return end(false);
+  renderGame({q:q[1],a:a?"Ja!":"Nej.",cls:a?"y":"n"});
+  window.scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+}
+function findItem(text){
+  const t=norm(text);if(!t)return null;
+  const items=SETS[game.key].items;
+  const exact=items.filter(it=>it.names.includes(t));
+  if(exact.length>1)return{many:exact};
+  if(exact.length)return exact[0];
+  let best=null,bd=9;
+  for(const it of items)for(const nm of it.names){const d=lev(t,nm);const ok=d<=(nm.length>6?2:1);if(ok&&d<bd){bd=d;best=it}}
+  return best;
+}
+function guess(text){
+  if(game.over||!norm(text))return;
+  const hit=findItem(text);
+  if(hit&&hit.many){renderGame({lead:`Vilken? Det finns flera: ${hit.many.map(x=>x.n).join(" och ")}. Skriv hela namnet.`});$("gin").value=text;$("gin").focus();return}
+  if(hit===game.item){game.log.push({text:`Är det ${game.item.n}?`,ans:"y"});return end(true)}
+  if(!hit){
+    // Okänt namn kostar ingen fråga – det kan vara en felstavning
+    renderGame({lead:`${text.trim()} känner jag inte igen. Kolla stavningen – det kostade ingen fråga.`});
+    $("gin").value=text;$("gin").focus();return;
+  }
+  game.log.push({text:`Är det ${hit.n}?`,ans:"g",item:hit});
+  if(game.log.length>=MAX)return end(false);
+  renderGame({q:`Är det ${hit.n}?`,a:"Nej, det är fel.",cls:"n"});
+  window.scrollTo({top:0});
+}
+function end(won,gaveUp){
+  game.over=true;const S=SETS[game.key], used=game.log.length;
+  stats.played++;if(won){stats.won++;if(stats.best==null||used<stats.best)stats.best=used}saveStats();drawStats();
+  const msg=won?(used<=8?`Imponerande – bara ${used} frågor!`:used<=14?`Snyggt, på ${used} frågor.`:`Precis i tid, på ${used} frågor.`)
+    :gaveUp?`Du gav upp efter ${used} ${used===1?"fråga":"frågor"}.`:"De 20 frågorna är slut.";
+  const log=game.log.length?`<div class="card"><p class="secthead">Så här gick det</p><ol class="log">${game.log.map((e,i)=>`<li><span class="nr">${i+1}.</span><span>${e.text}</span><span class="ans ${e.ans}">${e.ans==="y"?"Ja":e.ans==="n"?"Nej":"Fel"}</span></li>`).join("")}</ol></div>`:"";
+  $("stage").innerHTML=`<div style="display:flex;flex-direction:column;gap:14px">
+    <div class="pips" aria-hidden="true">${Array.from({length:MAX},(_,i)=>`<i class="${game.log[i]?game.log[i].ans:""}"></i>`).join("")}</div>
+    <div class="card final"><div class="hint">${won?"Rätt! Jag tänkte på":"Jag tänkte på"}</div><div class="who">${game.item.n}</div><div class="msg">${msg}</div>
+      <div class="row" style="justify-content:center;margin-top:8px"><button class="btn" type="button" id="again">En ${S.namn} till</button><button class="btn ghost" type="button" id="menu">Byt till ${game.key==="person"?"stad":"person"}</button></div></div>
+    ${log}</div>`;
+  $("again").onclick=()=>newGame(game.key);
+  $("menu").onclick=()=>newGame(game.key==="person"?"stad":"person");
+  window.scrollTo({top:0});
+}
+start();
+</script>
+<script>if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{})</script>
+</body></html>
