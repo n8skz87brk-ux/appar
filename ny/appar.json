@@ -12,6 +12,27 @@
   ],
   "appar": [
     {
+      "id": "vem",
+      "namn": "Vem tänker du på?",
+      "kategori": "spel",
+      "adress": "/ny/vem/",
+      "ikon": "/ny/vem/icon-192.png",
+      "knapp": "Öppna spelet",
+      "kort": "Tänk på en känd person – spelet gissar vem.",
+      "text": "Tankeläsarspelet. Du tänker på en känd person, levande eller död, svensk eller utländsk, och spelet ställer en fråga i taget. Varje svar sållar bort frågor som inte längre passar, så den som svarat Sverige slipper frågor om USA. Svara ja, nej, troligen eller vet inte. 140 personer till att börja med, och de som spelet inte klarar sparas i en lista.",
+      "version": "1.0 (prov)",
+      "status": "Ny, under provspelning",
+      "efterHemskarm": "Spelet startar sedan direkt från hemskärmen och fungerar utan internet.",
+      "andringar": [
+        {
+          "datum": "2026-11-12",
+          "typ": "ny",
+          "version": "1.0",
+          "text": "spelet gissar vilken känd person du tänker på, nu under provspelning"
+        }
+      ]
+    },
+    {
       "id": "tjugo",
       "namn": "Tjugo frågor",
       "kategori": "spel",

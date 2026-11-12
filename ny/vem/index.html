@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="sv"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="description" content="Tänk på en känd person – spelet ställer en fråga i taget och gissar vem det är.">
+<meta name="theme-color" content="#3a4bd8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Vem tänker du på?">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>Vem tänker du på?</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap">
+<style>
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+/* Layout: one centred column; a thought bubble holds the question, answer buttons below it */
+:root{
+  --bg:#eceef6; --surface:#ffffff; --ink:#1b1f3b; --muted:#5d6385;
+  --accent:#3a4bd8; --accent-ink:#ffffff; --line:#d6d9ea; --yes:#1f8a5b; --no:#c2413a;
+  --display:"Bricolage Grotesque", "Inter", system-ui, sans-serif;
+  --body:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111329; --surface:#1d2142; --ink:#eceef9; --muted:#a4a9ca;
+  --accent:#8e9bff; --accent-ink:#111329; --line:#2f3463; --yes:#4cc38a; --no:#f07a72; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111329; --surface:#1d2142; --ink:#eceef9; --muted:#a4a9ca;
+  --accent:#8e9bff; --accent-ink:#111329; --line:#2f3463; --yes:#4cc38a; --no:#f07a72; color-scheme:dark}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 32px}
+.wrap{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+h1{font-family:var(--display);font-weight:800;font-size:1.6rem;letter-spacing:-.01em;margin:0;text-wrap:balance}
+.ver{font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.bubble{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:26px 24px 28px;margin-bottom:30px}
+.bubble::before,.bubble::after{content:"";position:absolute;background:var(--surface);border:1px solid var(--line);border-radius:50%}
+.bubble::before{width:22px;height:22px;left:44px;bottom:-30px}
+.bubble::after{width:12px;height:12px;left:30px;bottom:-48px}
+.label{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums}
+.q{font-family:var(--display);font-weight:700;font-size:clamp(1.45rem,5.5vw,1.9rem);line-height:1.2;margin:10px 0 0;text-wrap:balance}
+.sub{color:var(--muted);margin:10px 0 0}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.answers .wide{grid-column:1 / -1}
+button{font:inherit;cursor:pointer;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:14px 12px;font-weight:600;transition:transform .08s ease, background .15s}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.big{font-family:var(--display);font-size:1.25rem;padding:18px 12px}
+.yes{background:var(--yes);border-color:var(--yes);color:#fff}
+.no{background:var(--no);border-color:var(--no);color:#fff}
+.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-family:var(--display);font-size:1.15rem;padding:16px}
+.soft{color:var(--muted);font-weight:500}
+.tools{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.tools button{background:transparent;border-color:transparent;color:var(--muted);font-weight:500;padding:8px 12px;text-decoration:underline;text-underline-offset:3px}
+.tools button:disabled{opacity:.4;cursor:default}
+.guessname{font-family:var(--display);font-weight:800;font-size:clamp(1.9rem,8vw,2.6rem);line-height:1.1;margin:8px 0 0;text-wrap:balance}
+input[type=text]{font:inherit;width:100%;box-sizing:border-box;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin-top:14px}
+.list{margin:0;padding-left:1.1em;color:var(--muted);font-size:.92rem}
+.trail{font-size:.85rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--surface)}
+.chip b{font-weight:600;color:var(--ink)}
+details{color:var(--muted);font-size:.9rem}
+summary{cursor:pointer}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+
+</head><body>
+<div class="wrap">
+  <header><h1>Vem tänker du på?</h1><span class="ver">v1.0</span></header>
+  <main id="app"></main>
+  <div class="tools">
+    <button id="undo" type="button">Ångra senaste svar</button>
+    <button id="restart" type="button">Börja om</button>
+  </div>
+</div>
+
+<script>
+// [namn, födelseår, egenskaper, kort beskrivning]
+const P = [
+["Zlatan Ibrahimović",1981,"sv lev id fb","Fotbollsspelare – Malmö FF, Ajax, Juventus, Milan, PSG"],
+["Glenn Hysén",1959,"sv lev id fb tv","Fotbollsback och tv-profil"],
+["Björn Borg",1956,"sv lev id tn","Vann Wimbledon fem år i rad"],
+["Ingemar Stenmark",1956,"sv lev id vi","Slalomkungen med 86 världscupsegrar"],
+["Gunde Svan",1962,"sv lev id vi tv","Längdskidåkare och tv-profil"],
+["Pernilla Wiberg",1970,"k sv lev id vi","Alpin världsmästare och OS-guldmedaljör"],
+["Charlotte Kalla",1987,"k sv lev id vi","Längdskidåkare med flera OS-guld"],
+["Annika Sörenstam",1970,"k sv lev id go","En av tidernas bästa golfspelare"],
+["Sarah Sjöström",1993,"k sv lev id si","Simmare med världsrekord och OS-guld"],
+["Carolina Klüft",1983,"k sv lev id fr","Sjukampare, OS-guld i Aten 2004"],
+["Armand Duplantis",1999,"sv lev id fr","Stavhoppare som slår världsrekord efter världsrekord"],
+["Peter Forsberg",1973,"sv lev id ih","Ishockeyspelare, frimärksmålet i Lillehammer"],
+["Henrik Lundqvist",1982,"sv lev id ih","Målvakt, New York Rangers"],
+["Ingemar Johansson",1932,"sv id bo","Världsmästare i tungviktsboxning 1959"],
+["Agnetha Fältskog",1950,"k sv lev mu sa gr es","Sångerska i ABBA"],
+["Björn Ulvaeus",1945,"sv lev mu gr es","Låtskrivare i ABBA"],
+["Benny Andersson",1946,"sv lev mu gr es","Låtskrivare i ABBA"],
+["Zarah Leander",1907,"k sv mu sa fi sk","Sångerska och filmstjärna"],
+["Evert Taube",1890,"sv mu sa ko bok","Visdiktare och trubadur"],
+["Cornelis Vreeswijk",1937,"sv mu sa","Visartist"],
+["Ted Gärdestad",1956,"sv mu sa","Sångare och låtskrivare"],
+["Avicii",1989,"sv mu","Dj och producent"],
+["Robyn",1979,"k sv lev mu sa","Popartist"],
+["Zara Larsson",1997,"k sv lev mu sa","Popartist"],
+["Per Gessle",1959,"sv lev mu sa gr","Gyllene Tider och Roxette"],
+["Marie Fredriksson",1958,"k sv mu sa gr","Sångerska i Roxette"],
+["Carola",1966,"k sv lev mu sa es","Vann Eurovision 1991"],
+["Loreen",1983,"k sv lev mu sa es","Vann Eurovision två gånger"],
+["Greta Garbo",1905,"k sv fi sk","Hollywoodstjärna"],
+["Ingrid Bergman",1915,"k sv fi sk","Skådespelerska, Casablanca"],
+["Ingmar Bergman",1918,"sv fi ko","Film- och teaterregissör"],
+["Stellan Skarsgård",1951,"sv lev fi sk","Skådespelare"],
+["Alexander Skarsgård",1976,"sv lev fi sk","Skådespelare"],
+["Alicia Vikander",1988,"k sv lev fi sk","Oscarsbelönad skådespelerska"],
+["Magnus Härenstam",1941,"sv fi sk hum tv","Fem myror är fler än fyra elefanter"],
+["Hasse Alfredson",1931,"sv fi sk hum ko bok","Hasse & Tage"],
+["Robert Gustafsson",1964,"sv lev fi sk hum","Komiker och skådespelare"],
+["Leif ”Loket” Olsson",1942,"sv lev fi tv","Bingolotto"],
+["Astrid Lindgren",1907,"k sv ko bok","Pippi, Emil och Ronja"],
+["Selma Lagerlöf",1858,"k sv ko bok nob","Nils Holgerssons underbara resa"],
+["August Strindberg",1849,"sv ko bok","Röda rummet, Fröken Julie"],
+["Carl Larsson",1853,"sv ko ma","Målare, Sundborn"],
+["Alfred Nobel",1833,"sv ve ftg","Uppfann dynamiten, instiftade Nobelpriset"],
+["Carl von Linné",1707,"sv ve","Botaniker som ordnade naturens arter"],
+["Anders Celsius",1701,"sv ve","Astronom, temperaturskalan"],
+["Ingvar Kamprad",1926,"sv ftg","Grundade IKEA"],
+["Olof Palme",1927,"sv po led","Statsminister"],
+["Dag Hammarskjöld",1905,"sv po nob","FN:s generalsekreterare"],
+["Raoul Wallenberg",1912,"sv po","Räddade judar i Budapest 1944"],
+["Greta Thunberg",2003,"k sv lev po","Klimataktivist"],
+["Carl XVI Gustaf",1946,"sv lev ro led","Sveriges kung"],
+["Kronprinsessan Victoria",1977,"k sv lev ro","Sveriges kronprinsessa"],
+["Gustav Vasa",1496,"sv ro led","Grundade det moderna Sverige"],
+["Gustav II Adolf",1594,"sv ro led","Stupade vid Lützen 1632"],
+["Drottning Kristina",1626,"k sv ro led","Abdikerade och flyttade till Rom"],
+["Edvard Munch",1863,"no ko ma","Skriet"],
+["Henrik Ibsen",1828,"no ko bok","Ett dockhem, Peer Gynt"],
+["H.C. Andersen",1805,"no ko bok","Den fula ankungen"],
+["Roald Amundsen",1872,"no ex","Först till Sydpolen"],
+["Erling Haaland",2000,"no lev id fb","Målfarlig anfallare"],
+["Magnus Carlsen",1990,"no lev id sc","Världsmästare i schack"],
+["Mads Mikkelsen",1965,"no lev fi sk","Dansk skådespelare"],
+["Jean Sibelius",1865,"no mu kl","Finsk tonsättare, Finlandia"],
+["Björk",1965,"k no lev mu sa","Isländsk artist"],
+["Linus Torvalds",1969,"no lev ve","Skapade Linux"],
+["Kimi Räikkönen",1979,"no lev id mo","Världsmästare i Formel 1"],
+["Elvis Presley",1935,"us mu sa fi sk","Rock’n’rollens kung"],
+["Michael Jackson",1958,"us mu sa","Thriller"],
+["Madonna",1958,"k us lev mu sa","Popdrottning"],
+["Taylor Swift",1989,"k us lev mu sa","Popartist"],
+["Beyoncé",1981,"k us lev mu sa gr","Destiny’s Child och soloartist"],
+["Bob Dylan",1941,"us lev mu sa nob","Sångare och Nobelpristagare i litteratur"],
+["Marilyn Monroe",1926,"k us fi sk","Filmikon"],
+["Meryl Streep",1949,"k us lev fi sk","Skådespelerska med flest Oscarsnomineringar"],
+["Tom Hanks",1956,"us lev fi sk","Forrest Gump"],
+["Leonardo DiCaprio",1974,"us lev fi sk","Titanic"],
+["Clint Eastwood",1930,"us lev fi sk","Westernstjärna och regissör"],
+["Angelina Jolie",1975,"k us lev fi sk","Skådespelerska"],
+["Oprah Winfrey",1954,"k us lev tv","Pratshowvärd"],
+["Walt Disney",1901,"us fi ftg","Musse Pigg och Disney"],
+["Steve Jobs",1955,"us ve ftg","Grundade Apple"],
+["Bill Gates",1955,"us lev ftg","Grundade Microsoft"],
+["Elon Musk",1971,"us lev ve ftg","Tesla och SpaceX"],
+["Thomas Edison",1847,"us ve ftg","Glödlampan och fonografen"],
+["Neil Armstrong",1930,"us ex","Först på månen"],
+["Abraham Lincoln",1809,"us po led","Avskaffade slaveriet i USA"],
+["John F. Kennedy",1917,"us po led","President, mördad 1963"],
+["Barack Obama",1961,"us lev po led nob","USA:s 44:e president"],
+["Donald Trump",1946,"us lev po led ftg tv","USA:s 45:e och 47:e president"],
+["Martin Luther King",1929,"us po nob","I have a dream"],
+["Muhammad Ali",1942,"us id bo","Boxare, ”the Greatest”"],
+["Michael Jordan",1963,"us lev id ba","Chicago Bulls"],
+["Tiger Woods",1975,"us lev id go","Golfspelare"],
+["Serena Williams",1981,"k us lev id tn","23 Grand Slam-titlar"],
+["John Lennon",1940,"eu mu sa gr","The Beatles"],
+["Paul McCartney",1942,"eu lev mu sa gr","The Beatles"],
+["Freddie Mercury",1946,"eu mu sa gr","Queen"],
+["Mick Jagger",1943,"eu lev mu sa gr","The Rolling Stones"],
+["Elton John",1947,"eu lev mu sa","Your Song, Candle in the Wind"],
+["Adele",1988,"k eu lev mu sa","Brittisk sångerska"],
+["Édith Piaf",1915,"k eu mu sa","Non, je ne regrette rien"],
+["Wolfgang Amadeus Mozart",1756,"eu mu kl","Tonsättare"],
+["Ludwig van Beethoven",1770,"eu mu kl","Tonsättare"],
+["Charlie Chaplin",1889,"eu fi sk hum","Stumfilmens luffare"],
+["Audrey Hepburn",1929,"k eu fi sk","Frukost på Tiffany’s"],
+["Sean Connery",1930,"eu fi sk","Den förste James Bond"],
+["Rowan Atkinson",1955,"eu lev fi sk hum","Mr. Bean"],
+["Albert Einstein",1879,"eu ve nob","Relativitetsteorin"],
+["Marie Curie",1867,"k eu ve nob","Radioaktivitet, två Nobelpris"],
+["Isaac Newton",1643,"eu ve","Gravitationen"],
+["Charles Darwin",1809,"eu ve","Evolutionsteorin"],
+["Leonardo da Vinci",1452,"eu ko ma ve","Mona Lisa och uppfinningar"],
+["Pablo Picasso",1881,"eu ko ma","Kubismen, Guernica"],
+["Vincent van Gogh",1853,"eu ko ma","Solrosorna"],
+["William Shakespeare",1564,"eu ko bok","Hamlet, Romeo och Julia"],
+["J.K. Rowling",1965,"k eu lev ko bok","Harry Potter"],
+["Agatha Christie",1890,"k eu ko bok","Hercule Poirot"],
+["Napoleon Bonaparte",1769,"eu po led","Frankrikes kejsare"],
+["Winston Churchill",1874,"eu po led nob bok","Brittisk premiärminister under kriget"],
+["Angela Merkel",1954,"k eu lev po led","Tysklands förbundskansler"],
+["Drottning Elizabeth II",1926,"k eu ro led","Storbritanniens drottning i 70 år"],
+["Prinsessan Diana",1961,"k eu ro","Prinsessan av Wales"],
+["Kung Charles III",1948,"eu lev ro led","Storbritanniens kung"],
+["Jurij Gagarin",1934,"eu ex","Förste människan i rymden"],
+["Moder Teresa",1910,"k eu po nob","Hjälparbete i Calcutta"],
+["Cristiano Ronaldo",1985,"eu lev id fb","Portugisisk fotbollsstjärna"],
+["David Beckham",1975,"eu lev id fb","Manchester United och England"],
+["Roger Federer",1981,"eu lev id tn","20 Grand Slam-titlar"],
+["Michael Schumacher",1969,"eu lev id mo","Sjufaldig F1-världsmästare"],
+["Pelé",1940,"id fb","Brasiliansk fotbollslegend"],
+["Diego Maradona",1960,"id fb","Argentinsk fotbollslegend"],
+["Lionel Messi",1987,"lev id fb","Argentinsk fotbollsstjärna"],
+["Usain Bolt",1986,"lev id fr","Världens snabbaste man"],
+["Nelson Mandela",1918,"po led nob","Sydafrikas president"],
+["Mahatma Gandhi",1869,"po","Ledde Indiens frigörelse med fredliga medel"],
+["Kleopatra",-69,"k ro led","Egyptens sista drottning"],
+["Frida Kahlo",1907,"k ko ma","Mexikansk målare"]
+].map(([name,year,tags,desc])=>({name,year,desc,t:new Set(tags.split(" "))}));
+
+const has = t => p => p.t.has(t);
+const Q = [
+ ["k","Är det en kvinna?",has("k")],
+ ["lev","Lever personen idag?",has("lev")],
+ ["sv","Är personen svensk?",has("sv")],
+ ["no","Kommer personen från Norge, Danmark, Finland eller Island?",has("no")],
+ ["us","Kommer personen från USA?",has("us")],
+ ["eu","Kommer personen från ett annat land i Europa, utanför Norden?",has("eu")],
+ ["y1800","Föddes personen före år 1800?",p=>p.year<1800],
+ ["y1900","Föddes personen före år 1900?",p=>p.year<1900],
+ ["y1930","Föddes personen före 1930?",p=>p.year<1930],
+ ["y1950","Föddes personen före 1950?",p=>p.year<1950],
+ ["y1975","Föddes personen 1975 eller senare?",p=>p.year>=1975],
+ ["mu","Är personen känd för musik?",has("mu")],
+ ["sa","Är personen känd som sångare eller sångerska?",has("sa")],
+ ["gr","Var personen med i ett band eller en grupp?",has("gr")],
+ ["kl","Är det en tonsättare av klassisk musik?",has("kl")],
+ ["es","Har personen vunnit Eurovision?",has("es")],
+ ["id","Är personen känd för idrott?",has("id")],
+ ["fb","Är det en fotbollsspelare?",has("fb")],
+ ["tn","Är det en tennisspelare?",has("tn")],
+ ["vi","Håller eller höll personen på med skidor eller slalom?",has("vi")],
+ ["go","Är det en golfspelare?",has("go")],
+ ["fr","Håller eller höll personen på med friidrott?",has("fr")],
+ ["ih","Är det en ishockeyspelare?",has("ih")],
+ ["mo","Kör eller körde personen racerbil?",has("mo")],
+ ["sc","Är personen känd för schack?",has("sc")],
+ ["si","Är det en simmare?",has("si")],
+ ["bo","Är det en boxare?",has("bo")],
+ ["ba","Är det en basketspelare?",has("ba")],
+ ["fi","Är personen känd från film, teater eller tv?",has("fi")],
+ ["sk","Är personen skådespelare?",has("sk")],
+ ["hum","Är personen känd för att vara rolig?",has("hum")],
+ ["tv","Är personen programledare eller tv-profil?",has("tv")],
+ ["po","Är personen känd för politik eller samhällsfrågor?",has("po")],
+ ["led","Har personen styrt ett land?",has("led")],
+ ["ro","Är personen kunglig?",has("ro")],
+ ["ve","Är personen känd för vetenskap eller uppfinningar?",has("ve")],
+ ["ftg","Har personen grundat eller lett ett stort företag?",has("ftg")],
+ ["ex","Är personen upptäcktsresande eller rymdfarare?",has("ex")],
+ ["ko","Är personen känd för litteratur eller konst?",has("ko")],
+ ["bok","Har personen skrivit kända böcker eller pjäser?",has("bok")],
+ ["ma","Är personen målare eller bildkonstnär?",has("ma")],
+ ["nob","Har personen fått Nobelpriset?",has("nob")]
+].map(([id,text,f])=>({id,text,f}));
+
+// Svar: [vikt om personen HAR egenskapen, vikt om den INTE har den]
+const A = {
+  ja:[1,.03], troligen:[1,.3], vetinte:[1,1], troligeninte:[.3,1], nej:[.03,1]
+};
+const ANS_LABEL = {ja:"Ja",troligen:"Troligen",vetinte:"Vet inte",troligeninte:"Troligen inte",nej:"Nej"};
+const MAX_Q = 25;
+
+let S, hist;
+function fresh(){
+  S = {view:"start", w:P.map(()=>1), asked:[], answers:[], guessed:[], guess:null, qn:0, cur:null};
+  hist = [];
+}
+const clone = o => JSON.parse(JSON.stringify(o));
+
+function probs(){
+  const tot = S.w.reduce((a,b)=>a+b,0) || 1;
+  return S.w.map(x=>x/tot);
+}
+function H(p){ return p<=0||p>=1 ? 0 : -(p*Math.log2(p)+(1-p)*Math.log2(1-p)); }
+
+function bestQuestion(){
+  const pr = probs();
+  let scored = [];
+  for(const q of Q){
+    if(S.asked.includes(q.id)) continue;
+    let p=0; P.forEach((x,i)=>{ if(q.f(x)) p+=pr[i]; });
+    // Frågor där nästan alla kvarvarande svarar lika har fallit bort
+    if(p<0.02 || p>0.98) continue;
+    scored.push({q, s:H(p)});
+  }
+  if(!scored.length) return null;
+  scored.sort((a,b)=>b.s-a.s);
+  const top = scored.filter(x=>x.s >= scored[0].s-0.03);
+  return top[Math.floor(Math.random()*top.length)].q;
+}
+function topCandidate(){
+  const pr = probs();
+  let bi=-1,bp=0;
+  pr.forEach((p,i)=>{ if(!S.guessed.includes(i) && p>bp){bp=p;bi=i;} });
+  return {i:bi,p:bp};
+}
+function aliveCount(){ return probs().filter(p=>p>0.005).length; }
+
+function next(){
+  const t = topCandidate();
+  const q = bestQuestion();
+  if(t.i<0){ S.view="giveup"; return render(); }
+  const sure = t.p>=0.7 && S.qn>=4;
+  if(sure || !q || S.qn>=MAX_Q || (S.qn>=20 && S.guessed.length===0)){
+    if(S.qn>=MAX_Q && S.guessed.length>=3){ S.view="giveup"; return render(); }
+    S.guess=t.i; S.view="guess"; return render();
+  }
+  S.cur=q.id; S.view="question"; render();
+}
+
+function answer(key){
+  hist.push(clone(S));
+  const q = Q.find(x=>x.id===S.cur);
+  const [wy,wn] = A[key];
+  S.w = S.w.map((w,i)=> w*(q.f(P[i])?wy:wn));
+  S.asked.push(q.id); S.answers.push([q.text,key]); S.qn++;
+  next();
+}
+function guessWrong(){
+  hist.push(clone(S));
+  S.w[S.guess]=0; S.guessed.push(S.guess); S.guess=null;
+  if(S.guessed.length>=3 && S.qn>=20){ S.view="giveup"; return render(); }
+  next();
+}
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function render(){
+  const app = $("app");
+  $("undo").disabled = hist.length===0;
+  if(S.view==="start"){
+    app.innerHTML = `
+      <div class="bubble">
+        <div class="label"><span>Så här går det till</span></div>
+        <p class="q">Tänk på en känd person. Jag ställer frågor och försöker gissa vem.</p>
+        <p class="sub">Levande eller död, svensk eller utländsk. Varje svar sållar bort frågor som inte längre passar. Jag känner till ${P.length} personer.</p>
+      </div>
+      <button class="primary" id="go" type="button">Jag tänker på någon</button>
+      ${missingHTML()}`;
+    $("go").onclick = ()=>{ hist=[]; next(); };
+    wireMissing();
+  }
+  else if(S.view==="question"){
+    const q = Q.find(x=>x.id===S.cur);
+    app.innerHTML = `
+      <div class="bubble">
+        <div class="label"><span>Fråga ${S.qn+1}</span><span>${aliveCount()} möjliga kvar</span></div>
+        <p class="q">${esc(q.text)}</p>
+      </div>
+      <div class="answers">
+        <button class="big yes" data-a="ja" type="button">Ja</button>
+        <button class="big no" data-a="nej" type="button">Nej</button>
+        <button data-a="troligen" type="button">Troligen</button>
+        <button data-a="troligeninte" type="button">Troligen inte</button>
+        <button class="wide soft" data-a="vetinte" type="button">Vet inte</button>
+      </div>`;
+    app.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>answer(b.dataset.a));
+  }
+  else if(S.view==="guess"){
+    const p = P[S.guess];
+    app.innerHTML = `
+      <div class="bubble">
+        <div class="label"><span>Efter ${S.qn} frågor</span><span>Gissning ${S.guessed.length+1}</span></div>
+        <p class="sub" style="margin-top:12px">Jag tror att du tänker på …</p>
+        <p class="guessname">${esc(p.name)}</p>
+        <p class="sub">${esc(p.desc)}</p>
+      </div>
+      <div class="answers">
+        <button class="big yes" id="right" type="button">Ja, rätt!</button>
+        <button class="big no" id="wrong" type="button">Nej</button>
+      </div>`;
+    $("right").onclick = ()=>{ S.view="won"; render(); };
+    $("wrong").onclick = guessWrong;
+  }
+  else if(S.view==="won"){
+    const p = P[S.guess];
+    app.innerHTML = `
+      <div class="bubble">
+        <div class="label"><span>Rätt gissat</span></div>
+        <p class="guessname">${esc(p.name)}</p>
+        <p class="sub">Klart på ${S.qn} frågor${S.guessed.length?` och ${S.guessed.length+1} gissningar`:""}.</p>
+      </div>
+      <button class="primary" id="again" type="button">Spela igen</button>
+      ${trailHTML()}`;
+    $("again").onclick = ()=>{ fresh(); next(); };
+  }
+  else if(S.view==="giveup"){
+    app.innerHTML = `
+      <div class="bubble">
+        <div class="label"><span>Jag ger upp</span></div>
+        <p class="q">Vem tänkte du på?</p>
+        <p class="sub">Skriv namnet så sparas det i listan över personer jag borde lära mig.</p>
+        <input type="text" id="who" placeholder="Namn" autocomplete="off">
+      </div>
+      <button class="primary" id="save" type="button">Spara och spela igen</button>
+      ${trailHTML()}`;
+    $("save").onclick = ()=>{
+      const n = $("who").value.trim();
+      if(n) addMissing(n);
+      fresh(); render();
+    };
+  }
+}
+
+function trailHTML(){
+  if(!S.answers.length) return "";
+  return `<details><summary>Dina svar</summary><div class="trail" style="margin-top:10px">${
+    S.answers.map(([t,a])=>`<span class="chip">${esc(t)} <b>${ANS_LABEL[a]}</b></span>`).join("")
+  }</div></details>`;
+}
+
+// Personer appen inte kände till – sparas bara i den här webbläsaren
+const KEY="vemtankerdupa.saknade";
+function getMissing(){ try{ return JSON.parse(localStorage.getItem(KEY))||[]; }catch(e){ return []; } }
+function addMissing(n){ try{ const l=getMissing(); if(!l.includes(n)) l.push(n); localStorage.setItem(KEY,JSON.stringify(l)); }catch(e){} }
+function missingHTML(){
+  const l=getMissing(); if(!l.length) return "";
+  return `<details><summary>Personer jag inte kunde gissa (${l.length})</summary>
+    <ul class="list" style="margin-top:8px">${l.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>
+    <div class="tools" style="justify-content:flex-start;margin-top:6px">
+      <button id="copym" type="button">Kopiera listan</button><button id="clearm" type="button">Töm listan</button>
+    </div></details>`;
+}
+function wireMissing(){
+  const c=$("copym"), d=$("clearm");
+  if(c) c.onclick=()=>{ const t=getMissing().join("\n");
+    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>c.textContent="Kopierat",()=>c.textContent="Kunde inte kopiera"); };
+  if(d) d.onclick=()=>{ if(d.dataset.sure){ try{localStorage.removeItem(KEY);}catch(e){} render(); } else { d.dataset.sure=1; d.textContent="Tryck igen för att tömma"; } };
+}
+
+$("undo").onclick = ()=>{ if(hist.length){ S=hist.pop(); render(); } };
+$("restart").onclick = ()=>{ fresh(); render(); };
+fresh(); render();
+</script>
+
+<script>if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{})</script>
+</body></html>
