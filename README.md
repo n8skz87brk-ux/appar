@@ -8,9 +8,9 @@ Peters appar – https://peter.ekvardt.se
 
 **`/ny/` är utvecklingsversionen.** Den har egen `ny/index.html` och `ny/appar.json`, en gul rad överst och är dold för sökmotorer. När den är klar kopieras den till huvudsidan, utan den gula raden och utan `noindex`.
 
-**`/spelbordet/` är ett prov av ny förstasida ("verkstaden").** En kopia av startsidan där toppen är en arbetsbänk med ett föremål per spel (kategorin `spel`). Appar och spel skiljs åt: menyn har både Appar och Spel, och kategorin Idrott visas som Appar (`RUBRIK` i skriptet); föremålen ritas i `SAKER` i sidans skript, namn och texter läses från `/appar.json`. Samma föremål används i korten och inforutan längre ner. En app utan eget föremål visas med sin ikon. Dold för sökmotorer. Tas bort eller flyttas till startsidan när Peter bestämt sig.
+**Startsidan är "verkstaden"** (sedan 12 november 2026): överst en arbetsbänk med ett föremål per spel (kategorin `spel`). Appar och spel skiljs åt: menyn har både Appar och Spel, och kategorin Idrott visas som Appar (`RUBRIK` i skriptet); föremålen ritas i `SAKER` i sidans skript, namn och texter läses från `/appar.json`. Samma föremål används i korten och inforutan längre ner. En app utan eget föremål visas med sin ikon. `/spelbordet/` skickar vidare till startsidan.
 
-**Ikonerna** (`icon-180/192/512.png` i varje app, `icon-r-…` i Americano) är samma föremål som på bänken, ritade på en träbricka. De görs från `SAKER` i `spelbordet/index.html`: föremålet läggs på 76 % av en 512-ruta med träbakgrund och skalas sedan ner. Ett nytt spel får sitt föremål i `SAKER` först, sedan ikonen. Glenn och Musikquiz i `/ny/` har kvar sina gamla ikoner tills de fått föremål.
+**Ikonerna** (`icon-180/192/512.png` i varje app, `icon-r-…` i Americano) är samma föremål som på bänken, ritade på en träbricka. De görs från `SAKER` i `index.html`: föremålet läggs på 76 % av en 512-ruta med träbakgrund och skalas sedan ner. Ett nytt spel får sitt föremål i `SAKER` först, sedan ikonen. Glenn och Musikquiz i `/ny/` har kvar sina gamla ikoner tills de fått föremål.
 
 ### Småfix eller större ändring?
 

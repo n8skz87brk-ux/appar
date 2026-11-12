@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
 <style>
-/* peter.ekvardt.se. Allt som ändras när en app läggs till står i appar.json. Utvecklingsversionen finns i /ny/. */
+/* peter.ekvardt.se – verkstaden: arbetsbänken överst. Allt som ändras när en app läggs till står i appar.json. Utvecklingsversionen finns i /ny/. */
 :root{
   --bg:#F3F5F4; --surface:#FFFFFF; --surface2:#F8FAF9; --line:#D8DEDB; --line2:#E4E9E7;
   --fg:#15201E; --muted:#3C4A47; --faint:#55625F;
@@ -75,12 +75,13 @@ nav a:hover{color:var(--accent)}
 
 .apps{padding-block:60px}
 .apps > .wrap > .lead{margin:12px 0 8px}
-.cat{margin-top:36px}
+.cat{margin-top:36px;scroll-margin-top:16px}
 .cat-h{font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-family:var(--body);margin-bottom:14px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:22px}
 /* Kort på iPad/dator, kompakta rader på mobil */
 .card{display:grid;grid-template-columns:56px minmax(0,1fr);column-gap:14px;row-gap:14px;align-items:center;padding:24px;border:1px solid var(--line);border-radius:16px;background:var(--surface2);scroll-margin-top:20px}
 .card > img{width:56px;height:56px;border-radius:14px}
+.sak{display:block;width:56px;height:56px;overflow:visible;flex:none;filter:drop-shadow(0 2px 2px rgba(40,20,0,.25))}
 .info{all:unset;display:flex;flex-direction:column;gap:2px;min-width:0;cursor:pointer;border-radius:8px}
 .info:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 .info .name{font-family:var(--display);font-weight:700;font-size:22px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--fg)}
@@ -92,7 +93,7 @@ nav a:hover{color:var(--accent)}
 @media (max-width:640px){
   .cat .grid{gap:10px}
   .card{grid-template-columns:48px minmax(0,1fr) auto;padding:12px 12px 12px 14px;row-gap:0;border-radius:14px}
-  .card > img{width:48px;height:48px;border-radius:12px}
+  .card > img,.card > .sak{width:48px;height:48px;border-radius:12px}
   .info .name{font-size:17px}
   .info .kort{display:block}
   .info .ver{font-size:12px}
@@ -176,15 +177,58 @@ footer.site a{color:#fff}
 .note b{color:var(--fg)}
 .go{margin-top:10px;border-radius:10px}
 .done{text-align:center;margin:6px 0 0;color:var(--muted);font-size:.92rem}
+
+/* ---- Verkstaden: arbetsbänken överst. Varje app är ett föremål (SAKER i skriptet), namnen kommer från appar.json. ---- */
+:root{--wood:#D2AC78;--wood-seam:rgba(88,56,24,.32);--grain-a:rgba(120,78,36,.10);--grain-b:rgba(255,240,205,.14);--paper:#FBF6E8;--tape-lbl:#F6EFD9}
+@media (prefers-color-scheme: dark){:root{--wood:#5A4330;--wood-seam:rgba(0,0,0,.42);--grain-a:rgba(0,0,0,.16);--grain-b:rgba(255,220,170,.05);--paper:#EFE7D2;--tape-lbl:#E9E0C6}}
+.bench{position:relative;overflow:hidden;background-color:var(--wood);
+  background-image:repeating-linear-gradient(180deg,transparent 0 138px,var(--wood-seam) 138px 140px),
+    repeating-linear-gradient(179.3deg,var(--grain-a) 0 2px,transparent 2px 11px,var(--grain-b) 11px 12px,transparent 12px 27px);
+  border-bottom:1px solid var(--line);box-shadow:inset 0 -14px 26px -14px rgba(30,15,0,.35);padding-block:46px 30px}
+.bench .wrap{position:relative}
+.paper{position:relative;max-width:560px;background:var(--paper);color:#15201E;padding:30px 30px 26px;border-radius:3px;transform:rotate(-1.2deg);
+  box-shadow:0 1px 1px rgba(0,0,0,.15),0 12px 26px -10px rgba(40,20,0,.55)}
+.paper::before{content:"";position:absolute;top:-14px;left:50%;width:112px;height:28px;transform:translateX(-50%) rotate(2deg);background:rgba(240,218,150,.78);box-shadow:0 1px 2px rgba(40,20,0,.2)}
+.paper h1{font-size:clamp(25px,3.7vw,33px);line-height:1.2;letter-spacing:-0.01em;max-width:20ch}
+.paper .lead{color:#3C4A47;font-size:17px;margin:18px 0 0}
+.paper .hint{margin:14px 0 0;font-size:15px;font-weight:600;color:#1D5A84}
+.decor{position:absolute;pointer-events:none;display:none;filter:drop-shadow(0 4px 3px rgba(40,20,0,.3)) drop-shadow(0 12px 14px rgba(40,20,0,.25))}
+.decor.cup{top:4px;right:max(22px,calc(50% - 548px));width:150px}
+.decor.pen{top:188px;right:max(40px,calc(50% - 530px));width:210px;transform:rotate(-24deg)}
+@media (min-width:760px){.decor.cup{display:block}}
+@media (min-width:1060px){.decor.pen{display:block}}
+.top-row{display:flex;flex-wrap:wrap;align-items:center;gap:26px 40px}
+.top-row .paper{flex:1 1 380px}
+.tape,.thing .lbl{background:var(--tape-lbl);color:#15201E;font-size:13px;font-weight:600;line-height:1.25;padding:4px 10px;text-align:center;border-radius:2px;box-shadow:0 1px 2px rgba(40,20,0,.4)}
+.things{list-style:none;margin:30px 0 0;padding:0;display:flex;flex-wrap:wrap;justify-content:center}
+.things li{flex:0 0 20%;min-width:0;display:flex;justify-content:center;padding:8px 4px 16px}
+@media (max-width:700px){.things li{flex-basis:33.333%}}
+@media (max-width:330px){.things li{flex-basis:50%}}
+.thing{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;max-width:176px;
+  transform:translateY(var(--y,0px));-webkit-tap-highlight-color:transparent;animation:land .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*70ms)}
+.thing .obj{display:block;overflow:visible;width:min(100%,136px);height:auto;aspect-ratio:1;transform:rotate(var(--r,0deg));transition:transform .25s cubic-bezier(.2,.8,.2,1.3),filter .25s;
+  filter:drop-shadow(0 3px 2px rgba(40,20,0,.35)) drop-shadow(0 8px 9px rgba(40,20,0,.22))}
+.thing img.obj{border-radius:22%}
+.thing:hover .obj,.thing:focus-visible .obj{transform:rotate(0deg) translateY(-7px) scale(1.09);filter:drop-shadow(0 16px 12px rgba(40,20,0,.38))}
+.thing:active .obj{transform:rotate(0deg) scale(.97)}
+.thing:focus-visible{outline:none}
+.thing:focus-visible .lbl{outline:2px solid #15201E;outline-offset:2px}
+.thing .lbl{transform:rotate(var(--t,0deg));max-width:100%;text-wrap:balance;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
+@media (max-width:700px){.thing .lbl{font-size:12px;padding:3px 7px}.bench{padding-block:34px 18px}.paper{padding:24px 22px 22px}}
+@keyframes land{from{opacity:0;transform:translateY(calc(var(--y,0px) - 28px)) scale(1.12)}to{opacity:1;transform:translateY(var(--y,0px))}}
+@media (prefers-reduced-motion: reduce){.thing{animation:none}.thing .obj{transition:none}}
+.news{padding-top:36px}
 </style>
 </head>
 <body>
+
 
 <header class="top">
   <div class="wrap">
     <a class="brand" href="#top">Peter Ekvardt</a>
     <nav aria-label="Huvudmeny">
       <a href="#appar">Appar</a>
+      <a href="#sek-spel">Spel</a>
       <a href="#tyck-till">Tyck till</a>
       <a href="#om">Om mig</a>
       <a href="#vanner">Vänner</a>
@@ -193,10 +237,19 @@ footer.site a{color:#fff}
 </header>
 
 <main id="top">
-  <section class="wrap hero">
-    <p class="eyebrow">Appar och spel</p>
-    <h1>Jag hittar på. AI:n bygger.</h1>
-    <p class="lead">Appar och spel jag har byggt för mig själv och mina vänner. De är gratis, kräver inget konto och sparar allt i din egen telefon eller dator.</p>
+  <section class="bench" aria-labelledby="bench-h">
+    <svg class="decor cup" viewBox="0 0 140 140" aria-hidden="true"><circle cx="64" cy="70" r="58" fill="#E9E4DA" stroke="#C6BEAD" stroke-width="2"/><circle cx="64" cy="70" r="46" fill="none" stroke="#D6CFC0" stroke-width="2"/><rect x="92" y="60" width="40" height="20" rx="10" fill="#F7F4EE" stroke="#C6BEAD" stroke-width="2"/><circle cx="64" cy="70" r="36" fill="#F7F4EE" stroke="#C6BEAD" stroke-width="2"/><circle cx="64" cy="70" r="29" fill="#5B3A21"/><path d="M44 60a24 24 0 0 1 22-13" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="4" stroke-linecap="round"/></svg>
+    <svg class="decor pen" viewBox="0 0 230 22" aria-hidden="true"><path d="M0 11l30-9v18z" fill="#E7C89A"/><path d="M0 11l10-3v6z" fill="#333"/><rect x="30" y="2" width="160" height="18" fill="#E8B321"/><rect x="30" y="8" width="160" height="6" fill="#F2C94C"/><rect x="190" y="2" width="16" height="18" fill="#B9BEC2"/><rect x="206" y="2" width="22" height="18" rx="5" fill="#E58F8F"/></svg>
+    <div class="wrap">
+      <div class="top-row">
+        <div class="paper">
+          <h1 id="bench-h">Appar och spel jag har byggt för mig själv och mina vänner.</h1>
+          <p class="lead">De är gratis, kräver inget konto och sparar allt i din egen telefon eller dator.</p>
+          <p class="hint">Plocka upp något från bänken.</p>
+        </div>
+      </div>
+      <ul class="things" id="saker" aria-label="Spelen som föremål på arbetsbänken"></ul>
+    </div>
   </section>
 
   <section class="wrap news" aria-labelledby="nytt-rubrik">
@@ -251,7 +304,7 @@ footer.site a{color:#fff}
 
   <section id="om" class="band about">
     <div class="wrap">
-      <img class="photo" src="peter.jpg" alt="Peter vid köksbordet med en kaffekopp och en surfplatta" width="1200" height="900" loading="lazy">
+      <img class="photo" src="/peter.jpg" alt="Peter vid köksbordet med en kaffekopp och en surfplatta" width="1200" height="900" loading="lazy">
       <div class="txt">
         <h2>Om mig</h2>
         <p class="lead">Jag har jobbat hela livet med IT, mest med att sälja konsulter till andra. Numera är jag min egen uppdragsgivare – den mest krävande kund jag haft. Idéerna kommer från padelbanan, middagsbordet och kvällarna med Elisabeth. AI:n skriver koden, jag bestämmer hur det ska bli och provspelar tills det sitter.</p>
@@ -263,8 +316,8 @@ footer.site a{color:#fff}
   <section id="vanner" class="wrap friends">
     <h2>Vänner &amp; verkstäder</h2>
     <div class="grid">
-      <a class="friend" href="https://elisabethnorlanderkeramik.se"><img src="van-elisabeth.jpg" alt="" width="800" height="320" loading="lazy"><div class="info"><strong>Elisabeth Norlander Keramik</strong><span>Handdrejad brukskeramik i stengods från ateljén i Ljugarn</span><em>elisabethnorlanderkeramik.se →</em></div></a>
-      <a class="friend" href="https://ateljesjodin.se"><img src="van-sjodin.jpg" alt="" width="1000" height="381" loading="lazy"><div class="info"><strong>Ateljé Sjödin</strong><span>Brickor, kuddfodral och kökshanddukar med handmålade motiv</span><em>ateljesjodin.se →</em></div></a>
+      <a class="friend" href="https://elisabethnorlanderkeramik.se"><img src="/van-elisabeth.jpg" alt="" width="800" height="320" loading="lazy"><div class="info"><strong>Elisabeth Norlander Keramik</strong><span>Handdrejad brukskeramik i stengods från ateljén i Ljugarn</span><em>elisabethnorlanderkeramik.se →</em></div></a>
+      <a class="friend" href="https://ateljesjodin.se"><img src="/van-sjodin.jpg" alt="" width="1000" height="381" loading="lazy"><div class="info"><strong>Ateljé Sjödin</strong><span>Brickor, kuddfodral och kökshanddukar med handmålade motiv</span><em>ateljesjodin.se →</em></div></a>
     </div>
   </section>
 </main>
@@ -343,25 +396,59 @@ footer.site a{color:#fff}
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]}); }
 
   var APPAR = {};
+  // Prov: appar och spel skiljs åt. Kategorin idrott visas som Appar tills appar.json ändras.
+  var RUBRIK = {idrott:'Appar', spel:'Spel'};
 
-  fetch('appar.json', {cache:'no-cache'}).then(function(r){ return r.json(); }).then(visa).catch(function(){
+  fetch('/appar.json', {cache:'no-cache'}).then(function(r){ return r.json(); }).then(visa).catch(function(){
     document.getElementById('kategorier').innerHTML = '<p class="empty">Apparna kunde inte laddas. Ladda om sidan.</p>';
     document.getElementById('news').innerHTML = '';
   });
 
+
+  // Verkstaden: ett föremål per app. En app som saknas här visas med sin vanliga ikon.
+  var S = '<svg class="obj" viewBox="0 0 120 120" aria-hidden="true">';
+  var SAKER = {
+    americano: S+'<g transform="rotate(38 60 60)"><rect x="54" y="74" width="12" height="40" rx="5" fill="#1B1F1E"/><path d="M54 86l12-3M54 94l12-3M54 102l12-3" stroke="#555" stroke-width="1.5"/><path d="M60 8c17 0 28 13 28 30 0 14-9 24-18 31l-4 9H54l-4-9c-9-7-18-17-18-31C32 21 43 8 60 8z" fill="#1D5A84" stroke="#123E5C" stroke-width="3" stroke-linejoin="round"/><g fill="#A9CBE4"><circle cx="52" cy="21" r="2.5"/><circle cx="60" cy="21" r="2.5"/><circle cx="68" cy="21" r="2.5"/><circle cx="44" cy="30" r="2.5"/><circle cx="52" cy="30" r="2.5"/><circle cx="60" cy="30" r="2.5"/><circle cx="68" cy="30" r="2.5"/><circle cx="76" cy="30" r="2.5"/><circle cx="44" cy="39" r="2.5"/><circle cx="52" cy="39" r="2.5"/><circle cx="60" cy="39" r="2.5"/><circle cx="68" cy="39" r="2.5"/><circle cx="76" cy="39" r="2.5"/><circle cx="52" cy="48" r="2.5"/><circle cx="60" cy="48" r="2.5"/><circle cx="68" cy="48" r="2.5"/><circle cx="60" cy="57" r="2.5"/></g></g><circle cx="96" cy="96" r="12" fill="#D4E24A" stroke="#9FAD22" stroke-width="2"/><path d="M86 91c7 2 12 8 13 16" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="2"/></svg>',
+    huvudstaden: S+'<circle cx="60" cy="62" r="47" fill="none" stroke="#B8892E" stroke-width="4"/><circle cx="60" cy="15" r="5" fill="#8C6520"/><circle cx="60" cy="109" r="5" fill="#8C6520"/><circle cx="60" cy="62" r="40" fill="#5FA8D3" stroke="#2F6F99" stroke-width="2.5"/><g fill="#7DB56A"><path d="M38 40c8-8 20-8 26-2 4 5-2 10-8 12-4 2-3 8-9 9-8 1-14-10-9-19z"/><path d="M70 62c8-3 18 2 18 10s-8 16-14 14c-6-2-2-9-6-13-3-4-3-9 2-11z"/><path d="M40 78c5-2 10 2 9 7-1 4-7 5-10 1-2-3-2-6 1-8z"/></g><path d="M32 46a32 32 0 0 1 26-18" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="5" stroke-linecap="round"/><ellipse cx="62" cy="50" rx="7" ry="3" fill="#000" fill-opacity=".25"/><circle cx="58" cy="44" r="8" fill="#D8412F" stroke="#9C2A1C" stroke-width="2"/><circle cx="55.5" cy="41.5" r="2.4" fill="#fff" fill-opacity=".75"/></svg>',
+    floder: S+'<g transform="rotate(-6 60 60)"><rect x="12" y="22" width="96" height="76" rx="3" fill="#F3EAD2" stroke="#C9BB95" stroke-width="2"/><path d="M12 62c14-10 22 6 34 2s14-18 30-14 20 16 32 10v38H12z" fill="#D5E3B8"/><path d="M44 22v76M76 22v76" stroke="#D5C9A6" stroke-width="1.5"/><path d="M20 32c14 2 16 14 28 16s14-8 24-4 10 18 30 22" fill="none" stroke="#2F86C5" stroke-width="4.5" stroke-linecap="round"/><path d="M50 49c-2 10-10 12-12 24" fill="none" stroke="#2F86C5" stroke-width="2.8" stroke-linecap="round"/><ellipse cx="38" cy="80" rx="12" ry="7" fill="#4FA3DD"/></g></svg>',
+    manniskokroppen: S+'<g transform="rotate(-35 60 60)"><g fill="#A99B7C" stroke="#A99B7C" stroke-width="5"><rect x="28" y="52" width="64" height="16" rx="8"/><circle cx="26" cy="50" r="11"/><circle cx="26" cy="70" r="11"/><circle cx="94" cy="50" r="11"/><circle cx="94" cy="70" r="11"/></g><g fill="#F3ECDB"><rect x="28" y="52" width="64" height="16" rx="8"/><circle cx="26" cy="50" r="11"/><circle cx="26" cy="70" r="11"/><circle cx="94" cy="50" r="11"/><circle cx="94" cy="70" r="11"/></g><path d="M36 57h48" stroke="#fff" stroke-width="3" stroke-linecap="round"/></g></svg>',
+    kung: S+'<g transform="rotate(9 60 60)"><rect x="29" y="12" width="62" height="96" rx="7" fill="#FFFDF7" stroke="#C4BCA8" stroke-width="2"/><text x="36" y="33" font-family="Georgia,serif" font-weight="700" font-size="17" fill="#B3261E">K</text><text x="84" y="87" font-family="Georgia,serif" font-weight="700" font-size="17" fill="#B3261E" transform="rotate(180 84 87)" text-anchor="start">K</text><path d="M41 72l3-24 10 11 6-16 6 16 10-11 3 24z" fill="#E3B23C" stroke="#9C7210" stroke-width="2" stroke-linejoin="round"/><rect x="40" y="71" width="40" height="8" rx="2" fill="#C8922A" stroke="#9C7210" stroke-width="1.5"/><circle cx="50" cy="75" r="2" fill="#B3261E"/><circle cx="60" cy="75" r="2" fill="#1D5A84"/><circle cx="70" cy="75" r="2" fill="#B3261E"/><circle cx="44" cy="47" r="3" fill="#E3B23C" stroke="#9C7210" stroke-width="1.5"/><circle cx="60" cy="42" r="3" fill="#E3B23C" stroke="#9C7210" stroke-width="1.5"/><circle cx="76" cy="47" r="3" fill="#E3B23C" stroke="#9C7210" stroke-width="1.5"/></g></svg>',
+    flest: S+'<rect x="15" y="21" width="90" height="78" rx="7" fill="#F1E3C6" stroke="#7A4E2A" stroke-width="7"/><path d="M18 41h84M18 60h84M18 79h84" stroke="#555" stroke-width="2"/><g fill="#D8412F" stroke="#9C2A1C" stroke-width="1.5"><rect x="23" y="33" width="11" height="16" rx="5"/><rect x="35" y="33" width="11" height="16" rx="5"/><rect x="47" y="33" width="11" height="16" rx="5"/><rect x="74" y="33" width="11" height="16" rx="5"/><rect x="86" y="33" width="11" height="16" rx="5"/></g><g fill="#E8B321" stroke="#A87A12" stroke-width="1.5"><rect x="23" y="52" width="11" height="16" rx="5"/><rect x="50" y="52" width="11" height="16" rx="5"/><rect x="62" y="52" width="11" height="16" rx="5"/><rect x="74" y="52" width="11" height="16" rx="5"/><rect x="86" y="52" width="11" height="16" rx="5"/></g><g fill="#2F86C5" stroke="#1D5A84" stroke-width="1.5"><rect x="23" y="71" width="11" height="16" rx="5"/><rect x="35" y="71" width="11" height="16" rx="5"/><rect x="47" y="71" width="11" height="16" rx="5"/><rect x="59" y="71" width="11" height="16" rx="5"/><rect x="86" y="71" width="11" height="16" rx="5"/></g></svg>',
+    fragesport: S+'<rect x="31" y="20" width="58" height="80" rx="7" fill="#F4EAD0" stroke="#C4B894" stroke-width="2" transform="rotate(-16 60 60)"/><rect x="31" y="20" width="58" height="80" rx="7" fill="#DCE9F1" stroke="#9DB7C8" stroke-width="2" transform="rotate(-4 60 60)"/><g transform="rotate(9 60 60)"><rect x="31" y="20" width="58" height="80" rx="7" fill="#E8873A" stroke="#B05A18" stroke-width="2"/><rect x="37" y="26" width="46" height="68" rx="4" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.5"/><text x="60" y="79" text-anchor="middle" font-family="Space Grotesk,Arial,sans-serif" font-weight="700" font-size="52" fill="#fff">?</text></g></svg>',
+    sant: '<svg class="obj" viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="30" cy="103" rx="16" ry="3.5" fill="#000" fill-opacity=".18"/><ellipse cx="90" cy="103" rx="16" ry="3.5" fill="#000" fill-opacity=".18"/><path d="M33 64h54" stroke="#6E4B20" stroke-width="7" stroke-linecap="round"/><path d="M33 64h54" stroke="#C99A5B" stroke-width="4.2" stroke-linecap="round"/><path d="M33 64h54" stroke="#8C6431" stroke-width="4.2" stroke-dasharray="2 5" stroke-opacity=".7"/><path d="M57 68l-3 15 6-5 6 5-3-15z" fill="#B3261E"/><rect x="56" y="58" width="8" height="12" rx="2" fill="#D8412F" stroke="#9C2A1C" stroke-width="1.5"/><g fill="#2A66B8" stroke="#2A66B8"><circle cx="13" cy="41" r="7"/><path d="M17 52l7 22M17 53l17 11M24 74l14 24M24 74l3 26" fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g><g fill="#D8412F" stroke="#D8412F" transform="translate(120 0) scale(-1 1)"><circle cx="13" cy="41" r="7"/><path d="M17 52l7 22M17 53l17 11M24 74l14 24M24 74l3 26" fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g><circle cx="46" cy="30" r="10" fill="#3E9B5F" stroke="#256B3E" stroke-width="2"/><path d="M41.5 30l3.2 3.2L51 26.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="74" cy="30" r="10" fill="#D8412F" stroke="#9C2A1C" stroke-width="2"/><path d="M70.5 26.5l7 7M77.5 26.5l-7 7" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>',
+    granslandet: S+'<g transform="rotate(-12 38 62) translate(-5 2)"><g fill="#3F7A45" stroke="#3F7A45" stroke-width="5" stroke-linejoin="round"><rect x="16" y="40" width="42" height="42" rx="3"/><circle cx="62" cy="61" r="7.5"/></g><g fill="#74B56E"><rect x="16" y="40" width="42" height="42" rx="3"/><circle cx="62" cy="61" r="7.5"/></g><path d="M24 54c6-6 14 2 20-2s8 8 4 14-14 2-18 6-10-10-6-18z" fill="#fff" fill-opacity=".28"/></g><path d="M68 38h42v42H68V68a8 8 0 0 0 0-16z" fill="#EBC752" stroke="#A8851A" stroke-width="2.5" stroke-linejoin="round"/><path d="M82 48c8-4 18 2 18 10s-8 14-14 12-10-16-4-22z" fill="#fff" fill-opacity=".3"/></svg>',
+    narmast: '<svg class="obj" viewBox="0 0 120 120" aria-hidden="true"><circle cx="42" cy="50" r="35" fill="#fff" stroke="#1B1F1E" stroke-width="2.5"/><circle cx="42" cy="50" r="26" fill="none" stroke="#D8412F" stroke-width="6"/><circle cx="42" cy="50" r="14" fill="none" stroke="#D8412F" stroke-width="5"/><circle cx="42" cy="50" r="4.5" fill="#D8412F"/><g transform="translate(62 34) rotate(20) scale(.7)"><path d="M0 0h20" stroke="#8D949A" stroke-width="2.5" stroke-linecap="round"/><rect x="18" y="-4" width="30" height="8" rx="3.5" fill="#C9A227" stroke="#8C6C10" stroke-width="1.2"/><path d="M26 -4v8M32 -4v8M38 -4v8" stroke="#8C6C10" stroke-width="1.2"/><rect x="48" y="-1.6" width="22" height="3.2" fill="#333"/><path d="M68 0l8-12h15l-6 12 6 12H76z" fill="#2F86C5" stroke="#1D5A84" stroke-width="1.5" stroke-linejoin="round"/></g><g transform="translate(46 54) rotate(50) scale(.72)"><path d="M0 0h20" stroke="#8D949A" stroke-width="2.5" stroke-linecap="round"/><rect x="18" y="-4" width="30" height="8" rx="3.5" fill="#C9A227" stroke="#8C6C10" stroke-width="1.2"/><path d="M26 -4v8M32 -4v8M38 -4v8" stroke="#8C6C10" stroke-width="1.2"/><rect x="48" y="-1.6" width="22" height="3.2" fill="#333"/><path d="M68 0l8-12h15l-6 12 6 12H76z" fill="#D8412F" stroke="#9C2A1C" stroke-width="1.5" stroke-linejoin="round"/></g></svg>'
+  };
+  var LUTA = [-8,5,-4,7,-6,4,-7,6,-3,8], HOJD = [0,10,-4,8,2,-6,6,0,10,-2], TEJP = [-2,1.5,-1,2,-1.5,1,-2,1.5,-1,2];
+  // Samma föremål i liten storlek, till korten och inforutan. Saknas föremål används appens ikon.
+  function litenSak(a){
+    return SAKER[a.id] ? SAKER[a.id].replace('class="obj"', 'class="sak"') : '<img src="'+esc(a.ikon)+'" alt="" width="56" height="56">';
+  }
+  function sak(a, i){
+    var n = i % 10;
+    var bild = SAKER[a.id] || '<img class="obj" src="'+esc(a.ikon)+'" alt="" width="136" height="136">';
+    return '<li><button class="thing" type="button" data-info="'+a.id+'" style="--i:'+i+';--r:'+LUTA[n]+'deg;--y:'+HOJD[n]+'px;--t:'+TEJP[n]+'deg" aria-label="'+esc(a.namn)+' – '+esc(a.kort||'')+'">' +
+      bild + '<span class="lbl">'+esc(a.namn)+'</span></button></li>';
+  }
+  // Bara spelen ligger på bänken. Övriga appar finns längre ner under rubriken Appar.
+  function ritaBanken(data){
+    document.getElementById('saker').innerHTML = data.appar.filter(function(a){ return a.kategori === 'spel'; }).map(sak).join('');
+  }
+
   function visa(data){
     data.appar.forEach(function(a){ APPAR[a.id] = a; });
+    ritaBanken(data);
 
     // Appkort per kategori
     document.getElementById('kategorier').innerHTML = data.kategorier.map(function(k){
       var appar = data.appar.filter(function(a){ return a.kategori === k.id; });
       if(!appar.length) return '';
-      return '<section class="cat" aria-labelledby="cat-'+k.id+'"><h3 class="cat-h" id="cat-'+k.id+'">'+esc(k.namn)+'</h3><div class="grid">' +
+      return '<section class="cat" id="sek-'+k.id+'" aria-labelledby="cat-'+k.id+'"><h3 class="cat-h" id="cat-'+k.id+'">'+esc(RUBRIK[k.id]||k.namn)+'</h3><div class="grid">' +
         appar.map(function(a){
           var ver = a.version ? 'Version '+esc(a.version)+(a.status ? ' · '+esc(a.status) : '') : esc(a.status);
           var arNy = (a.status||'').indexOf('Ny') === 0;
           return '<article class="card" id="app-'+a.id+'">' +
-            '<img src="'+esc(a.ikon)+'" alt="" width="56" height="56">' +
+            litenSak(a) +
             '<button class="info" type="button" data-info="'+a.id+'" aria-label="Mer om '+esc(a.namn)+'">' +
               '<span class="name">'+esc(a.namn)+(arNy ? ' <span class="pill ny">Ny</span>' : '')+'</span>' +
               (ver ? '<span class="ver ver-long">'+ver+'</span>' : '') +
@@ -421,7 +508,10 @@ footer.site a{color:#fff}
   // Mer om appen (öppnas när man trycker på en rad)
   var info = document.getElementById('appinfo');
   function oppnaInfo(a){
-    info.querySelector('[data-i-icon]').src = a.ikon;
+    var bild = info.querySelector('[data-i-icon]'), gammal = info.querySelector('.sheet-head .sak');
+    if(gammal) gammal.remove();
+    bild.src = a.ikon; bild.hidden = !!SAKER[a.id];
+    if(SAKER[a.id]) bild.insertAdjacentHTML('beforebegin', litenSak(a));
     info.querySelector('[data-i-name]').textContent = a.namn;
     var ver = a.version ? 'Version '+a.version+(a.status ? ' · '+a.status : '') : (a.status||'');
     info.querySelector('[data-i-ver]').textContent = ver;
