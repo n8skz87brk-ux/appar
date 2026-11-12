@@ -76,10 +76,16 @@
       "knapp": "Öppna spelet",
       "kort": "Peka ut benet, muskeln eller organet utifrån det latinska namnet.",
       "text": "Anatomispel. Ett latinskt namn visas, till exempel Femur eller Lien, och du trycker där det sitter på kroppen. Välj skelett, muskler, organ eller blodkärl och tre nivåer, från stora delar till detaljer som Spina iliaca anterior superior. Läget Lär dig visar namnet på allt du trycker på.",
-      "version": "1.0",
+      "version": "1.1",
       "status": "Ny, under provspelning",
       "efterHemskarm": "Spelet startar sedan direkt från hemskärmen och fungerar utan internet.",
       "andringar": [
+        {
+          "datum": "2026-11-12",
+          "typ": "uppdaterad",
+          "version": "1.1",
+          "text": "ny ikon: Asklepios-staven, läkekonstens symbol"
+        },
         {
           "datum": "2026-11-03",
           "typ": "ny",
