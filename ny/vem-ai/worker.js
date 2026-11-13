@@ -103,7 +103,7 @@ export default {
       },
       body: JSON.stringify({
         model: env.MODELL || "claude-haiku-5-5",
-        max_tokens: 300,
+        max_tokens: 2000,
         system: body.lage === "facit" ? FACIT : REGLER,
         messages: [{ role: "user", content: bygg(body) }],
       }),
@@ -117,7 +117,8 @@ export default {
     try {
       return svar(tolka(text), 200, origin);
     } catch {
-      return svar({ fel: "oväntat svar", detalj: text.slice(0, 300) }, 502, origin);
+      const typer = (data.content || []).map(c => c.type).join(",");
+      return svar({ fel: "oväntat svar", detalj: text.slice(0, 300), stopp: data.stop_reason, typer }, 502, origin);
     }
   },
 };
