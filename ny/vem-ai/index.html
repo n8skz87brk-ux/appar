@@ -76,7 +76,7 @@ summary{cursor:pointer}
 </style>
 </head><body>
 <div class="wrap">
-  <header><h1>Vem tänker du på?</h1><span class="ver">AI v0.1</span></header>
+  <header><h1>Vem tänker du på?</h1><span class="ver">AI v0.2</span></header>
   <main id="app"></main>
   <div class="tools">
     <button id="undo" type="button">Ångra senaste svar</button>
@@ -211,7 +211,12 @@ function render(){
         <button class="big no" id="wrong" type="button">Nej</button>
       </div>
       ${trailHTML()}`;
-    $("right").onclick = ()=>{ S.view="vann"; render(); };
+    $("right").onclick = async ()=>{
+      S.view="vann"; S.facit={namn:S.cur.namn, text:null}; render();
+      try { const d = await anropa({lage:"facit", facit:S.cur.namn, vann:true}); S.facit.text=d.text; }
+      catch(e){ S.facit.text=""; }
+      if(S.view==="vann") render();
+    };
     $("wrong").onclick = felGissat;
   }
   else if(S.view==="vann"){
@@ -220,6 +225,7 @@ function render(){
         <div class="label"><span>Rätt gissat</span></div>
         <p class="guessname">${esc(S.cur.namn)}</p>
         <p class="sub">Klart på ${S.svar.length} frågor${S.fel.length?` och ${S.fel.length+1} gissningar`:""}.</p>
+        ${S.facit && S.facit.text===null ? `<div class="dots" aria-label="Tänker"><span></span><span></span><span></span></div>` : S.facit && S.facit.text ? `<p class="sub">${esc(S.facit.text)}</p>` : ""}
       </div>
       <button class="primary" id="again" type="button">Spela igen</button>
       ${trailHTML()}`;
@@ -238,7 +244,7 @@ function render(){
     $("reveal").onclick = async ()=>{
       const n = $("who").value.trim(); if(!n) return;
       $("reveal").textContent = "…";
-      try { const d = await anropa({lage:"facit", facit:n}); S.facit={namn:n, text:d.text}; }
+      try { const d = await anropa({lage:"facit", facit:n, vann:false}); S.facit={namn:n, text:d.text}; }
       catch(e){ S.facit={namn:n, text:""}; }
       S.view="facit"; render();
     };
