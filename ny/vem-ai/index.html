@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="sv"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="description" content="Tänk på vem som helst – AI:n ställer frågor och gissar.">
+<meta name="theme-color" content="#3a4bd8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Vem AI">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>Vem tänker du på? AI</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap">
+<style>
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+/* Layout: one centred column; a thought bubble holds the question, answer buttons below it */
+:root{
+  --bg:#eceef6; --surface:#ffffff; --ink:#1b1f3b; --muted:#5d6385;
+  --accent:#3a4bd8; --accent-ink:#ffffff; --line:#d6d9ea; --yes:#1f8a5b; --no:#c2413a;
+  --display:"Bricolage Grotesque", "Inter", system-ui, sans-serif;
+  --body:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111329; --surface:#1d2142; --ink:#eceef9; --muted:#a4a9ca;
+  --accent:#8e9bff; --accent-ink:#111329; --line:#2f3463; --yes:#4cc38a; --no:#f07a72; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111329; --surface:#1d2142; --ink:#eceef9; --muted:#a4a9ca;
+  --accent:#8e9bff; --accent-ink:#111329; --line:#2f3463; --yes:#4cc38a; --no:#f07a72; color-scheme:dark}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 32px}
+.wrap{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+h1{font-family:var(--display);font-weight:800;font-size:1.6rem;letter-spacing:-.01em;margin:0;text-wrap:balance}
+.ver{font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.bubble{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:26px 24px 28px;margin-bottom:30px}
+.bubble::before,.bubble::after{content:"";position:absolute;background:var(--surface);border:1px solid var(--line);border-radius:50%}
+.bubble::before{width:22px;height:22px;left:44px;bottom:-30px}
+.bubble::after{width:12px;height:12px;left:30px;bottom:-48px}
+.label{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums}
+.q{font-family:var(--display);font-weight:700;font-size:clamp(1.45rem,5.5vw,1.9rem);line-height:1.2;margin:10px 0 0;text-wrap:balance}
+.sub{color:var(--muted);margin:10px 0 0}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.answers .wide{grid-column:1 / -1}
+button{font:inherit;cursor:pointer;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:14px 12px;font-weight:600;transition:transform .08s ease, background .15s}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.big{font-family:var(--display);font-size:1.25rem;padding:18px 12px}
+.yes{background:var(--yes);border-color:var(--yes);color:#fff}
+.no{background:var(--no);border-color:var(--no);color:#fff}
+.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-family:var(--display);font-size:1.15rem;padding:16px}
+.soft{color:var(--muted);font-weight:500}
+.tools{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.tools button{background:transparent;border-color:transparent;color:var(--muted);font-weight:500;padding:8px 12px;text-decoration:underline;text-underline-offset:3px}
+.tools button:disabled{opacity:.4;cursor:default}
+.guessname{font-family:var(--display);font-weight:800;font-size:clamp(1.9rem,8vw,2.6rem);line-height:1.1;margin:8px 0 0;text-wrap:balance}
+input[type=text]{font:inherit;width:100%;box-sizing:border-box;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin-top:14px}
+.list{margin:0;padding-left:1.1em;color:var(--muted);font-size:.92rem}
+.trail{font-size:.85rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--surface)}
+.chip b{font-weight:600;color:var(--ink)}
+details{color:var(--muted);font-size:.9rem}
+summary{cursor:pointer}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+.comment{color:var(--accent);font-weight:600;margin:10px 0 -4px;font-size:.95rem}
+.dots{display:inline-flex;gap:6px;margin-top:14px}
+.dots span{width:10px;height:10px;border-radius:50%;background:var(--accent);opacity:.25;animation:blink 1.2s infinite}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{40%{opacity:1}}
+.err{color:var(--no)}
+@media (prefers-reduced-motion: reduce){.dots span{animation:none;opacity:.6}}
+</style>
+</head><body>
+<div class="wrap">
+  <header><h1>Vem tänker du på?</h1><span class="ver">AI v0.1</span></header>
+  <main id="app"></main>
+  <div class="tools">
+    <button id="undo" type="button">Ångra senaste svar</button>
+    <button id="restart" type="button">Börja om</button>
+  </div>
+</div>
+
+<script>
+// Adressen till växeln (Cloudflare Worker). Fylls i när Peter har skapat den.
+const VAXEL = "";
+const KODNYCKEL = "vemai.kodord";
+const ANS_LABEL = {ja:"Ja",troligen:"Troligen",vetinte:"Vet inte",troligeninte:"Troligen inte",nej:"Nej"};
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const getKod = () => { try { return localStorage.getItem(KODNYCKEL) || ""; } catch(e) { return ""; } };
+const setKod = k => { try { k ? localStorage.setItem(KODNYCKEL,k) : localStorage.removeItem(KODNYCKEL); } catch(e) {} };
+
+let S, hist, kod = getKod(), kodFel = "";
+function fresh(){ S = {view: kod ? "start" : "kod", svar:[], fel:[], cur:null, facit:null, fail:""}; hist=[]; }
+
+async function anropa(extra){
+  if(!VAXEL) throw {msg:"Växeln är inte inkopplad än."};
+  let r;
+  try {
+    r = await fetch(VAXEL,{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({kod, svar:S.svar, fel:S.fel, ...extra})});
+  } catch(e) { throw {msg:"Kommer inte åt internet just nu."}; }
+  const d = await r.json().catch(()=>({fel:"oväntat svar"}));
+  if(r.status===401){ kod=""; setKod(""); kodFel="Fel kodord – försök igen."; throw {kod:true}; }
+  if(r.status===429) throw {msg:"Dagens spelkvot är slut. Försök igen i morgon!"};
+  if(!r.ok) throw {msg:"Något gick snett hos AI:n ("+esc(d.fel||r.status)+")."};
+  return d;
+}
+
+async function fraga(){
+  S.view="tanker"; render();
+  try {
+    const d = await anropa({lage:"spel"});
+    S.cur = d;
+    S.view = d.typ==="gissning" ? "gissning" : d.typ==="ger_upp" ? "gavupp" : "fraga";
+  } catch(e) {
+    if(e.kod){ S.view="kod"; } else { S.view="fel"; S.fail=e.msg||"Något gick snett."; }
+  }
+  render();
+}
+
+function svara(key){
+  hist.push(clone(S));
+  S.svar.push({fraga:S.cur.text, svar:key});
+  fraga();
+}
+function felGissat(){
+  hist.push(clone(S));
+  S.fel.push(S.cur.namn);
+  fraga();
+}
+
+function render(){
+  const app = $("app");
+  $("undo").disabled = hist.length===0 || S.view==="tanker";
+  const nr = S.svar.length + 1;
+  const kom = S.cur && S.cur.kommentar ? `<p class="comment">${esc(S.cur.kommentar)}</p>` : "";
+
+  if(S.view==="kod"){
+    app.innerHTML = `
+      <div class="bubble">
+        <div class="label"><span>Kodord</span></div>
+        <p class="q">Det här spelet är för familj och vänner.</p>
+        <p class="sub">Skriv kodordet du har fått. Telefonen kommer ihåg det till nästa gång.</p>
+        <input type="text" id="kod" placeholder="Kodord" autocomplete="off" autocapitalize="off">
+        ${kodFel?`<p class="sub err">${esc(kodFel)}</p>`:""}
+      </div>
+      <button class="primary" id="ok" type="button">Fortsätt</button>`;
+    const go = async ()=>{
+      const k = $("kod").value.trim(); if(!k) return;
+      kod = k; kodFel = "";
+      $("ok").textContent = "Kontrollerar …";
+      try { await anropa({lage:"prova"}); setKod(k); S.view="start"; }
+      catch(e){ if(!e.kod){ kodFel = e.msg; kod=""; } }
+      render();
+    };
+    $("ok").onclick = go;
+    $("kod").onkeydown = e=>{ if(e.key==="Enter") go(); };
+  }
+  else if(S.view==="start"){
+    app.innerHTML = `
+      <div class="bubble">
+        <div class="label"><span>Så här går det till</span></div>
+        <p class="q">Tänk på en känd person – vem som helst.</p>
+        <p class="sub">Levande eller död, svensk eller utländsk, världsstjärna eller lokal kändis. AI:n ställer en fråga i taget och försöker gissa vem det är.</p>
+      </div>
+      <button class="primary" id="go" type="button">Jag tänker på någon</button>`;
+    $("go").onclick = ()=>{ hist=[]; fraga(); };
+  }
+  else if(S.view==="tanker"){
+    app.innerHTML = `
+      <div class="bubble">
+        <div class="label"><span>${S.svar.length ? "Fråga "+nr : "Startar"}</span></div>
+        <p class="sub">Tänker …</p>
+        <div class="dots" aria-label="Tänker"><span></span><span></span><span></span></div>
+      </div>`;
+  }
+  else if(S.view==="fraga"){
+    app.innerHTML = `
+      <div class="bubble">
+        <div class="label"><span>Fråga ${nr}</span>${S.fel.length?`<span>${S.fel.length} fel gissning${S.fel.length>1?"ar":""}</span>`:""}</div>
+        ${kom}<p class="q">${esc(S.cur.text)}</p>
+      </div>
+      <div class="answers">
+        <button class="big yes" data-a="ja" type="button">Ja</button>
+        <button class="big no" data-a="nej" type="button">Nej</button>
+        <button data-a="troligen" type="button">Troligen</button>
+        <button data-a="troligeninte" type="button">Troligen inte</button>
+        <button class="wide soft" data-a="vetinte" type="button">Vet inte</button>
+      </div>
+      ${trailHTML()}`;
+    app.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>svara(b.dataset.a));
+  }
+  else if(S.view==="gissning"){
+    app.innerHTML = `
+      <div class="bubble">
+        <div class="label"><span>Efter ${S.svar.length} frågor</span><span>Gissning ${S.fel.length+1}</span></div>
+        ${kom}
+        <p class="sub" style="margin-top:12px">Jag tror att du tänker på …</p>
+        <p class="guessname">${esc(S.cur.namn)}</p>
+        <p class="sub">${esc(S.cur.beskrivning)}</p>
+      </div>
+      <div class="answers">
+        <button class="big yes" id="right" type="button">Ja, rätt!</button>
+        <button class="big no" id="wrong" type="button">Nej</button>
+      </div>
+      ${trailHTML()}`;
+    $("right").onclick = ()=>{ S.view="vann"; render(); };
+    $("wrong").onclick = felGissat;
+  }
+  else if(S.view==="vann"){
+    app.innerHTML = `
+      <div class="bubble">
+        <div class="label"><span>Rätt gissat</span></div>
+        <p class="guessname">${esc(S.cur.namn)}</p>
+        <p class="sub">Klart på ${S.svar.length} frågor${S.fel.length?` och ${S.fel.length+1} gissningar`:""}.</p>
+      </div>
+      <button class="primary" id="again" type="button">Spela igen</button>
+      ${trailHTML()}`;
+    $("again").onclick = ()=>{ fresh(); fraga(); };
+  }
+  else if(S.view==="gavupp"){
+    app.innerHTML = `
+      <div class="bubble">
+        <div class="label"><span>Jag ger upp</span></div>
+        <p class="q">${esc(S.cur.text || "Du vann! Vem tänkte du på?")}</p>
+        <input type="text" id="who" placeholder="Vem var det?" autocomplete="off">
+      </div>
+      <button class="primary" id="reveal" type="button">Avslöja</button>
+      <button id="skip" type="button">Spela igen</button>
+      ${trailHTML()}`;
+    $("reveal").onclick = async ()=>{
+      const n = $("who").value.trim(); if(!n) return;
+      $("reveal").textContent = "…";
+      try { const d = await anropa({lage:"facit", facit:n}); S.facit={namn:n, text:d.text}; }
+      catch(e){ S.facit={namn:n, text:""}; }
+      S.view="facit"; render();
+    };
+    $("skip").onclick = ()=>{ fresh(); fraga(); };
+  }
+  else if(S.view==="facit"){
+    app.innerHTML = `
+      <div class="bubble">
+        <div class="label"><span>Du vann</span></div>
+        <p class="guessname">${esc(S.facit.namn)}</p>
+        ${S.facit.text?`<p class="sub">${esc(S.facit.text)}</p>`:""}
+      </div>
+      <button class="primary" id="again" type="button">Spela igen</button>
+      ${trailHTML()}`;
+    $("again").onclick = ()=>{ fresh(); fraga(); };
+  }
+  else if(S.view==="fel"){
+    app.innerHTML = `
+      <div class="bubble">
+        <div class="label"><span>Hoppsan</span></div>
+        <p class="q err">${S.fail}</p>
+      </div>
+      <button class="primary" id="retry" type="button">Försök igen</button>`;
+    $("retry").onclick = fraga;
+  }
+}
+
+function trailHTML(){
+  if(!S.svar.length) return "";
+  return `<details><summary>Dina svar</summary><div class="trail" style="margin-top:10px">${
+    S.svar.map(x=>`<span class="chip">${esc(x.fraga)} <b>${ANS_LABEL[x.svar]}</b></span>`).join("")
+  }</div></details>`;
+}
+
+$("undo").onclick = ()=>{ if(hist.length){ S=hist.pop(); render(); } };
+$("restart").onclick = ()=>{ fresh(); render(); };
+fresh(); render();
+</script>
+</body></html>

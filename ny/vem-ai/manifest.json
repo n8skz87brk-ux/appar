@@ -1,0 +1,16 @@
+{
+  "name": "Vem tänker du på? AI",
+  "short_name": "Vem AI",
+  "description": "Tänk på vem som helst – AI:n ställer frågor och gissar.",
+  "lang": "sv",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eceef6",
+  "theme_color": "#3a4bd8",
+  "icons": [
+    {"src": "icon-192.png","sizes": "192x192","type": "image/png"},
+    {"src": "icon-512.png","sizes": "512x512","type": "image/png","purpose": "any maskable"}
+  ]
+}
