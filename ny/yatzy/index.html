@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="description" content="Yatzy för 2–4 spelare: fem tärningar, tre slag, spara de tärningar du vill ha.">
+<meta name="theme-color" content="#0f4d3a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Yatzy">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>Yatzy</title>
+<style>
+:root{--bg:#0f4d3a;--felt:#136b4f;--card:#fffdf6;--ink:#1d2a24;--accent:#f2b134;--hold:#e4572e;--muted:#7a8a82}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,system-ui,"Segoe UI",sans-serif;background:radial-gradient(circle at 50% 0,var(--felt),var(--bg));color:var(--ink);min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+h1{color:#fff;text-align:center;margin:8px 0 16px;letter-spacing:2px;font-size:2rem}
+.panel{background:var(--card);border-radius:16px;padding:16px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+#setup .row{display:flex;gap:8px;margin:8px 0}
+#setup input{flex:1;font-size:1.1rem;padding:10px;border:2px solid #ccd;border-radius:10px}
+.btn{font-size:1.1rem;padding:12px 20px;border:0;border-radius:12px;background:var(--accent);color:#222;font-weight:700;cursor:pointer}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.sec{background:#dde3df}
+.count{display:flex;gap:8px;margin:12px 0}
+.count button{flex:1;padding:12px;font-size:1.1rem;border-radius:10px;border:2px solid #ccd;background:#fff;cursor:pointer}
+.count button.on{background:var(--accent);border-color:var(--accent);font-weight:700}
+#turn{color:#fff;text-align:center;font-size:1.3rem;margin-bottom:10px}
+#turn b{color:var(--accent)}
+.dice{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:10px 0}
+.die{width:64px;height:64px;background:#fff;border-radius:14px;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:9px;cursor:pointer;box-shadow:0 4px 0 #bbb;position:relative;transition:transform .1s}
+.die.held{box-shadow:0 0 0 4px var(--hold),0 4px 0 #bbb;transform:translateY(-4px)}
+.die.held::after{content:"SPARAD";position:absolute;bottom:-22px;left:0;right:0;text-align:center;font-size:.65rem;font-weight:700;color:#fff;letter-spacing:1px}
+.die.blank{background:#e8ece9;cursor:default}
+.die.roll{animation:shake .4s}
+@keyframes shake{0%{transform:rotate(0)}25%{transform:rotate(-20deg) scale(.9)}50%{transform:rotate(15deg)}75%{transform:rotate(-8deg)}100%{transform:rotate(0)}}
+.pip{width:12px;height:12px;border-radius:50%;background:#222;align-self:center;justify-self:center;visibility:hidden}
+.pip.v{visibility:visible}
+.controls{display:flex;justify-content:center;gap:10px;margin:26px 0 14px;align-items:center;color:#fff}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:1rem}
+th,td{padding:7px 8px;border-bottom:1px solid #e5e5dc;text-align:center}
+td:first-child,th:first-child{text-align:left}
+th.cur{background:var(--accent);border-radius:8px 8px 0 0}
+td.cur{background:#fff4d6}
+td.opt{cursor:pointer;color:var(--muted);font-style:italic}
+td.opt:hover{background:var(--accent);color:#000}
+td.opt.zero{color:#c99}
+tr.sum td{font-weight:700;background:#f1f3ee}
+.pts{font-size:.75rem;color:var(--muted)}
+#over h2{text-align:center}
+.hint{color:#cfe;text-align:center;font-size:.9rem;margin:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🎲 YATZY</h1>
+
+<div id="setup" class="panel">
+  <h3>Hur många spelare?</h3>
+  <div class="count" id="cnt"></div>
+  <div id="names"></div>
+  <p><button class="btn" id="start">Starta spelet</button></p>
+</div>
+
+<div id="game" hidden>
+  <div id="turn"></div>
+  <div class="dice" id="dice"></div>
+  <div class="hint" id="hint"></div>
+  <div class="controls">
+    <button class="btn" id="roll">Slå tärningarna</button>
+    <span id="left"></span>
+  </div>
+  <div class="panel tbl"><table id="card"></table></div>
+  <p style="text-align:center"><button class="btn sec" id="restart">Nytt spel</button></p>
+  <p class="hint">Yatzy 1.0</p>
+</div>
+
+<div id="over" class="panel" hidden></div>
+</div>
+
+<script>
+const CATS=[
+ {k:'1',n:'Ettor',up:1},{k:'2',n:'Tvåor',up:1},{k:'3',n:'Treor',up:1},
+ {k:'4',n:'Fyror',up:1},{k:'5',n:'Femmor',up:1},{k:'6',n:'Sexor',up:1},
+ {k:'p1',n:'Ett par'},{k:'p2',n:'Två par'},{k:'t',n:'Tretal'},{k:'f',n:'Fyrtal'},
+ {k:'ls',n:'Liten stege',d:'1-2-3-4-5'},{k:'ss',n:'Stor stege',d:'2-3-4-5-6'},
+ {k:'kak',n:'Kåk'},{k:'ch',n:'Chans'},{k:'y',n:'Yatzy'}];
+const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+let nPlayers=2, players=[], cur=0, dice=[0,0,0,0,0], held=[0,0,0,0,0], rollsLeft=3;
+const $=id=>document.getElementById(id);
+
+function score(k,d){
+  const c=[0,0,0,0,0,0,0]; d.forEach(v=>c[v]++); const sum=d.reduce((a,b)=>a+b,0);
+  if(/^[1-6]$/.test(k)) return c[+k]*+k;
+  const faces=[6,5,4,3,2,1];
+  switch(k){
+    case 'p1': for(const f of faces) if(c[f]>=2) return f*2; return 0;
+    case 'p2': {const p=faces.filter(f=>c[f]>=2); return p.length>=2?(p[0]+p[1])*2:0;}
+    case 't': for(const f of faces) if(c[f]>=3) return f*3; return 0;
+    case 'f': for(const f of faces) if(c[f]>=4) return f*4; return 0;
+    case 'ls': return [1,2,3,4,5].every(f=>c[f]===1)?15:0;
+    case 'ss': return [2,3,4,5,6].every(f=>c[f]===1)?20:0;
+    case 'kak': return (c.includes(3)&&c.includes(2))?sum:0;
+    case 'ch': return sum;
+    case 'y': return c.includes(5)?50:0;
+  }
+}
+const upper=p=>CATS.filter(c=>c.up).reduce((a,c)=>a+(p.s[c.k]??0),0);
+const bonus=p=>upper(p)>=63?50:0;
+const total=p=>CATS.reduce((a,c)=>a+(p.s[c.k]??0),0)+bonus(p);
+
+// Setup
+function drawSetup(){
+  $('cnt').innerHTML=[2,3,4].map(n=>`<button class="${n===nPlayers?'on':''}" data-n="${n}">${n}</button>`).join('');
+  const old=[...document.querySelectorAll('#names input')].map(i=>i.value);
+  $('names').innerHTML=Array.from({length:nPlayers},(_,i)=>`<div class="row"><input placeholder="Spelare ${i+1}" value="${(old[i]||'').replace(/"/g,'&quot;')}"></div>`).join('');
+}
+$('cnt').onclick=e=>{if(e.target.dataset.n){nPlayers=+e.target.dataset.n;drawSetup();}};
+$('start').onclick=()=>{
+  players=[...document.querySelectorAll('#names input')].map((i,n)=>({name:i.value.trim()||`Spelare ${n+1}`,s:{}}));
+  cur=0; newTurn(); $('setup').hidden=true; $('game').hidden=false; $('over').hidden=true;
+};
+$('restart').onclick=()=>{ $('game').hidden=true; $('over').hidden=true; $('setup').hidden=false; };
+
+function newTurn(){ dice=[0,0,0,0,0]; held=[0,0,0,0,0]; rollsLeft=3; render(); }
+
+function render(){
+  const p=players[cur];
+  $('turn').innerHTML=`Nu är det <b>${esc(p.name)}</b>s tur`;
+  $('dice').innerHTML=dice.map((v,i)=>{
+    const pips=Array.from({length:9},(_,j)=>`<div class="pip ${v&&PIPS[v].includes(j)?'v':''}"></div>`).join('');
+    return `<div class="die ${v?'':'blank'} ${held[i]?'held':''}" data-i="${i}">${pips}</div>`;
+  }).join('');
+  $('roll').disabled=rollsLeft===0;
+  $('roll').textContent=rollsLeft===3?'Slå tärningarna':'Slå om';
+  $('left').textContent=`Slag kvar: ${rollsLeft}`;
+  $('hint').textContent= rollsLeft===3?'Slå för att börja din tur':
+    rollsLeft===0?'Inga slag kvar – välj var poängen ska skrivas':
+    'Tryck på tärningar för att spara dem, slå om resten – eller välj en rad i protokollet';
+  drawCard();
+}
+
+function drawCard(){
+  const canPick=rollsLeft<3;
+  let h='<tr><th></th>'+players.map((p,i)=>`<th class="${i===cur?'cur':''}">${esc(p.name)}</th>`).join('')+'</tr>';
+  const row=c=>'<tr><td>'+c.n+(c.d?` <span class="pts">${c.d}</span>`:'')+'</td>'+players.map((p,i)=>{
+    const v=p.s[c.k];
+    if(v!==undefined) return `<td class="${i===cur?'cur':''}">${v===0?'–':v}</td>`;
+    if(i===cur&&canPick){const s=score(c.k,dice);return `<td class="cur opt ${s?'':'zero'}" data-k="${c.k}">${s}</td>`;}
+    return `<td class="${i===cur?'cur':''}"></td>`;
+  }).join('')+'</tr>';
+  CATS.filter(c=>c.up).forEach(c=>h+=row(c));
+  h+='<tr class="sum"><td>Summa</td>'+players.map(p=>`<td>${upper(p)}</td>`).join('')+'</tr>';
+  h+='<tr class="sum"><td>Bonus <span class="pts">(63+ ger 50)</span></td>'+players.map(p=>`<td>${bonus(p)||(CATS.filter(c=>c.up).every(c=>p.s[c.k]!==undefined)?0:'')}</td>`).join('')+'</tr>';
+  CATS.filter(c=>!c.up).forEach(c=>h+=row(c));
+  h+='<tr class="sum"><td>TOTALT</td>'+players.map(p=>`<td>${total(p)}</td>`).join('')+'</tr>';
+  $('card').innerHTML=h;
+}
+
+$('dice').onclick=e=>{
+  const d=e.target.closest('.die'); if(!d||rollsLeft===3||rollsLeft===0&&false) return;
+  if(!dice[d.dataset.i]) return;
+  held[d.dataset.i]^=1; render();
+};
+$('roll').onclick=()=>{
+  if(rollsLeft===0) return;
+  dice=dice.map((v,i)=>held[i]?v:1+Math.floor(Math.random()*6));
+  rollsLeft--; render();
+  document.querySelectorAll('.die').forEach((el,i)=>{ if(!held[i]) el.classList.add('roll'); });
+};
+$('card').onclick=e=>{
+  const td=e.target.closest('td.opt'); if(!td) return;
+  const p=players[cur], k=td.dataset.k, s=score(k,dice);
+  if(s===0 && !confirmZero(CATS.find(c=>c.k===k).n)) return;
+  p.s[k]=s;
+  if(players.every(pl=>CATS.every(c=>pl.s[c.k]!==undefined))) return gameOver();
+  cur=(cur+1)%players.length; newTurn();
+};
+let zeroArmed=null;
+function confirmZero(name){
+  if(zeroArmed===name){zeroArmed=null;return true;}
+  zeroArmed=name; $('hint').textContent=`Det blir 0 poäng på ${name}. Tryck igen för att stryka raden.`;
+  setTimeout(()=>{if(zeroArmed===name)zeroArmed=null;},4000);
+  return false;
+}
+function gameOver(){
+  drawCard();
+  const r=[...players].sort((a,b)=>total(b)-total(a));
+  const top=total(r[0]), winners=r.filter(p=>total(p)===top);
+  $('over').innerHTML=`<h2>🏆 ${winners.map(w=>esc(w.name)).join(' & ')} ${winners.length>1?'delar segern':'vinner'}!</h2>
+   <table>${r.map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td><td><b>${total(p)}</b> p</td></tr>`).join('')}</table>
+   <p style="text-align:center"><button class="btn" onclick="$('start').click()">Spela igen, samma spelare</button>
+   <button class="btn sec" onclick="$('restart').click()">Nya spelare</button></p>`;
+  $('over').hidden=false; $('turn').textContent='Spelet är slut'; $('roll').disabled=true;
+  $('over').scrollIntoView({behavior:'smooth'});
+}
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+drawSetup();
+</script>
+<script data-goatcounter="https://ekvardt.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script>if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{})</script>
+</body>
+</html>
