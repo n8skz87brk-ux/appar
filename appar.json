@@ -1,5 +1,5 @@
 {
-  "uppdaterad": "2026-11-08",
+  "uppdaterad": "2026-11-16",
   "kategorier": [
     {
       "id": "idrott",
@@ -24,6 +24,27 @@
       "status": "",
       "efterHemskarm": "Appen fungerar sedan även utan internet på banan.",
       "andringar": []
+    },
+    {
+      "id": "yatzy",
+      "namn": "Yatzy",
+      "kategori": "spel",
+      "adress": "/yatzy/",
+      "ikon": "/yatzy/icon-192.png",
+      "knapp": "Öppna spelet",
+      "kort": "Klassisk Yatzy för 2–4 spelare runt samma skärm.",
+      "text": "Yatzy med svenska regler för 2–4 spelare som turas om vid samma telefon eller platta. Fem tärningar och tre slag per tur: tryck på de tärningar du vill spara och slå om resten. Protokollet visar vad varje rad skulle ge, och bonusen på 50 poäng kommer vid 63 eller mer i övre delen.",
+      "version": "1.0",
+      "status": "Ny",
+      "efterHemskarm": "Spelet startar sedan direkt från hemskärmen och fungerar utan internet.",
+      "andringar": [
+        {
+          "datum": "2026-11-16",
+          "typ": "ny",
+          "version": "1.0",
+          "text": "Yatzy för 2–4 spelare runt samma skärm"
+        }
+      ]
     },
     {
       "id": "huvudstaden",
