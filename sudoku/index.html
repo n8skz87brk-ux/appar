@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Sudoku i tre nivåer med anteckningar, ångra och ledtrådar.">
+<meta name="theme-color" content="#2346d8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sudoku">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>Sudoku</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: lugn, ren pusselsida – som en välsatt tidningsruta
+   IDEA: tidningens sudokuruta, fast levande
+   PICTURE: själva brädet, stort, överst
+   COLOUR and TYPE: vit botten, bläcksvart rutnät, koboltblå egna siffror, korallröd för fel; Lexend
+   LAYOUT: bräde till vänster, kontroller bredvid på bred skärm; staplat på mobil */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#0d111c);--paper:light-dark(#ffffff,#151b2b);
+--ink:light-dark(#0f1424,#eef1f8);--mute:light-dark(#5d6580,#98a1bb);
+--blue:light-dark(#2346d8,#86a0ff);--line:light-dark(#0f1424,#d5dbec);--thin:light-dark(#cfd5e4,#323c58);
+--hi:light-dark(#edf1ff,#1d2640);--same:light-dark(#cfdaff,#2d3f7c);--sel:light-dark(#a9bcff,#4560c8);
+--err:light-dark(#e0373d,#ff6b6f);--btn:light-dark(#f1f3f8,#1c2336);--btnb:light-dark(#dfe3ee,#2c3550)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Lexend,system-ui,sans-serif;overflow-x:clip;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:900px;margin:0 auto;padding:clamp(16px,4vw,40px) max(4vw,14px);display:grid;gap:22px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(32px,6vw,44px);line-height:1.05;font-weight:700;letter-spacing:-.02em}
+.meta{color:var(--mute);font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.meta b{color:var(--ink);font-weight:600}
+.game{display:grid;gap:22px}
+@media(min-width:820px){.game{grid-template-columns:minmax(0,540px) minmax(0,1fr);align-items:start}}
+.board{display:grid;grid-template-columns:repeat(9,1fr);aspect-ratio:1;width:100%;max-width:540px;border:3px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper);user-select:none;touch-action:manipulation;box-shadow:0 18px 40px -24px rgb(15 20 36/.45)}
+.cell{position:relative;display:grid;place-items:center;border-right:1px solid var(--thin);border-bottom:1px solid var(--thin);font-size:clamp(19px,6.2vw,31px);font-weight:400;color:var(--blue);cursor:pointer;transition:background .12s}
+.cell:nth-child(9n){border-right:0}.cell:nth-child(n+73){border-bottom:0}
+.cell.br{border-right:2px solid var(--line)}.cell.bb{border-bottom:2px solid var(--line)}
+.cell.given{color:var(--ink);font-weight:600}
+.cell.hi{background:var(--hi)}.cell.same{background:var(--same)}.cell.sel{background:var(--sel)}
+.cell.err{color:var(--err)}.cell.err::after{content:"";position:absolute;inset:auto 22% 14%;height:2px;background:var(--err);border-radius:2px}
+.notes{display:grid;grid-template-columns:repeat(3,1fr);width:100%;height:100%;padding:2px;font-size:clamp(8px,2.3vw,12.5px);line-height:1;color:var(--mute);font-weight:300}
+.notes span{display:grid;place-items:center}
+.panel{display:grid;gap:16px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;background:var(--btn);border-radius:12px}
+button{font:inherit;color:inherit;border:0;cursor:pointer;min-height:44px;border-radius:10px;background:var(--btn)}
+button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.seg button{background:transparent;font-size:15px}
+.seg button[aria-pressed=true]{background:var(--paper);font-weight:600;box-shadow:0 1px 3px rgb(0 0 0/.15)}
+.new{background:var(--blue);color:light-dark(#fff,#0d111c);font-weight:600}
+.pad{display:grid;grid-template-columns:repeat(9,1fr);gap:5px}
+@media(min-width:820px){.pad{grid-template-columns:repeat(3,1fr);gap:8px}.pad button{min-height:64px;font-size:26px}}
+.pad button{display:grid;place-items:center;font-size:22px;font-weight:600;color:var(--blue);background:var(--btn);border:1px solid var(--btnb);padding:4px 0;line-height:1}
+.pad button small{font-size:11px;font-weight:400;color:var(--mute);margin-top:2px}
+.pad button.out{opacity:.3}
+.pad.noting button{color:var(--mute);font-weight:300}
+.tools{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.tools button{display:grid;justify-items:center;gap:2px;padding:8px 2px;font-size:13px;color:var(--mute)}
+.tools svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tools button[aria-pressed=true]{background:var(--blue);color:light-dark(#fff,#0d111c)}
+.tools button[aria-pressed=true] svg{stroke:currentColor}
+.opt{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--mute);cursor:pointer;min-height:44px}
+.opt input{width:20px;height:20px;accent-color:var(--blue)}
+.help{font-size:13px;color:var(--mute);margin:0}
+.win{position:fixed;inset:0;display:grid;place-items:center;background:rgb(10 14 26/.55);padding:20px;z-index:5}
+.win[hidden]{display:none}
+.card{background:var(--paper);border-radius:18px;padding:28px 26px;max-width:340px;width:100%;text-align:center;box-shadow:0 30px 60px -20px rgb(0 0 0/.5)}
+.card h2{margin:0 0 6px;font-size:36px;line-height:1.05}
+.card p{margin:0 0 20px;color:var(--mute)}
+.card button{width:100%}
+@media(prefers-reduced-motion:no-preference){.board.solved .cell{animation:pop .5s ease both;animation-delay:calc(var(--d)*12ms)}
+@keyframes pop{50%{background:var(--same)}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Sudoku</h1>
+    <div class="meta"><b id="lvl">Medel</b> · <span id="time">0:00</span></div>
+  </header>
+  <div class="game">
+    <div class="board" id="board" role="grid" aria-label="Sudokubräde"></div>
+    <div class="panel">
+      <div class="seg" id="diff">
+        <button data-d="easy" aria-pressed="false">Lätt</button>
+        <button data-d="mid" aria-pressed="true">Medel</button>
+        <button data-d="hard" aria-pressed="false">Svår</button>
+      </div>
+      <button class="new" id="new">Nytt spel</button>
+      <div class="pad" id="pad"></div>
+      <div class="tools">
+        <button id="undo"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>Ångra</button>
+        <button id="erase"><svg viewBox="0 0 24 24"><path d="M20 20H8l-5-5 10-10 8 8-7 7"/><path d="m7 11 6 6"/></svg>Sudda</button>
+        <button id="noteBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13 7 4 4"/></svg>Anteckna</button>
+        <button id="hint"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg>Ledtråd</button>
+      </div>
+      <label class="opt"><input type="checkbox" id="showErr" checked> Visa fel direkt</label>
+      <p class="help">Tryck på en ruta och sedan en siffra. Med tangentbord: siffror, piltangenter, N för anteckningar, Backsteg för att sudda.</p>
+      <p class="help">Sudoku 1.0</p>
+    </div>
+  </div>
+</div>
+<div class="win" id="win" hidden>
+  <div class="card">
+    <h2>Klart!</h2>
+    <p id="winTxt"></p>
+    <button class="new" id="again">Nytt spel</button>
+  </div>
+</div>
+<script>
+{
+const $=s=>document.querySelector(s);
+const board=$('#board'),pad=$('#pad');
+const NAMES={easy:'Lätt',mid:'Medel',hard:'Svår'},CLUES={easy:40,mid:32,hard:25};
+const PE=[...Array(81)].map((_,i)=>{const r=i/9|0,c=i%9,s=new Set();for(let k=0;k<9;k++){s.add(r*9+k);s.add(k*9+c)}const br=r-r%3,bc=c-c%3;for(let a=0;a<3;a++)for(let b=0;b<3;b++)s.add((br+a)*9+bc+b);s.delete(i);return[...s]});
+const pop=m=>{let c=0;while(m){m&=m-1;c++}return c};
+const cands=(g,i)=>{let m=0;for(const p of PE[i])m|=1<<g[p];return ~m&1022};
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+function pick(g){let best=-1,bm=0,bc=10;for(let i=0;i<81;i++)if(!g[i]){const m=cands(g,i),c=pop(m);if(c<bc){bc=c;best=i;bm=m;if(c<2)break}}return[best,bm]}
+function count(g,lim){const[b,m]=pick(g);if(b<0)return 1;if(!m)return 0;let n=0;for(let d=1;d<=9&&n<lim;d++)if(m>>d&1){g[b]=d;n+=count(g,lim-n)}g[b]=0;return n}
+function fill(g){const[b,m]=pick(g);if(b<0)return true;for(const d of shuffle([1,2,3,4,5,6,7,8,9]))if(m>>d&1){g[b]=d;if(fill(g))return true}g[b]=0;return false}
+function gen(diff){const g=Array(81).fill(0);fill(g);const sol=g.slice();let clues=81;
+  for(const i of shuffle([...Array(81).keys()])){if(clues<=CLUES[diff])break;const v=g[i];g[i]=0;if(count(g,2)!==1)g[i]=v;else clues--}
+  return{puz:g,sol}}
+
+let S,sel=-1,noting=false,hist=[];
+const save=()=>{try{localStorage.setItem('sudoku-v1',JSON.stringify(S))}catch(e){}};
+const fmt=t=>{const h=t/3600|0,m=(t/60|0)%60,s=t%60;return(h?h+':'+String(m).padStart(2,'0'):m)+':'+String(s).padStart(2,'0')};
+
+function newGame(diff){const{puz,sol}=gen(diff);S={diff,puz,sol,cur:puz.slice(),notes:Array(81).fill(0),t:0,done:false,hints:0};hist=[];sel=puz.indexOf(0);$('#win').hidden=true;board.classList.remove('solved');save();render()}
+
+function render(){
+  const v=sel>=0?S.cur[sel]:0,peers=sel>=0?new Set(PE[sel]):new Set(),showErr=$('#showErr').checked;
+  board.innerHTML=S.cur.map((x,i)=>{const r=i/9|0,c=i%9,cl=['cell'];
+    if(c%3==2&&c<8)cl.push('br');if(r%3==2&&r<8)cl.push('bb');
+    if(S.puz[i])cl.push('given');
+    if(i===sel)cl.push('sel');else if(v&&x===v)cl.push('same');else if(peers.has(i))cl.push('hi');
+    if(showErr&&x&&!S.puz[i]&&x!==S.sol[i])cl.push('err');
+    const inner=x?x:S.notes[i]?'<div class="notes">'+[1,2,3,4,5,6,7,8,9].map(d=>'<span>'+(S.notes[i]>>d&1?d:'')+'</span>').join('')+'</div>':'';
+    return`<div class="${cl.join(' ')}" data-i="${i}" style="--d:${r+c}" role="gridcell" aria-label="Rad ${r+1}, kolumn ${c+1}${x?', '+x:''}">${inner}</div>`}).join('');
+  const cnt=Array(10).fill(0);S.cur.forEach((x,i)=>{if(x&&x===S.sol[i])cnt[x]++});
+  pad.innerHTML=[1,2,3,4,5,6,7,8,9].map(d=>`<button data-n="${d}" class="${cnt[d]>=9?'out':''}" aria-label="Siffra ${d}">${d}<small>${9-cnt[d]}</small></button>`).join('');
+  pad.classList.toggle('noting',noting);
+  $('#noteBtn').setAttribute('aria-pressed',noting);
+  document.querySelectorAll('#diff button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.d===S.diff));
+  $('#lvl').textContent=NAMES[S.diff];$('#time').textContent=fmt(S.t);
+}
+const push=()=>{hist.push([S.cur.slice(),S.notes.slice()]);if(hist.length>300)hist.shift()};
+function check(){if(S.cur.every((x,i)=>x===S.sol[i])){S.done=true;sel=-1;render();board.classList.add('solved');
+  $('#winTxt').textContent=`${NAMES[S.diff]} på ${fmt(S.t)}`+(S.hints?` med ${S.hints} ledtråd${S.hints>1?'ar':''}.`:', utan ledtrådar.');
+  setTimeout(()=>{$('#win').hidden=false;$('#again').focus()},700)}}
+function input(n){if(sel<0||S.done||S.puz[sel])return;push();
+  if(noting&&!S.cur[sel])S.notes[sel]^=1<<n;
+  else{S.cur[sel]=S.cur[sel]===n?0:n;S.notes[sel]=0;if(S.cur[sel]===S.sol[sel])for(const p of PE[sel])S.notes[p]&=~(1<<n)}
+  render();check();save()}
+function erase(){if(sel<0||S.done||S.puz[sel]||(!S.cur[sel]&&!S.notes[sel]))return;push();S.cur[sel]=0;S.notes[sel]=0;render();save()}
+function undo(){const h=hist.pop();if(!h||S.done)return;[S.cur,S.notes]=h;render();save()}
+function hint(){if(S.done)return;let i=sel;
+  if(i<0||S.puz[i]||S.cur[i]===S.sol[i]){const open=S.cur.map((x,k)=>x!==S.sol[k]?k:-1).filter(k=>k>=0);if(!open.length)return;i=open[Math.random()*open.length|0]}
+  push();S.cur[i]=S.sol[i];S.notes[i]=0;for(const p of PE[i])S.notes[p]&=~(1<<S.sol[i]);S.hints++;sel=i;render();check();save()}
+
+board.addEventListener('click',e=>{const c=e.target.closest('.cell');if(!c||S.done)return;sel=+c.dataset.i;render()});
+pad.addEventListener('click',e=>{const b=e.target.closest('button');if(b)input(+b.dataset.n)});
+$('#erase').onclick=erase;$('#undo').onclick=undo;$('#hint').onclick=hint;
+$('#noteBtn').onclick=()=>{noting=!noting;render()};
+$('#showErr').onchange=()=>{try{localStorage.setItem('sudoku-err',$('#showErr').checked?'1':'0')}catch(e){}render()};
+$('#new').onclick=()=>newGame(S.diff);$('#again').onclick=()=>newGame(S.diff);
+document.querySelectorAll('#diff button').forEach(b=>b.onclick=()=>newGame(b.dataset.d));
+document.addEventListener('keydown',e=>{if(!$('#win').hidden||e.target.tagName==='INPUT')return;
+  if(/^[1-9]$/.test(e.key)){input(+e.key);e.preventDefault()}
+  else if(['Backspace','Delete','0'].includes(e.key)){erase();e.preventDefault()}
+  else if(e.key==='n'||e.key==='N'){noting=!noting;render()}
+  else if(e.key==='z'&&(e.metaKey||e.ctrlKey)){undo();e.preventDefault()}
+  else if(e.key.startsWith('Arrow')){if(sel<0)sel=0;else{const r=sel/9|0,c=sel%9,d={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[e.key];sel=((r+d[0]+9)%9)*9+(c+d[1]+9)%9}render();e.preventDefault()}});
+const tick=setInterval(()=>{if(S&&!S.done&&!document.hidden){S.t++;$('#time').textContent=fmt(S.t);if(S.t%5===0)save()}},1000);
+
+try{if(localStorage.getItem('sudoku-err')==='0')$('#showErr').checked=false}catch(e){}
+let saved=null;try{saved=JSON.parse(localStorage.getItem('sudoku-v1'))}catch(e){}
+if(saved&&saved.cur&&saved.cur.length===81&&saved.sol&&saved.sol.length===81&&!saved.done&&NAMES[saved.diff]){S=saved;sel=S.cur.findIndex((x,i)=>!x);render()}
+else newGame('mid');
+}
+</script>
+<script data-goatcounter="https://ekvardt.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script>if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{})</script>
+</body>
+</html>

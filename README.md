@@ -34,6 +34,9 @@ För ett spel görs en provkopia, t.ex. `/ny/huvudstaden/`, som provspelas innan
 
 ## Versioner
 
+### Sudoku (`sudoku/`)
+- **1.0** – 26 november 2026. Första versionen, direkt i drift på Peters begäran: tre nivåer (Lätt 40, Medel 32, Svår 25 givna siffror), varje pussel slumpas fram och kontrolleras så att det har exakt en lösning. Anteckningar, ångra, sudda, ledtråd, valbar felmarkering, timer; pågående spel sparas i telefonen. En twist är planerad till senare, tänkt för paddan.
+
 ### Tjugo frågor (`ny/tjugo/`, provkopia)
 - **1.0 (prov)** – 12 november 2026. Första versionen: spelet tänker på en person (71 st) eller en stad (32 st) och svarar ja eller nej på frågor som man väljer i en lista (33 frågor om personer, 23 om städer, i hopfällbara grupper). Gissa genom att skriva namnet – hela namnet, efternamn, förnamn eller ett annat namn räcker; finns flera med samma namn frågar spelet vilken. Fel gissning kostar en fråga, ett okänt namn gör det inte. Valbar räknare för hur många som är möjliga kvar. Personer och städer ligger i `SETS` i sidans skript; varje sak har egenskaper som avgör svaren. Kontrollera efter ändringar att alla par går att skilja åt med minst en fråga.
 
