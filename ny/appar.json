@@ -1,5 +1,5 @@
 {
-  "uppdaterad": "2026-11-16",
+  "uppdaterad": "2026-11-26",
   "kategorier": [
     {
       "id": "idrott",
@@ -11,6 +11,27 @@
     }
   ],
   "appar": [
+    {
+      "id": "sudoku",
+      "namn": "Sudoku",
+      "kategori": "spel",
+      "adress": "/ny/sudoku/",
+      "ikon": "/ny/sudoku/icon-192.png",
+      "knapp": "Öppna spelet",
+      "kort": "Sudoku med anteckningsmarginal – bäst på iPad.",
+      "text": "Samma sudoku som förut, men med en marginal ovanför och till höger om brädet där man noterar vilka siffror som saknas i varje kolumn och rad – som i marginalen på en tidningssida. Välj om du vill fylla i marginalen själv eller låta den visa de saknade siffrorna automatiskt. Gjord för iPadens större skärm.",
+      "version": "1.1 (prov)",
+      "status": "Ny funktion, under provspelning",
+      "efterHemskarm": "Spelet startar sedan direkt från hemskärmen och fungerar utan internet.",
+      "andringar": [
+        {
+          "datum": "2026-11-26",
+          "typ": "ny",
+          "version": "1.1",
+          "text": "anteckningsmarginal för rader och kolumner, ifylld själv eller automatiskt"
+        }
+      ]
+    },
     {
       "id": "vem",
       "namn": "Vem tänker du på?",
