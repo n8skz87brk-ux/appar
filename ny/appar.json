@@ -20,10 +20,16 @@
       "knapp": "Öppna spelet",
       "kort": "Sudoku med anteckningsmarginal – bäst på iPad.",
       "text": "Samma sudoku som förut, men med en marginal ovanför och till höger om brädet där man noterar vilka siffror som saknas i varje kolumn och rad – som i marginalen på en tidningssida. Välj om du vill fylla i marginalen själv eller låta den visa de saknade siffrorna automatiskt. Gjord för iPadens större skärm.",
-      "version": "1.1 (prov)",
+      "version": "1.1.1 (prov)",
       "status": "Ny funktion, under provspelning",
       "efterHemskarm": "Spelet startar sedan direkt från hemskärmen och fungerar utan internet.",
       "andringar": [
+        {
+          "datum": "2026-11-26",
+          "typ": "fix",
+          "version": "1.1.1",
+          "text": "nedersta raden klipptes inte längre av på telefonen när marginalen är på"
+        },
         {
           "datum": "2026-11-26",
           "typ": "ny",
