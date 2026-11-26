@@ -12,6 +12,27 @@
   ],
   "appar": [
     {
+      "id": "vadstena",
+      "namn": "Vadstenafrågan",
+      "kategori": "spel",
+      "adress": "/ny/vadstena/",
+      "ikon": "/ny/vadstena/icon-192.png",
+      "knapp": "Öppna spelet",
+      "kort": "Familjefrågesport bara om Vadstena – 20 frågor, tre svar att välja på.",
+      "text": "Frågesport för hela familjen om Vadstena: heliga Birgitta och klostret, Vasaslottet, staden och trakten runt omkring. 20 frågor per omgång, tre svarsalternativ och en lottad kategori inför varje fråga. 51 frågor på en och samma nivå, och spelet minns vilka ni redan fått.",
+      "version": "1.0 (prov)",
+      "status": "Ny, under provspelning",
+      "efterHemskarm": "Spelet startar sedan direkt från hemskärmen och fungerar utan internet.",
+      "andringar": [
+        {
+          "datum": "2026-11-26",
+          "typ": "ny",
+          "version": "1.0",
+          "text": "frågesport om Vadstena, nu under provspelning"
+        }
+      ]
+    },
+    {
       "id": "sudoku",
       "namn": "Sudoku",
       "kategori": "spel",
