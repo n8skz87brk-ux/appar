@@ -35,6 +35,7 @@ För ett spel görs en provkopia, t.ex. `/ny/huvudstaden/`, som provspelas innan
 ## Versioner
 
 ### Sudoku (`sudoku/`)
+- **1.0.1** – 26 november 2026. Ikonen ligger nu på samma träbricka som de andra spelen i stället för blå botten.
 - **1.0** – 26 november 2026. Första versionen, direkt i drift på Peters begäran: tre nivåer (Lätt 40, Medel 32, Svår 25 givna siffror), varje pussel slumpas fram och kontrolleras så att det har exakt en lösning. Anteckningar, ångra, sudda, ledtråd, valbar felmarkering, timer; pågående spel sparas i telefonen. En twist är planerad till senare, tänkt för paddan.
 
 ### Tjugo frågor (`ny/tjugo/`, provkopia)

@@ -34,7 +34,7 @@
       "knapp": "Öppna spelet",
       "kort": "Sudoku i tre nivåer, med anteckningar och ledtrådar.",
       "text": "Klassiskt sudoku: fyll rutnätet så att varje rad, kolumn och ruta innehåller siffrorna 1–9. Välj Lätt, Medel eller Svår – varje pussel slumpas fram och har bara en lösning. Du kan anteckna kandidatsiffror, ångra, få en ledtråd och se fel direkt om du vill. Spelet sparar var du är, så du kan fortsätta senare.",
-      "version": "1.0",
+      "version": "1.0.1",
       "status": "Ny",
       "efterHemskarm": "Spelet startar sedan direkt från hemskärmen och fungerar utan internet.",
       "andringar": [
