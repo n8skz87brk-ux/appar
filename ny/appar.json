@@ -1,5 +1,5 @@
 {
-  "uppdaterad": "2026-11-26",
+  "uppdaterad": "2026-11-27",
   "kategorier": [
     {
       "id": "idrott",
@@ -11,6 +11,27 @@
     }
   ],
   "appar": [
+    {
+      "id": "talt",
+      "namn": "Tältbyggarna",
+      "kategori": "spel",
+      "adress": "/ny/talt/",
+      "ikon": "/ny/talt/icon-192.png",
+      "knapp": "Öppna spelet",
+      "kort": "Tidningens måndagspussel – ett tält vid varje träd.",
+      "text": "Pusslet från måndagstidningen: varje träd ska ha ett eget tält bredvid sig, tälten får inte röra varandra och siffrorna visar hur många tält som står i varje rad och kolumn. Fyra storlekar från 6×6 till 12×12, varje pussel slumpas fram och har exakt en lösning. Tryck för tält eller gräs, dra för att fylla flera rutor.",
+      "version": "1.0 (prov)",
+      "status": "Nytt, under provspelning",
+      "efterHemskarm": "Spelet startar sedan direkt från hemskärmen och fungerar utan internet.",
+      "andringar": [
+        {
+          "datum": "2026-11-27",
+          "typ": "ny",
+          "version": "1.0",
+          "text": "tält och träd som i måndagstidningen, nu under provspelning"
+        }
+      ]
+    },
     {
       "id": "vadstena",
       "namn": "Vadstenafrågan",

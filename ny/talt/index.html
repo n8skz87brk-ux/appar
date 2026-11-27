@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Tältbyggarna – placera ett tält vid varje träd. Pussel i fyra storlekar.">
+<meta name="theme-color" content="#2f6b3a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tältbyggarna">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>Tältbyggarna</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: lugn pusselsida, som tidningens ruta på måndagen
+   IDEA: en liten campingplats ovanifrån
+   PICTURE: själva rutnätet, stort, överst
+   COLOUR and TYPE: krämvit botten, skogsgröna träd, orange tält, ljusgrönt gräs; Lexend
+   LAYOUT: bräde till vänster, kontroller bredvid på bred skärm; staplat på mobil */
+:root{color-scheme:light dark;
+--bg:light-dark(#fbf8f1,#10140f);--paper:light-dark(#ffffff,#181e17);
+--ink:light-dark(#1d241c,#eef2ea);--mute:light-dark(#65705f,#9aa595);
+--green:light-dark(#2f6b3a,#7fc48a);--line:light-dark(#1d241c,#cfd8ca);--thin:light-dark(#d4dacb,#323b30);
+--grass:light-dark(#dcebc6,#25391f);--tuft:light-dark(#86b25e,#5f8f45);
+--tent:#e0662e;--tentd:#a8431a;--err:light-dark(#d8312f,#ff6b6b);
+--btn:light-dark(#efeee6,#1f261d);--btnb:light-dark(#dedcd0,#2f382c);--ok:light-dark(#9aa595,#5e6a5a)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Lexend,system-ui,sans-serif;overflow-x:clip;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:960px;margin:0 auto;padding:clamp(16px,4vw,40px) max(4vw,14px);display:grid;gap:22px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(32px,6vw,44px);line-height:1.05;font-weight:700;letter-spacing:-.02em}
+.meta{color:var(--mute);font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.meta b{color:var(--ink);font-weight:600}
+.game{display:grid;gap:22px}
+@media(min-width:860px){.game{grid-template-columns:minmax(0,580px) minmax(0,1fr);align-items:start}}
+.bwrap{width:100%;max-width:580px;display:grid;gap:4px;user-select:none;-webkit-user-select:none;touch-action:none}
+.cnt{display:grid;place-items:center;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;cursor:pointer;border-radius:6px;font-size:clamp(13px,3.6vw,19px)}
+.cnt.ok{color:var(--ok);font-weight:400}
+.cnt.over{color:var(--err)}
+.board{display:grid;aspect-ratio:1;border:3px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper);box-shadow:0 18px 40px -24px rgb(20 30 15/.45)}
+.cell{position:relative;min-height:0;border-right:1px solid var(--thin);border-bottom:1px solid var(--thin);cursor:pointer;display:grid;place-items:center}
+.cell svg{position:absolute;inset:11%;width:78%;height:78%;pointer-events:none}
+.cell.grass{background:var(--grass)}
+.cell.grass::after{content:"";width:34%;height:22%;background:
+ linear-gradient(70deg,transparent 42%,var(--tuft) 44% 56%,transparent 58%) 0 0/34% 100% no-repeat,
+ linear-gradient(90deg,transparent 42%,var(--tuft) 44% 56%,transparent 58%) 50% 0/34% 100% no-repeat,
+ linear-gradient(110deg,transparent 42%,var(--tuft) 44% 56%,transparent 58%) 100% 0/34% 100% no-repeat;opacity:.9}
+.cell.bad{background:light-dark(#fde2df,#4a1f1d)}
+.cell.wrong::before{content:"";position:absolute;inset:8%;border:2px dashed var(--err);border-radius:4px}
+.cell.flash{animation:fl 1.2s ease}
+@keyframes fl{0%,60%{box-shadow:inset 0 0 0 3px var(--green)}100%{box-shadow:inset 0 0 0 0 transparent}}
+.board.solved{border-color:var(--green)}
+.panel{display:grid;gap:16px;align-content:start}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;background:var(--btn);border-radius:12px}
+button{font:inherit;color:inherit;border:0;cursor:pointer;min-height:44px;border-radius:10px;background:var(--btn)}
+button:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+.seg button{background:transparent;font-size:15px;line-height:1.15;padding:4px 2px}
+.seg button small{display:block;font-size:11px;color:var(--mute)}
+.seg button[aria-pressed=true]{background:var(--paper);font-weight:600;box-shadow:0 1px 3px rgb(0 0 0/.15)}
+.new{background:var(--green);color:light-dark(#fff,#10140f);font-weight:600}
+.tools{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.tools button{display:grid;justify-items:center;gap:2px;padding:8px 2px;font-size:13px;color:var(--mute);line-height:1.2}
+.tools svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.opt{display:flex;gap:10px;align-items:center;font-size:15px;cursor:pointer}
+.opt input{width:20px;height:20px;accent-color:var(--green)}
+.help{margin:0;color:var(--mute);font-size:14px}
+details{background:var(--btn);border-radius:12px;padding:10px 14px;font-size:15px}
+summary{cursor:pointer;font-weight:600}
+details ul{margin:8px 0 4px;padding-left:20px}details li{margin:4px 0}
+.win{position:fixed;inset:0;display:grid;place-items:center;background:rgb(10 15 8/.45);padding:20px;z-index:5}
+.win[hidden]{display:none}
+.card{background:var(--paper);border-radius:18px;padding:28px;max-width:360px;width:100%;text-align:center;display:grid;gap:14px;box-shadow:0 30px 60px -20px rgb(0 0 0/.5)}
+.card h2{margin:0;font-size:30px}.card p{margin:0;color:var(--mute)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="tree" viewBox="0 0 40 40"><rect x="17.5" y="26" width="5" height="11" rx="1.5" fill="#7a4e2a"/><circle cx="20" cy="17" r="13" fill="#2f6b3a"/><circle cx="15" cy="13" r="6.5" fill="#3f8a4b"/><circle cx="24" cy="20" r="5" fill="#27582f"/></symbol>
+  <symbol id="tent" viewBox="0 0 40 40"><path d="M20 5 3 35h34z" fill="#e0662e" stroke="#a8431a" stroke-width="2" stroke-linejoin="round"/><path d="M20 15 13 35h14z" fill="#7a2e10"/><path d="M20 5v-2" stroke="#a8431a" stroke-width="2" stroke-linecap="round"/></symbol>
+</svg>
+<div class="wrap">
+  <header>
+    <h1>Tältbyggarna</h1>
+    <div class="meta"><b id="lvl">Medel</b> · <span id="time">0:00</span></div>
+  </header>
+  <div class="game">
+    <div class="bwrap" id="bwrap"></div>
+    <div class="panel">
+      <div class="seg" id="diff">
+        <button data-d="6">Lätt<small>6×6</small></button>
+        <button data-d="8">Medel<small>8×8</small></button>
+        <button data-d="10">Svår<small>10×10</small></button>
+        <button data-d="12">Jätte<small>12×12</small></button>
+      </div>
+      <button class="new" id="new">Nytt pussel</button>
+      <div class="tools">
+        <button id="undo"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>Ångra</button>
+        <button id="auto"><svg viewBox="0 0 24 24"><path d="M5 20c1-4 1-8 0-12M10 20c0-5 1-9 3-12M15 20c0-4 1-7 4-9"/></svg>Gräs bort från träd</button>
+        <button id="hint"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg>Ledtråd</button>
+        <button id="clear"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>Börja om</button>
+      </div>
+      <label class="opt"><input type="checkbox" id="showErr"> Visa fel direkt</label>
+      <p class="help">Tryck en gång för tält, två gånger för gräs, tre gånger för tom ruta. Dra med fingret för att lägga samma sak i flera rutor. Tryck på en siffra för att fylla resten av raden eller kolumnen med gräs.</p>
+      <details>
+        <summary>Så spelar du</summary>
+        <ul>
+          <li>Varje träd ska ha ett eget tält i rutan rakt ovanför, under, till vänster eller till höger. Snett räknas inte.</li>
+          <li>Det finns lika många tält som träd.</li>
+          <li>Tält får inte ligga bredvid varandra, inte ens snett.</li>
+          <li>Siffrorna visar hur många tält som ska stå i raden eller kolumnen.</li>
+          <li>Varje pussel har exakt en lösning.</li>
+        </ul>
+      </details>
+      <p class="help">Tältbyggarna 1.0 (prov)</p>
+    </div>
+  </div>
+</div>
+<div class="win" id="win" hidden>
+  <div class="card">
+    <h2>Alla har tak över huvudet!</h2>
+    <p id="winTxt"></p>
+    <button class="new" id="again">Nytt pussel</button>
+  </div>
+</div>
+<script>
+{
+const $=s=>document.querySelector(s);
+const NAMES={6:'Lätt',8:'Medel',10:'Svår',12:'Jätte'};
+const O=[[1,0],[-1,0],[0,1],[0,-1]];
+const rnd=n=>Math.random()*n|0;
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+
+/* ---------- Pusselmotor: slumpa tält, ge varje tält ett träd, kräv exakt en lösning ---------- */
+function generate(n){
+  const k=Math.round(n*n*.19);
+  for(let tries=0;tries<2000;tries++){
+    const T=new Array(n*n).fill(0);let c=0;
+    for(const i of shuffle([...Array(n*n).keys()])){if(c>=k)break;const r=i/n|0,q=i%n;let ok=true;
+      for(let dr=-1;dr<=1&&ok;dr++)for(let dq=-1;dq<=1;dq++){const a=r+dr,b=q+dq;if(a>=0&&a<n&&b>=0&&b<n&&T[a*n+b]===2){ok=false;break}}
+      if(ok){T[i]=2;c++}}
+    if(c<k)continue;
+    let fail=false;
+    for(const i of shuffle(T.map((v,i)=>v===2?i:-1).filter(i=>i>=0))){
+      const r=i/n|0,q=i%n,opts=O.map(([a,b])=>[r+a,q+b]).filter(([a,b])=>a>=0&&a<n&&b>=0&&b<n&&T[a*n+b]===0);
+      if(!opts.length){fail=true;break}const[a,b]=opts[rnd(opts.length)];T[a*n+b]=1}
+    if(fail)continue;
+    const rows=[],cols=[];
+    for(let r=0;r<n;r++){let s=0;for(let q=0;q<n;q++)s+=T[r*n+q]===2;rows.push(s)}
+    for(let q=0;q<n;q++){let s=0;for(let r=0;r<n;r++)s+=T[r*n+q]===2;cols.push(s)}
+    const trees=T.map(v=>v===1?1:0);
+    if(countSolutions(n,trees,rows,cols,2)===1)return{n,trees,rows,cols,sol:T.map(v=>v===2?1:0)};
+  }
+  return null;
+}
+function countSolutions(n,trees,rows,cols,limit){
+  const cand=[],isC=new Array(n*n).fill(false);
+  for(let i=0;i<n*n;i++){if(trees[i])continue;const r=i/n|0,q=i%n;
+    if(O.some(([a,b])=>{const rr=r+a,qq=q+b;return rr>=0&&rr<n&&qq>=0&&qq<n&&trees[rr*n+qq]})){cand.push(i);isC[i]=true}}
+  const treeList=[];for(let i=0;i<n*n;i++)if(trees[i])treeList.push(i);
+  const tent=new Uint8Array(n*n),rowCnt=new Int32Array(n),colCnt=new Int32Array(n),sufRow=[],sufCol=[];
+  {const rc=new Int32Array(n),cc=new Int32Array(n);for(let j=cand.length;j>=0;j--){if(j<cand.length){const i=cand[j];rc[i/n|0]++;cc[i%n]++}sufRow[j]=rc.slice();sufCol[j]=cc.slice()}}
+  for(let r=0;r<n;r++)if(rows[r]>sufRow[0][r])return 0;
+  for(let q=0;q<n;q++)if(cols[q]>sufCol[0][q])return 0;
+  const pos=new Int32Array(n*n).fill(-1);cand.forEach((i,j)=>pos[i]=j);
+  const treeAdj=treeList.map(t=>{const r=t/n|0,q=t%n;return O.map(([a,b])=>[r+a,q+b]).filter(([a,b])=>a>=0&&a<n&&b>=0&&b<n&&isC[a*n+b]).map(([a,b])=>pos[a*n+b]).sort((x,y)=>x-y)});
+  if(treeAdj.some(a=>!a.length))return 0;
+  const lastAt=cand.map(()=>[]);treeAdj.forEach((adj,t)=>lastAt[adj[adj.length-1]].push(t));
+  let count=0;
+  const matching=()=>{const m=new Map();
+    for(let t=0;t<treeList.length;t++){const seen=new Set();
+      const aug=t=>{for(const j of treeAdj[t]){const i=cand[j];if(!tent[i]||seen.has(i))continue;seen.add(i);if(!m.has(i)||aug(m.get(i))){m.set(i,t);return true}}return false};
+      if(!aug(t))return false}return true};
+  const check=j=>{const i=cand[j],r=i/n|0,q=i%n;
+    if(rowCnt[r]+sufRow[j+1][r]<rows[r]||colCnt[q]+sufCol[j+1][q]<cols[q])return false;
+    for(const t of lastAt[j])if(!treeAdj[t].some(x=>tent[cand[x]]))return false;return true};
+  const rec=j=>{if(count>=limit)return;
+    if(j===cand.length){if(matching())count++;return}
+    const i=cand[j],r=i/n|0,q=i%n;
+    if(rowCnt[r]<rows[r]&&colCnt[q]<cols[q]){let ok=true;
+      for(let dr=-1;dr<=1&&ok;dr++)for(let dq=-1;dq<=1;dq++){const a=r+dr,b=q+dq;if(a>=0&&a<n&&b>=0&&b<n&&tent[a*n+b]){ok=false;break}}
+      if(ok){tent[i]=1;rowCnt[r]++;colCnt[q]++;if(check(j))rec(j+1);tent[i]=0;rowCnt[r]--;colCnt[q]--}}
+    if(check(j))rec(j+1)};
+  rec(0);return count;
+}
+
+/* ---------- Spelet ---------- */
+// S.cur: 0 tom, 1 tält, 2 gräs
+let S,hist=[],cells=[],rowEls=[],colEls=[];
+const save=()=>{try{localStorage.setItem('talt-v1',JSON.stringify(S))}catch(e){}};
+const fmt=t=>{const h=t/3600|0,m=(t/60|0)%60,s=t%60;return(h?h+':'+String(m).padStart(2,'0'):m)+':'+String(s).padStart(2,'0')};
+
+function newGame(n){const p=generate(n);S={...p,cur:p.trees.map(()=>0),t:0,done:false,hints:0};hist=[];$('#win').hidden=true;build();save()}
+
+function build(){
+  const n=S.n,w=$('#bwrap');
+  w.style.gridTemplateColumns=`minmax(0,.8fr) repeat(${n},minmax(0,1fr))`;
+  w.innerHTML='';colEls=[];rowEls=[];cells=[];
+  w.appendChild(document.createElement('div'));
+  for(let q=0;q<n;q++){const d=document.createElement('div');d.className='cnt';d.textContent=S.cols[q];d.style.padding='4px 0';d.onclick=()=>fillLine('c',q);w.appendChild(d);colEls.push(d)}
+  const side=document.createElement('div');side.style.cssText=`display:grid;grid-template-rows:repeat(${n},minmax(0,1fr));padding:3px 0`;
+  for(let r=0;r<n;r++){const d=document.createElement('div');d.className='cnt';d.textContent=S.rows[r];d.onclick=()=>fillLine('r',r);side.appendChild(d);rowEls.push(d)}
+  w.appendChild(side);
+  const b=document.createElement('div');b.className='board';b.id='board';b.style.gridColumn=`2 / span ${n}`;
+  b.style.gridTemplateColumns=`repeat(${n},minmax(0,1fr))`;b.style.gridTemplateRows=`repeat(${n},minmax(0,1fr))`;
+  for(let i=0;i<n*n;i++){const c=document.createElement('div');c.className='cell';c.dataset.i=i;
+    if(i%n===n-1)c.style.borderRight='0';if(i>=n*(n-1))c.style.borderBottom='0';
+    if(S.trees[i])c.innerHTML='<svg><use href="#tree"/></svg>';b.appendChild(c);cells.push(c)}
+  w.appendChild(b);
+  document.querySelectorAll('#diff button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.d===n));
+  $('#lvl').textContent=NAMES[n];
+  render();
+}
+
+function render(){
+  const n=S.n,cur=S.cur,showErr=$('#showErr').checked;
+  const bad=new Set();
+  for(let i=0;i<n*n;i++)if(cur[i]===1){const r=i/n|0,q=i%n;
+    for(let dr=-1;dr<=1;dr++)for(let dq=-1;dq<=1;dq++){if(!dr&&!dq)continue;const a=r+dr,b=q+dq;if(a>=0&&a<n&&b>=0&&b<n&&cur[a*n+b]===1){bad.add(i);bad.add(a*n+b)}}}
+  cells.forEach((c,i)=>{if(S.trees[i])return;const v=cur[i];
+    c.classList.toggle('grass',v===2);c.classList.toggle('bad',bad.has(i));
+    c.classList.toggle('wrong',showErr&&((v===1&&!S.sol[i])||(v===2&&S.sol[i])));
+    const want=v===1?'<svg><use href="#tent"/></svg>':'';if(c.innerHTML!==want)c.innerHTML=want});
+  for(let r=0;r<n;r++){let t=0,e=0;for(let q=0;q<n;q++){t+=cur[r*n+q]===1;e+=cur[r*n+q]===0&&!S.trees[r*n+q]}
+    rowEls[r].className='cnt'+(t>S.rows[r]?' over':t===S.rows[r]&&!e?' ok':'')}
+  for(let q=0;q<n;q++){let t=0,e=0;for(let r=0;r<n;r++){t+=cur[r*n+q]===1;e+=cur[r*n+q]===0&&!S.trees[r*n+q]}
+    colEls[q].className='cnt'+(t>S.cols[q]?' over':t===S.cols[q]&&!e?' ok':'')}
+  $('#time').textContent=fmt(S.t);
+  $('#board').classList.toggle('solved',S.done);
+}
+
+function checkWin(){
+  if(S.done)return;
+  for(let i=0;i<S.cur.length;i++)if((S.cur[i]===1)!==!!S.sol[i])return;
+  S.done=true;S.cur=S.cur.map((v,i)=>S.trees[i]?0:v===1?1:2);save();render();
+  $('#winTxt').textContent=`${NAMES[S.n]} (${S.n}×${S.n}) på ${fmt(S.t)}`+(S.hints?` med ${S.hints} ${S.hints===1?'ledtråd':'ledtrådar'}.`:', utan ledtrådar.');
+  setTimeout(()=>$('#win').hidden=false,500);
+}
+
+function setCells(list){ // list av [i,värde]
+  const ch=list.filter(([i,v])=>!S.trees[i]&&S.cur[i]!==v);if(!ch.length)return false;
+  hist.push(ch.map(([i])=>[i,S.cur[i]]));if(hist.length>300)hist.shift();
+  ch.forEach(([i,v])=>S.cur[i]=v);save();render();checkWin();return true;
+}
+
+function fillLine(t,k){
+  if(S.done)return;const n=S.n,idx=[...Array(n)].map((_,j)=>t==='r'?k*n+j:j*n+k);
+  const tents=idx.filter(i=>S.cur[i]===1).length,need=t==='r'?S.rows[k]:S.cols[k];
+  if(tents!==need){const el=t==='r'?rowEls[k]:colEls[k];el.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:250});return}
+  setCells(idx.filter(i=>S.cur[i]===0).map(i=>[i,2]));
+}
+
+/* Tryck och dra */
+let drag=null;
+const cellAt=(x,y)=>{const e=document.elementFromPoint(x,y);return e&&e.closest&&e.closest('.cell')};
+$('#bwrap').addEventListener('pointerdown',e=>{
+  const c=e.target.closest('.cell');if(!c||S.done)return;const i=+c.dataset.i;if(S.trees[i])return;
+  e.preventDefault();const v=(S.cur[i]+1)%3;
+  hist.push([[i,S.cur[i]]]);S.cur[i]=v;drag={v,done:new Set([i])};render();
+});
+window.addEventListener('pointermove',e=>{
+  if(!drag)return;const c=cellAt(e.clientX,e.clientY);if(!c)return;const i=+c.dataset.i;
+  if(drag.done.has(i)||S.trees[i])return;drag.done.add(i);
+  // en tältdragning lägger bara tält i tomma rutor; gräs och tomt skriver över
+  if(drag.v===1&&S.cur[i]!==0)return;
+  hist[hist.length-1].push([i,S.cur[i]]);S.cur[i]=drag.v;render();
+});
+const endDrag=()=>{if(!drag)return;drag=null;save();checkWin()};
+window.addEventListener('pointerup',endDrag);window.addEventListener('pointercancel',endDrag);
+
+$('#undo').onclick=()=>{if(S.done)return;const h=hist.pop();if(!h)return;h.slice().reverse().forEach(([i,v])=>S.cur[i]=v);save();render()};
+$('#auto').onclick=()=>{if(S.done)return;const n=S.n;
+  setCells(S.cur.map((v,i)=>[i,v]).filter(([i,v])=>{if(v!==0||S.trees[i])return false;const r=i/n|0,q=i%n;
+    return!O.some(([a,b])=>{const rr=r+a,qq=q+b;return rr>=0&&rr<n&&qq>=0&&qq<n&&S.trees[rr*n+qq]})}).map(([i])=>[i,2]))};
+$('#hint').onclick=()=>{if(S.done)return;
+  // rätta först ett fel, annars visa ett tält som saknas, annars en gräsruta
+  const all=[...S.cur.keys()].filter(i=>!S.trees[i]);
+  let i=shuffle(all.filter(i=>(S.cur[i]===1&&!S.sol[i])||(S.cur[i]===2&&S.sol[i])))[0];
+  if(i===undefined)i=shuffle(all.filter(i=>S.cur[i]===0&&S.sol[i]))[0];
+  if(i===undefined)i=shuffle(all.filter(i=>S.cur[i]===0))[0];
+  if(i===undefined)return;
+  S.hints++;setCells([[i,S.sol[i]?1:2]]);const c=cells[i];c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash')};
+$('#clear').onclick=()=>{if(S.done||!S.cur.some(v=>v))return;if(!confirm('Tömma brädet och börja om med samma pussel?'))return;setCells(S.cur.map((v,i)=>[i,0]))};
+$('#new').onclick=()=>newGame(S.n);
+$('#again').onclick=()=>newGame(S.n);
+document.querySelectorAll('#diff button').forEach(b=>b.onclick=()=>{try{localStorage.setItem('talt-n',b.dataset.d)}catch(e){}newGame(+b.dataset.d)});
+$('#showErr').onchange=()=>{try{localStorage.setItem('talt-err',$('#showErr').checked?'1':'0')}catch(e){}render()};
+
+setInterval(()=>{if(S&&!S.done&&!document.hidden){S.t++;$('#time').textContent=fmt(S.t);if(S.t%10===0)save()}},1000);
+
+try{if(localStorage.getItem('talt-err')==='1')$('#showErr').checked=true}catch(e){}
+let saved=null;try{saved=JSON.parse(localStorage.getItem('talt-v1'))}catch(e){}
+if(saved&&saved.n&&saved.cur&&!saved.done){S=saved;build()}
+else{let n=8;try{n=+localStorage.getItem('talt-n')||8}catch(e){}newGame(NAMES[n]?n:8)}
+}
+</script>
+<script>if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{})</script>
+</body>

@@ -34,6 +34,9 @@ För ett spel görs en provkopia, t.ex. `/ny/huvudstaden/`, som provspelas innan
 
 ## Versioner
 
+### Tältbyggarna (`ny/talt/`, provkopia)
+- **1.0 (prov)** – 27 november 2026. Första versionen: pusslet från måndagstidningen (Tents and Trees). Fyra storlekar – Lätt 6×6, Medel 8×8, Svår 10×10, Jätte 12×12 – med cirka 19 % tält. Varje pussel slumpas fram och kontrolleras så att det har exakt en lösning. Tryck en gång för tält, två för gräs, tre för tom; dra för att fylla flera rutor; tryck på en siffra för att fylla resten av raden med gräs. Ångra, ledtråd (rättar först ett fel), "Gräs bort från träd", valbar felmarkering, timer; pågående spel sparas i telefonen. Saknar ännu föremål i `SAKER`.
+
 ### Sudoku (`sudoku/`)
 - **1.0.1** – 26 november 2026. Ikonen ligger nu på samma träbricka som de andra spelen i stället för blå botten.
 - **1.0** – 26 november 2026. Första versionen, direkt i drift på Peters begäran: tre nivåer (Lätt 40, Medel 32, Svår 25 givna siffror), varje pussel slumpas fram och kontrolleras så att det har exakt en lösning. Anteckningar, ångra, sudda, ledtråd, valbar felmarkering, timer; pågående spel sparas i telefonen. En twist är planerad till senare, tänkt för paddan.
