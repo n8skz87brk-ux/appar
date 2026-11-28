@@ -38,7 +38,10 @@ h1{margin:0;font-size:clamp(32px,6vw,44px);line-height:1.05;font-weight:700;lett
 @media(min-width:860px){.game{grid-template-columns:minmax(0,580px) minmax(0,1fr);align-items:start}}
 .bwrap{width:100%;max-width:580px;display:grid;gap:4px;user-select:none;-webkit-user-select:none;touch-action:none}
 .cnt{display:grid;place-items:center;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;cursor:pointer;border-radius:6px;font-size:clamp(13px,3.6vw,19px)}
-.cnt.ok{color:var(--ok);font-weight:400}
+.cnt{position:relative;transition:background .15s,color .15s}
+.cnt.done{color:var(--green);background:var(--grass);font-weight:400}
+.cnt.done::after{content:"✓";position:absolute;font-size:.6em;font-weight:700;right:2px;top:0;line-height:1.2}
+.cnt.col.done::after{right:auto;left:50%;top:auto;bottom:-2px;transform:translateX(-50%)}
 .cnt.over{color:var(--err)}
 .board{display:grid;aspect-ratio:1;border:3px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper);box-shadow:0 18px 40px -24px rgb(20 30 15/.45)}
 .cell{position:relative;min-height:0;border-right:1px solid var(--thin);border-bottom:1px solid var(--thin);cursor:pointer;display:grid;place-items:center}
@@ -66,6 +69,8 @@ button:focus-visible{outline:3px solid var(--green);outline-offset:2px}
 .tools svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .opt{display:flex;gap:10px;align-items:center;font-size:15px;cursor:pointer}
 .opt input{width:20px;height:20px;accent-color:var(--green)}
+.lbl{margin:0 0 -8px;font-size:14px;font-weight:600}
+.seg.two{grid-template-columns:1fr 1fr}
 .help{margin:0;color:var(--mute);font-size:14px}
 details{background:var(--btn);border-radius:12px;padding:10px 14px;font-size:15px}
 summary{cursor:pointer;font-weight:600}
@@ -102,8 +107,14 @@ details ul{margin:8px 0 4px;padding-left:20px}details li{margin:4px 0}
         <button id="hint"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg>Ledtråd</button>
         <button id="clear"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>Börja om</button>
       </div>
+      <p class="lbl">Bocka av klara rader och kolumner</p>
+      <div class="seg two" id="markSeg">
+        <button data-m="hand" aria-pressed="true">Själv</button>
+        <button data-m="auto" aria-pressed="false">Automatiskt</button>
+      </div>
+      <p class="help" id="markHelp"></p>
       <label class="opt"><input type="checkbox" id="showErr"> Visa fel direkt</label>
-      <p class="help">Tryck en gång för tält, två gånger för gräs, tre gånger för tom ruta. Dra med fingret för att lägga samma sak i flera rutor. Tryck på en siffra för att fylla resten av raden eller kolumnen med gräs.</p>
+      <p class="help">Tryck en gång för tält, två gånger för gräs, tre gånger för tom ruta. Dra med fingret för att lägga samma sak i flera rutor. </p>
       <details>
         <summary>Så spelar du</summary>
         <ul>
@@ -114,7 +125,7 @@ details ul{margin:8px 0 4px;padding-left:20px}details li{margin:4px 0}
           <li>Varje pussel har exakt en lösning.</li>
         </ul>
       </details>
-      <p class="help">Tältbyggarna 1.0 (prov)</p>
+      <p class="help">Tältbyggarna 1.1 (prov)</p>
     </div>
   </div>
 </div>
@@ -188,18 +199,18 @@ function countSolutions(n,trees,rows,cols,limit){
 
 /* ---------- Spelet ---------- */
 // S.cur: 0 tom, 1 tält, 2 gräs
-let S,hist=[],cells=[],rowEls=[],colEls=[];
+let mark='hand',S,hist=[],cells=[],rowEls=[],colEls=[];
 const save=()=>{try{localStorage.setItem('talt-v1',JSON.stringify(S))}catch(e){}};
 const fmt=t=>{const h=t/3600|0,m=(t/60|0)%60,s=t%60;return(h?h+':'+String(m).padStart(2,'0'):m)+':'+String(s).padStart(2,'0')};
 
-function newGame(n){const p=generate(n);S={...p,cur:p.trees.map(()=>0),t:0,done:false,hints:0};hist=[];$('#win').hidden=true;build();save()}
+function newGame(n){const p=generate(n);S={...p,cur:p.trees.map(()=>0),mr:Array(n).fill(0),mc:Array(n).fill(0),t:0,done:false,hints:0};hist=[];$('#win').hidden=true;build();save()}
 
 function build(){
   const n=S.n,w=$('#bwrap');
   w.style.gridTemplateColumns=`minmax(0,.8fr) repeat(${n},minmax(0,1fr))`;
   w.innerHTML='';colEls=[];rowEls=[];cells=[];
   w.appendChild(document.createElement('div'));
-  for(let q=0;q<n;q++){const d=document.createElement('div');d.className='cnt';d.textContent=S.cols[q];d.style.padding='4px 0';d.onclick=()=>fillLine('c',q);w.appendChild(d);colEls.push(d)}
+  for(let q=0;q<n;q++){const d=document.createElement('div');d.className='cnt col';d.textContent=S.cols[q];d.style.padding='4px 0';d.onclick=()=>fillLine('c',q);w.appendChild(d);colEls.push(d)}
   const side=document.createElement('div');side.style.cssText=`display:grid;grid-template-rows:repeat(${n},minmax(0,1fr));padding:3px 0`;
   for(let r=0;r<n;r++){const d=document.createElement('div');d.className='cnt';d.textContent=S.rows[r];d.onclick=()=>fillLine('r',r);side.appendChild(d);rowEls.push(d)}
   w.appendChild(side);
@@ -224,9 +235,9 @@ function render(){
     c.classList.toggle('wrong',showErr&&((v===1&&!S.sol[i])||(v===2&&S.sol[i])));
     const want=v===1?'<svg><use href="#tent"/></svg>':'';if(c.innerHTML!==want)c.innerHTML=want});
   for(let r=0;r<n;r++){let t=0,e=0;for(let q=0;q<n;q++){t+=cur[r*n+q]===1;e+=cur[r*n+q]===0&&!S.trees[r*n+q]}
-    rowEls[r].className='cnt'+(t>S.rows[r]?' over':t===S.rows[r]&&!e?' ok':'')}
+    rowEls[r].className='cnt'+(t>S.rows[r]?' over':(mark==='auto'?t===S.rows[r]:S.mr[r])?' done':'')}
   for(let q=0;q<n;q++){let t=0,e=0;for(let r=0;r<n;r++){t+=cur[r*n+q]===1;e+=cur[r*n+q]===0&&!S.trees[r*n+q]}
-    colEls[q].className='cnt'+(t>S.cols[q]?' over':t===S.cols[q]&&!e?' ok':'')}
+    colEls[q].className='cnt col'+(t>S.cols[q]?' over':(mark==='auto'?t===S.cols[q]:S.mc[q])?' done':'')}
   $('#time').textContent=fmt(S.t);
   $('#board').classList.toggle('solved',S.done);
 }
@@ -247,10 +258,17 @@ function setCells(list){ // list av [i,värde]
 
 function fillLine(t,k){
   if(S.done)return;const n=S.n,idx=[...Array(n)].map((_,j)=>t==='r'?k*n+j:j*n+k);
+  const M=t==='r'?S.mr:S.mc,el=t==='r'?rowEls[k]:colEls[k];
+  // Själv: en avbockad rad bockas av igen med ett tryck
+  if(mark==='hand'&&M[k]){hist.push([[t,k,1]]);M[k]=0;save();render();return}
   const tents=idx.filter(i=>S.cur[i]===1).length,need=t==='r'?S.rows[k]:S.cols[k];
-  if(tents!==need){const el=t==='r'?rowEls[k]:colEls[k];el.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:250});return}
-  setCells(idx.filter(i=>S.cur[i]===0).map(i=>[i,2]));
+  if(tents!==need){el.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:250});return}
+  const ch=idx.filter(i=>S.cur[i]===0&&!S.trees[i]).map(i=>[i,0]);
+  if(mark==='hand'){ch.push([t,k,0]);M[k]=1}
+  if(!ch.length)return;
+  hist.push(ch);ch.forEach(x=>{if(typeof x[0]==='number')S.cur[x[0]]=2});save();render();checkWin();
 }
+function undoEntry(h){h.slice().reverse().forEach(x=>{if(typeof x[0]==='number')S.cur[x[0]]=x[1];else(x[0]==='r'?S.mr:S.mc)[x[1]]=x[2]})}
 
 /* Tryck och dra */
 let drag=null;
@@ -270,7 +288,7 @@ window.addEventListener('pointermove',e=>{
 const endDrag=()=>{if(!drag)return;drag=null;save();checkWin()};
 window.addEventListener('pointerup',endDrag);window.addEventListener('pointercancel',endDrag);
 
-$('#undo').onclick=()=>{if(S.done)return;const h=hist.pop();if(!h)return;h.slice().reverse().forEach(([i,v])=>S.cur[i]=v);save();render()};
+$('#undo').onclick=()=>{if(S.done)return;const h=hist.pop();if(!h)return;undoEntry(h);save();render()};
 $('#auto').onclick=()=>{if(S.done)return;const n=S.n;
   setCells(S.cur.map((v,i)=>[i,v]).filter(([i,v])=>{if(v!==0||S.trees[i])return false;const r=i/n|0,q=i%n;
     return!O.some(([a,b])=>{const rr=r+a,qq=q+b;return rr>=0&&rr<n&&qq>=0&&qq<n&&S.trees[rr*n+qq]})}).map(([i])=>[i,2]))};
@@ -290,9 +308,14 @@ $('#showErr').onchange=()=>{try{localStorage.setItem('talt-err',$('#showErr').ch
 
 setInterval(()=>{if(S&&!S.done&&!document.hidden){S.t++;$('#time').textContent=fmt(S.t);if(S.t%10===0)save()}},1000);
 
-try{if(localStorage.getItem('talt-err')==='1')$('#showErr').checked=true}catch(e){}
+try{if(localStorage.getItem('talt-err')==='1')$('#showErr').checked=true;if(localStorage.getItem('talt-mark')==='auto')mark='auto'}catch(e){}
+const MHELP={hand:'Har en rad eller kolumn rätt antal tält: tryck på siffran. Resten fylls med gräs och siffran bockas av, så du slipper titta på den igen. Tryck igen för att ta bort bocken.',
+  auto:'Siffran bockas av av sig själv så fort raden eller kolumnen har rätt antal tält. Tryck på siffran för att fylla resten med gräs.'};
+const setMark=m=>{mark=m;document.querySelectorAll('#markSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));$('#markHelp').textContent=MHELP[m];try{localStorage.setItem('talt-mark',m)}catch(e){}if(S)render()};
+document.querySelectorAll('#markSeg button').forEach(b=>b.onclick=()=>setMark(b.dataset.m));
+setMark(mark);
 let saved=null;try{saved=JSON.parse(localStorage.getItem('talt-v1'))}catch(e){}
-if(saved&&saved.n&&saved.cur&&!saved.done){S=saved;build()}
+if(saved&&saved.n&&saved.cur&&!saved.done){S=saved;S.mr=S.mr||Array(S.n).fill(0);S.mc=S.mc||Array(S.n).fill(0);build()}
 else{let n=8;try{n=+localStorage.getItem('talt-n')||8}catch(e){}newGame(NAMES[n]?n:8)}
 }
 </script>
